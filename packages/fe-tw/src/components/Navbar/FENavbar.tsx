@@ -8,7 +8,6 @@ import { FENavbarUserActionsMenu } from "./FENavbarUserActionsMenu";
 
 type Props = {
 	linksForPage: LinkPages;
-	title: string;
 	children: React.ReactElement;
 };
 

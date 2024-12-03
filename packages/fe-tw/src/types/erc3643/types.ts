@@ -1,4 +1,5 @@
-import { EvmAddress } from "@/types/common";
+import type { AvatarSize } from "@/components/Avatars/ReusableAvatar";
+import type { EvmAddress } from "@/types/common";
 
 export type DeployTokenRequest = {
 	name: string;
@@ -7,3 +8,18 @@ export type DeployTokenRequest = {
 	complianceModules: EvmAddress[];
 	complianceSettings: EvmAddress[];
 };
+
+export type BuildingSliceData = {
+    imageSource: string;
+	name: string;
+	allocation: number;
+	timeToEnd: number;
+	estimatedPrice: number;
+}
+
+export type BuildingSliceCategoryData = {
+	name: string;
+	title: string;
+	itemsSize?: AvatarSize;
+	items?: BuildingSliceData[];
+}

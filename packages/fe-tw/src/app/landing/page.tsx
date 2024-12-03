@@ -12,7 +12,7 @@ import FENavbar from "@/components/Navbar/FENavbar";
 export default function Landing() {
 	return (
 		<>
-			<FENavbar linksForPage="regularUser" title="">
+			<FENavbar linksForPage="regularUser">
 				<main>
 					<div className="relative pt-16 pb-32 flex content-center items-center justify-center min-h-screen-75">
 						<div
