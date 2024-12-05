@@ -10,13 +10,11 @@ export const PageBackButton = () => {
     const prevRouteTitle = "Building Explorer";
 
     return (
-        <div className="flex" onClick={() => {
+        <Link href="/" className="flex items-center p-4" onClick={() => {
             back();
         }}>
             <ArrowLeftIcon />
-            <Link href="/" className="text-md ml-2 font-bold">
-              {prevRouteTitle}
-            </Link>
-        </div>
-    )
-}
+            <span className="text-md ml-2 font-bold">{prevRouteTitle}</span>
+        </Link>
+    );
+};
