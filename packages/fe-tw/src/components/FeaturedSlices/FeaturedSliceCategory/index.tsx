@@ -14,7 +14,7 @@ export const FeaturedSliceCategory = (props: BuildingSliceCategoryData) => {
 				</Link>
 			</article>
 			<div className="carousel rounded-box space-x-8 my-2 p-2">
-				{props.items?.map(item => (
+				{props.items?.map((item) => (
 					<div key={item.name} className="flex flex-col">
 						<ReusableAvatar
 							key={item.name}

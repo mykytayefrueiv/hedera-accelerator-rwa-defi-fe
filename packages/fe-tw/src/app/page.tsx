@@ -7,15 +7,15 @@ import { FeaturedSlices } from "@/components/FeaturedSlices";
 import { FeaturedSliceCategories } from "@/components/FeaturedSlices/FeaturedSliceCategories";
 
 export default function Home() {
-    return (
-        <>
-            <article className="prose my-2">
-                <Link href="/dash/featured">
-                    <h2>Featured Slices</h2>
-                </Link>
-            </article>
-            <FeaturedSlices />
-            <FeaturedSliceCategories />
-        </>
-    );
+	return (
+		<>
+			<article className="prose my-2">
+				<Link href="/dash/featured">
+					<h2>Featured Slices</h2>
+				</Link>
+			</article>
+			<FeaturedSlices />
+			<FeaturedSliceCategories />
+		</>
+	);
 }

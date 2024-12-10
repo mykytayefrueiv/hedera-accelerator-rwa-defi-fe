@@ -155,3 +155,4 @@ export const buildingSliceCategories: BuildingSliceCategoryData[] = [
 		itemsSize: "extra-lg",
 	},
 ];
+
