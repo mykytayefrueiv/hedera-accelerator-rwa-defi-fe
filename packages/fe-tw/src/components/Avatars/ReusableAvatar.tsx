@@ -7,10 +7,10 @@ export type AvatarSize = "lg" | "md" | "sm" | "extra-lg";
 type Props = {
 	imageAlt: string;
 	imageSource?: string;
+	isFocusAvailable?: boolean;
 	size?: AvatarSize;
 	isRounded?: boolean;
 	isCircleCorners?: boolean;
-	isFocusAvailable?: boolean;
 	onFocusStateChange?: (state: boolean) => void;
 };
 
@@ -45,9 +45,9 @@ export const ReusableAvatar = ({
 			}}
 		>
 			<div
-				className={`${isRounded ? "rounded" : ""} ${isCircleCorners ? "rounded-full" : ""} ${sizes[size ?? "md"]} ${isFocusAvailable && isFocused ? "ring ring-primary" : ""}`}
+				className={`${isRounded ? "rounded" : ""} ${isCircleCorners ? "rounded-full" : ""} ${sizes[size ?? "md"]} ${isFocused ? "ring ring-primary" : ""}`}
 			>
-				<img src={imageSource ?? "/assets/dome.jpeg"} alt={imageAlt} />
+				<img src={imageSource} alt={imageAlt} />
 			</div>
 		</div>
 	);

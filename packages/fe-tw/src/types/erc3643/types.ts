@@ -1,8 +1,6 @@
 import type { AvatarSize } from "@/components/Avatars/ReusableAvatar";
 import type { EvmAddress } from "@/types/common";
 
-type Timestamp = number;
-
 export type DeployTokenRequest = {
 	name: string;
 	symbol: string;
@@ -15,9 +13,9 @@ export type BuildingSliceData = {
 	imageUrl?: string;
 	description: string,
 	id: number;
+	endsAt: number;
 	name: string;
 	allocation: number;
-	endsAt: number;
 	estimatedPrice: number;
 };
 
