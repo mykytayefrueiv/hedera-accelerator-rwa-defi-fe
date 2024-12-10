@@ -1,4 +1,8 @@
-import type { BuildingData, BuildingSliceCategoryData, BuildingSliceData } from "@/types/erc3643/types";
+import type {
+	BuildingData,
+	BuildingSliceCategoryData,
+	BuildingSliceData,
+} from "@/types/erc3643/types";
 import {
 	type PaymentProposal,
 	ProposalType,
@@ -21,6 +25,7 @@ export const activeProposals: (
 			votesYes: 10,
 			votesNo: 20,
 			propType: ProposalType.TextProposal,
+			imageUrl: '/assets/dome.jpeg',
 		},
 		{
 			id: 2,
@@ -34,6 +39,7 @@ export const activeProposals: (
 			amount: 200,
 			to: "john",
 			propType: ProposalType.PaymentProposal,
+			imageUrl: '/assets/dome.jpeg',
 		},
 		{
 			id: 3,
@@ -50,6 +56,7 @@ export const activeProposals: (
 			numPayments: 5,
 			startPayment: new Date(),
 			propType: ProposalType.RecurringProposal,
+			imageUrl: '/assets/dome.jpeg',
 		},
 		{
 			id: 5,
@@ -61,38 +68,9 @@ export const activeProposals: (
 			votesYes: 10,
 			votesNo: 20,
 			propType: ProposalType.TextProposal,
+			imageUrl: '/assets/dome.jpeg',
 		},
 	];
-
-export const buildingSlices: BuildingSliceData[] = [{
-	imageSource: '/assets/dome.jpeg',
-	name: 'Chicago Highs',
-	estimatedPrice: 50,
-	timeToEnd: 1000000,
-	allocation: 20,
-	id: 1234,
-}, {
-	imageSource: '/assets/dome.jpeg',
-	name: 'Moher Hills',
-	estimatedPrice: 20,
-	timeToEnd: 1000000,
-	allocation: 10,
-	id: 5678,
-}]
-
-export const buildingSliceCategories: BuildingSliceCategoryData[] = [{
-	id: 1234,
-	title: 'Featured Development started in Chicago Highs',
-	name: 'chicago',
-	items: buildingSlices,
-	itemsSize: 'lg',
-}, {
-	id: 5678,
-	title: 'Featured Development started in Hollywood',
-	name: 'hollywood',
-	items: buildingSlices,
-	itemsSize: 'extra-lg',
-}]
 
 export const buildings: BuildingData[] = [{
 	id: 1234,
@@ -105,7 +83,7 @@ export const buildings: BuildingData[] = [{
 			tokenPrice: 8,
 			directExposure: 1600,
 			yield: [{ percentage: 10, days: 50 }, { percentage: 30, days: 100 }],
-			exposure: 6000,
+			treasury: 6000,
 		},
 		demographics: {
 			constructedYear: 2005,
@@ -114,8 +92,8 @@ export const buildings: BuildingData[] = [{
 			locationType: 'Urban',
 		},
 	},
-	votingItems: [],
-	partOfSlices: [5678],
+	votingItems: [1],
+	partOfSlices: [1234, 5678],
 }, {
 	id: 5678,
 	title: 'Green City Apartments - New York',
@@ -124,10 +102,10 @@ export const buildings: BuildingData[] = [{
 	info: {
 		financial: {
 			percentageOwned: 100,
-			tokenPrice: 5,
+			tokenPrice: 10,
 			directExposure: 1500,
 			yield: [{ percentage: 10, days: 50 }, { percentage: 30, days: 100 }],
-			exposure: 5000,
+			treasury: 5000,
 		},
 		demographics: {
 			constructedYear: 1998,
@@ -136,6 +114,44 @@ export const buildings: BuildingData[] = [{
 			locationType: 'Urban',
 		},
 	},
-	votingItems: [],
-	partOfSlices: [1234],
+	votingItems: [1],
+	partOfSlices: [1, 2],
 }]
+
+export const buildingSlices: BuildingSliceData[] = [
+	{
+		imageUrl: "/assets/dome.jpeg",
+		name: "Chicago Highs",
+		estimatedPrice: 50,
+		endsAt: 1733398424098,
+		allocation: 20,
+		id: 1,
+		description: 'Lorem ispum dolor',
+	},
+	{
+		imageUrl: "/assets/dome.jpeg",
+		name: "Moher Hills",
+		estimatedPrice: 20,
+		endsAt: 1733398424098,
+		allocation: 10,
+		id: 2,
+		description: 'Lorem ispum dolor',
+	},
+];
+
+export const buildingSliceCategories: BuildingSliceCategoryData[] = [
+	{
+		id: 1,
+		title: "Featured Development started in Chicago Highs",
+		name: "chicago",
+		items: buildingSlices,
+		itemsSize: "lg",
+	},
+	{
+		id: 2,
+		title: "Featured Development started in Hollywood",
+		name: "hollywood",
+		items: buildingSlices,
+		itemsSize: "extra-lg",
+	},
+];

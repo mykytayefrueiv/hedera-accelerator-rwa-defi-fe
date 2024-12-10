@@ -1,6 +1,8 @@
 import type { AvatarSize } from "@/components/Avatars/ReusableAvatar";
 import type { EvmAddress } from "@/types/common";
 
+type Timestamp = number;
+
 export type DeployTokenRequest = {
 	name: string;
 	symbol: string;
@@ -10,13 +12,14 @@ export type DeployTokenRequest = {
 };
 
 export type BuildingSliceData = {
-	imageSource: string;
+	imageUrl?: string;
 	name: string;
+	description: string,
 	allocation: number;
-	timeToEnd: number;
+	endsAt: Timestamp;
 	estimatedPrice: number;
 	id: number;
-}
+};
 
 export type BuildingSliceCategoryData = {
 	name: string;
@@ -37,7 +40,7 @@ export type BuildingInfo = {
 		tokenPrice: number;
 		directExposure: number;
 		yield: BulidingYield[];
-		exposure: number;
+		treasury: number;
 	},
 	demographics: {
 		constructedYear: number;
