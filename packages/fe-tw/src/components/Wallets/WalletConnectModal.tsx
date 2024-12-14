@@ -4,7 +4,6 @@ import { useWalletInterface } from "@/services/useWalletInterface";
 import { shortEvmAddress } from "@/services/util";
 import { connectToMetamask } from "@/services/wallets/metamask/MetaMaskClient";
 import { openWalletConnectModal } from "@/services/wallets/walletconnect/WalletConnectClient";
-import { Button } from "react-daisyui";
 
 export function WalletConnectModal() {
   const { accountId, walletInterface } = useWalletInterface();
@@ -31,26 +30,29 @@ export function WalletConnectModal() {
       {accountId ? (
         <>
           <div className="line-clamp-1 mx-4">{shortEvmAddress(accountId)}</div>
-          <Button
-            color="primary"
+          <button
+            className="bg-purple-700 text-white px-4 py-2 rounded-full hover:bg-purple-900 transition"
             onClick={() => {
               walletInterface?.disconnect();
               metaMaskCtx.setMetamaskAccountAddress("");
             }}
           >
             Disconnect
-          </Button>
+          </button>
         </>
       ) : (
         <>
-          <Button color="primary" onClick={handleOpenModal}>
+          <button
+            className="bg-purple-700 text-white px-4 py-2 rounded-full hover:bg-purple-900 transition"
+            onClick={handleOpenModal}
+          >
             Connect Wallet
-          </Button>
+          </button>
 
           {isModalOpen && (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-              onClick={handleCloseModal} 
+              onClick={handleCloseModal}
             >
               <div
                 className="bg-white p-6 rounded-lg shadow-lg"
@@ -58,29 +60,32 @@ export function WalletConnectModal() {
               >
                 <h2 className="text-lg font-bold">Connect Wallet</h2>
                 <div className="flex flex-col gap-4 mt-4">
-                  <Button
-                    className="w-60"
-                    color="primary"
+                  <button
+                    className="bg-purple-700 text-white px-4 py-2 rounded-full hover:bg-purple-900 transition w-60"
                     onClick={() => {
                       connectToMetamask();
                       handleCloseModal();
                     }}
                   >
                     MetaMask
-                  </Button>
-                  <Button
-                    className="w-60"
-                    color="primary"
+                  </button>
+                  <button
+                    className="bg-purple-700 text-white px-4 py-2 rounded-full hover:bg-purple-900 transition w-60"
                     onClick={() => {
                       openWalletConnectModal();
                       handleCloseModal();
                     }}
                   >
                     WalletConnect
-                  </Button>
+                  </button>
                 </div>
                 <div className="flex justify-end mt-4">
-                  <Button onClick={handleCloseModal}>Close</Button>
+                  <button
+                    className="bg-gray-200 px-4 py-2 rounded-full hover:bg-gray-300 transition"
+                    onClick={handleCloseModal}
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
             </div>
