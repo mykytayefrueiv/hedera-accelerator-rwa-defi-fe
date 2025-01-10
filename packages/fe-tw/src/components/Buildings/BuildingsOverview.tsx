@@ -7,7 +7,6 @@ import { buildings } from "@/consts/buildings";
 export function BuildingsOverview() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* DaisyUI Breadcrumbs */}
       <div className="breadcrumbs text-sm text-gray-700 mb-4">
         <ul>
           <li>

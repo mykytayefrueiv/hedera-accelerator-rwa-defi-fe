@@ -9,8 +9,5 @@
   "scripts": {
     "dev": "bun run --cwd packages/fe-tw dev",
     "clean": "rm -rf node_modules packages/components/node_modules packages/fe-tw/node_modules bun.lockb packages/components/bun.lockb packages/fe-tw/bun.lockb"
-  },
-  "dependencies": {
-    "@mui/icons-material": "^6.3.1"
   }
 }
