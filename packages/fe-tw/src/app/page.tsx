@@ -1,14 +1,16 @@
 "use client";
 
-import Link from "next/link";
-import { ExplorerView } from "@/components/Explorer";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import "./globals.css";
 
 export default function Home() {
-    return (
-        <div > 
-            <ExplorerView />
-        </div>
-    );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/landing");
+  }, [router]);
+
+  return null; 
 }

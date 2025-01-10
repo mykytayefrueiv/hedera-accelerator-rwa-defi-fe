@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import BuildingLayout from "@/components/Pages/BuildingLayout/BuildingLayout";
+import BuildingLayout from "@/components/Buildings/BuildingLayout/BuildingLayout";
 
 type LayoutProps = {
   children: ReactNode;
