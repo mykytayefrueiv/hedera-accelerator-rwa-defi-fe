@@ -13,11 +13,15 @@
 		"lint": "bunx biome lint --write"
 	},
 	"dependencies": {
+		"@emotion/react": "^11.14.0",
+		"@emotion/styled": "^11.14.0",
 		"@fortawesome/fontawesome-free": "^6.6.0",
 		"@hashgraph/hedera-wallet-connect": "^1.3.4",
 		"@hashgraph/proto": "^2.15.0",
 		"@hashgraph/sdk": "^2.53.0",
 		"@metamask/providers": "^18.1.1",
+		"@mui/icons-material": "^6.3.1",
+		"@mui/material": "^6.3.1",
 		"@popperjs/core": "^2.11.8",
 		"@tailwindcss/forms": "0.2.1",
 		"@tailwindcss/typography": "^0.5.15",
@@ -28,18 +32,18 @@
 		"@walletconnect/sign-client": "^2.17.2",
 		"@walletconnect/utils": "^2.17.2",
 		"@walletconnect/web3wallet": "^1.16.1",
-		"chart.js": "2.9.4",
 		"daisyui": "^4.12.14",
 		"ethers": "^6",
+		"moment": "^2.30.1",
 		"next": "15.0.2",
 		"react": "19.0.0-rc-02c0e824-20241028",
 		"react-daisyui": "^5.0.5",
 		"react-dom": "19.0.0-rc-02c0e824-20241028",
+		"react-hot-toast": "^2.4.1",
 		"react-icons": "^5.4.0",
 		"react-popper": "^2.3.0",
-		"viem": "^2.21.53",
-		"react-hot-toast": "^2.4.1",
-		"recharts": "^2.15.0"
+		"recharts": "^2.15.0",
+		"viem": "^2.21.53"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",

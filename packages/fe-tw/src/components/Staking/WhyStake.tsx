@@ -3,7 +3,7 @@
 import React from "react";
 
 const WhyStake = () => (
-  <div className="bg-gray-100 rounded-lg p-4 mt-6">
+  <div className=" bg-white rounded-lg p-6 border border-gray-300 space-y-4 mt-6">
     <h2 className="text-xl font-bold mb-2">Why Stake?</h2>
     <p className="text-sm">
       When you stake, you earn vTOKENs representing both your ownership and governance rights, enabling you 

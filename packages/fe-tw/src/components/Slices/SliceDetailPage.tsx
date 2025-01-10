@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Allocations from "@/components/Slices/Allocations";
 import Link from "next/link";
+import { ArrowBack } from "@mui/icons-material";
 
 type TokenWithBuilding = {
   tokenAddress: string;
@@ -29,16 +30,22 @@ type ExtendedSliceData = {
 type SliceDetailProps = {
   sliceData: ExtendedSliceData;
   tokensWithBuilding: TokenWithBuilding[];
+  isInBuildingContext?: boolean;
+  buildingId?: string;
 };
 
-export function SliceDetailPage({ sliceData, tokensWithBuilding }: SliceDetailProps) {
+export function SliceDetailPage({
+  sliceData,
+  tokensWithBuilding,
+  isInBuildingContext = false,
+  buildingId,
+}: SliceDetailProps) {
   const [allocations, setAllocations] = useState<TokenWithBuilding[]>(tokensWithBuilding);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  // Demo: set actualAllocation to idealAllocation in the FE
   const handleConfirmRebalance = () => {
     setAllocations((prev) =>
       prev.map((allocation) => ({
@@ -50,7 +57,37 @@ export function SliceDetailPage({ sliceData, tokensWithBuilding }: SliceDetailPr
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-7xl mx-auto space-y-8">
+      {/* Breadcrumbs */}
+      <nav className="flex items-center text-sm text-gray-700">
+        <Link
+          href="/"
+          className="flex items-center text-purple-800 hover:underline"
+        >
+          <ArrowBack fontSize="small" />
+          <span className="ml-2">Explorer</span>
+        </Link>
+        {" / "}
+        {isInBuildingContext && buildingId ? (
+          <>
+            <Link
+              href={`/building/${buildingId}/slices`}
+              className="text-purple-800 hover:underline"
+            >
+              Slices
+            </Link>
+            {" / "}
+          </>
+        ) : (
+          <>
+            <Link href="/slices" className="text-purple-800 hover:underline">
+              Slices
+            </Link>
+            {" / "}
+          </>
+        )}
+        <span className="font-semibold">{sliceData.name}</span>
+      </nav>
 
       <div className="flex flex-col md:flex-row gap-6">
         <div className="md:w-64 md:h-64 w-full h-64">
@@ -76,11 +113,9 @@ export function SliceDetailPage({ sliceData, tokensWithBuilding }: SliceDetailPr
         </div>
       </div>
 
-      <div className="mt-8 bg-white rounded-xl p-6">
+      <div className="bg-white rounded-lg p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">
-            Token Allocations
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800">Token Allocations</h2>
           <button
             className="bg-purple-700 text-white px-4 py-2 rounded-full hover:bg-purple-900 transition"
             onClick={openModal}

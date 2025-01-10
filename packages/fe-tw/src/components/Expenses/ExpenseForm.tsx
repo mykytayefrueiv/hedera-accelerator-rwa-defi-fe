@@ -200,11 +200,13 @@ export function ExpenseForm({ buildingId, onCompleted }: ExpenseFormProps) {
           id="notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="textarea textarea-bordered w-full"
+          className="textarea textarea-bordered w-full max-w-lg"
           placeholder="Optional notes or memo..."
-          rows={3}
+          rows={2}
+          style={{ resize: "vertical", maxHeight: "120px" }}
         />
       </div>
+
 
       <button
         type="submit"

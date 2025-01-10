@@ -1,117 +1,94 @@
 "use client";
 
-import { WalletConnectModal } from "@/components/Wallets/WalletConnectModal";
-import { links } from "@/consts/nav";
-import type { LinkPages, NavbarLinkEntry } from "@/types/nav";
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ToggleBarIcon } from "@/resources/icons/ToggleBarIcon";
-import { NavbarUserActionsMenu } from "./NavbarUserActionsMenu";
+import { WalletConnectModal } from "@/components/Wallets/WalletConnectModal";
+import { NavbarUserActionsMenu } from "@/components/Navbar/NavbarUserActionsMenu";
 
-type Props = {
-  linksForPage: LinkPages;
-  children: React.ReactElement;
-};
+const SITE_LINKS = [
+  { title: "Explorer", url: "/explorer" },
+  { title: "About", url: "/landing" },
+  { title: "Admin", url: "/admin" },
+];
 
-export const Navbar = ({ linksForPage, children }: Props) => {
-  const renderNavbarItem = (link: NavbarLinkEntry, isSidebar = false) => {
-    return (
-      <Link
-        className={`text-xs uppercase py-2 font-bold block ${
-          usePathname().endsWith(link.url)
-            ? "text-slate-400 hover:text-slate-700"
-            : link.title === "+ Building"
-            ? "text-red-600 hover:text-red-700"
-            : "text-slate-700 hover:text-slate-500"
-        }`}
-        href={link.url}
-        key={link.url}
-      >
-        <li
-          {...(isSidebar && {
-            className: "flex flex-row",
-          })}
-        >
-          {isSidebar &&
-            (link.icon ? (
-              <i
-                className={`fas ${
-                  link.icon
-                } mr-2 text-sm ${
-                  usePathname().endsWith(link.url)
-                    ? "opacity-75"
-                    : "text-slate-400"
-                }`}
-              />
-            ) : (
-              <i
-                className={`fas ${
-                  "fa-ticket"
-                } mr-2 text-sm ${
-                  usePathname().endsWith(link.url)
-                    ? "opacity-75"
-                    : "text-slate-400"
-                }`}
-              />
-            ))}
-          <span>{link.title}</span>
-        </li>
-      </Link>
-    );
-  };
+export function Navbar({ children }: { children: React.ReactNode }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className="drawer">
-      <input id="drawer-toggler" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content flex flex-col">
-        {/* Navbar */}
-        <div className="navbar bg-accent w-full shadow-sm">
-          <div className="flex items-center">
+    <div className="min-h-screen flex flex-col">
+      {/* Top Navbar */}
+      <div className="navbar bg-accent w-full px-4 py-2">
+        <div className="flex justify-between items-center w-full">
+          <div className="flex-none">
             <Link
-              href="/landing"
-              className="text-lg font-bold px-4 text-gray-700 hover:text-gray-900"
+              href="/"
+              className="text-lg font-bold text-gray-700 hover:text-gray-900"
             >
               BUILDINGS "R" US
             </Link>
           </div>
-          <div className="flex-none lg:hidden">
-            <label
-              htmlFor="drawer-toggler"
-              aria-label="open sidebar"
+
+          {/* Hamburger Menu for Mobile */}
+          <div className="lg:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="btn btn-square btn-ghost"
+              aria-label="Toggle menu"
             >
-              <ToggleBarIcon />
-            </label>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 6h16M4 12h16m-7 6h7"
+                />
+              </svg>
+            </button>
           </div>
-          <div className="mx-2 flex-1 px-2" />
-          <div className="hidden flex-none lg:block">
-            <ul className="menu menu-horizontal">
-              {links[linksForPage]
-                .filter((linkEntry) => !linkEntry.hideFromNavbar)
-                .map((linkEntry) => renderNavbarItem(linkEntry))}
-            </ul>
-            <ul className="menu menu-horizontal">
-              <NavbarUserActionsMenu />
-            </ul>
+
+          {/* Desktop Links */}
+          <div className="hidden lg:flex items-center gap-6 pr-4">
+            {SITE_LINKS.map((link) => (
+              <Link
+                key={link.url}
+                href={link.url}
+                className="uppercase font-bold text-sm text-gray-700 hover:text-gray-900"
+              >
+                {link.title}
+              </Link>
+            ))}
+            <NavbarUserActionsMenu />
+            <WalletConnectModal />
           </div>
-          <WalletConnectModal />
         </div>
-        {children}
       </div>
 
-      {/* Sidebar */}
-      <div className="drawer-side">
-        <label
-          htmlFor="drawer-toggler"
-          aria-label="close sidebar"
-          className="drawer-overlay"
-        />
-        <ul className="menu bg-base-200 min-h-full w-80 py-8 px-4">
-          {links[linksForPage].map((linkEntry) =>
-            renderNavbarItem(linkEntry, true)
-          )}
-        </ul>
-      </div>
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="lg:hidden mt-2 px-4 space-y-4">
+          <div className="flex flex-col gap-3">
+            {SITE_LINKS.map((link) => (
+              <Link
+                key={link.url}
+                href={link.url}
+                className="text-gray-700 hover:text-gray-900"
+              >
+                {link.title}
+              </Link>
+            ))}
+            <NavbarUserActionsMenu />
+            <WalletConnectModal />
+          </div>
+        </div>
+      )}
+
+      <main className="flex-1 bg-base-100 w-full">{children}</main>
     </div>
   );
-};
+}

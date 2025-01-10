@@ -12,9 +12,10 @@ const config: Config = {
     themes: [
       {
         light: {
-          "primary": "#EADFEA",
+          "primary": "#8839E1", // button color
           "secondary": "#E5E7EB",
-          "accent": "#F8F4FE",
+          "accent": "#F8F4FE", // header and slice color
+          "accent-dark": "#D1D5DB",
           "neutral": "#F3F4F6",
           "base-100": "#FFFFFF",
           "info": "#F3F4F6",
