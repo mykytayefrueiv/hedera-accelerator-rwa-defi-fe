@@ -29,7 +29,10 @@ export function WalletConnectModal() {
     <>
       {accountId ? (
         <>
-          <div className="line-clamp-1 mx-4">{shortEvmAddress(accountId)}</div>
+          {/* Display the connected wallet address in a smaller size */}
+          <div className="line-clamp-1 mx-4 text-black text-sm font-medium">
+            Address: {shortEvmAddress(accountId)}
+          </div>
           <button
             className="bg-purple-700 text-white px-4 py-2 rounded-full hover:bg-purple-900 transition"
             onClick={() => {

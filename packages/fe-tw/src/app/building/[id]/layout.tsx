@@ -1,5 +1,5 @@
-import LayoutClient from "@/components/Pages/LayoutClient/LayoutClient";
 import { ReactNode } from "react";
+import BuildingLayout from "@/components/Pages/BuildingLayout/BuildingLayout";
 
 type LayoutProps = {
   children: ReactNode;
@@ -10,8 +10,8 @@ export default async function Layout({ children, params }: LayoutProps) {
   const { id } = await params;
 
   return (
-    <LayoutClient id={id}>
+    <BuildingLayout id={id}>
       {children}
-    </LayoutClient>
+    </BuildingLayout>
   );
 }

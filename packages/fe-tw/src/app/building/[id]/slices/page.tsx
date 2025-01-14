@@ -16,11 +16,10 @@ export default async function SlicesPage({ params }: Props) {
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">
-        Slices for Building: {building.title}
-      </h1>
-
+    <div className="p-4">
+    <h1 className="text-2xl font-bold mb-4">
+    {building.title}: Slices
+    </h1>
       <SliceCardGrid sliceIds={building.partOfSlices || []} />
     </div>
   );
