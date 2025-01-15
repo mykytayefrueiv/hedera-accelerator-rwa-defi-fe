@@ -58,36 +58,40 @@ export function SliceDetailPage({
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
-      {/* Breadcrumbs */}
-      <nav className="flex items-center text-sm text-gray-700">
-        <Link
-          href="/"
-          className="flex items-center text-purple-800 hover:underline"
-        >
-          <ArrowBack fontSize="small" />
-          <span className="ml-2">Explorer</span>
-        </Link>
-        {" / "}
-        {isInBuildingContext && buildingId ? (
-          <>
+      <div className="breadcrumbs text-sm text-gray-700">
+        <ul className="items-center">
+          <li>
             <Link
-              href={`/building/${buildingId}/slices`}
-              className="text-purple-800 hover:underline"
+              href="/explorer"
+              className="flex items-center text-purple-800 hover:underline"
             >
-              Slices
+              <ArrowBack fontSize="small" />
+              <span className="ml-2">Explorer</span>
             </Link>
-            {" / "}
-          </>
-        ) : (
-          <>
-            <Link href="/slices" className="text-purple-800 hover:underline">
-              Slices
-            </Link>
-            {" / "}
-          </>
-        )}
-        <span className="font-semibold">{sliceData.name}</span>
-      </nav>
+          </li>
+
+          {isInBuildingContext && buildingId ? (
+            <li>
+              <Link
+                href={`/building/${buildingId}/slices`}
+                className="text-purple-800 hover:underline"
+              >
+                Slices
+              </Link>
+            </li>
+          ) : (
+            <li>
+              <Link href="/slices" className="text-purple-800 hover:underline">
+                Slices
+              </Link>
+            </li>
+          )}
+
+          <li>
+            <span className="font-semibold">{sliceData.name}</span>
+          </li>
+        </ul>
+      </div>
 
       <div className="flex flex-col md:flex-row gap-6">
         <div className="md:w-64 md:h-64 w-full h-64">
@@ -140,10 +144,12 @@ export function SliceDetailPage({
                   Location: {item.building.location}
                 </p>
                 <p className="text-sm text-gray-700 mt-2">
-                  <span className="font-semibold">Ideal Allocation:</span> {item.idealAllocation}
+                  <span className="font-semibold">Ideal Allocation:</span>{" "}
+                  {item.idealAllocation}
                 </p>
                 <p className="text-sm text-gray-700">
-                  <span className="font-semibold">Actual Allocation:</span> {item.actualAllocation}
+                  <span className="font-semibold">Actual Allocation:</span>{" "}
+                  {item.actualAllocation}
                 </p>
               </div>
             </Link>
