@@ -2,33 +2,43 @@
 
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { useSlicesData } from "@/hooks/useSlicesData";
 
 export function SliceManagementView() {
+  const [txResult, setTxResult] = useState<string>();
+  const [txError, setTxError] = useState<string>();
   const [formData, setFormData] = useState({
     sliceName: "",
     allocation: "",
     description: "",
   });
 
+  const { handleCreateSlice } = useSlicesData();
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
-      // Mock API Call
+      // TODO: endpoint to push / get slice metadata.
+      const txOrHash = await handleCreateSlice();
+      setTxResult(txOrHash as string);
       toast.success("Slice created successfully");
+
       setFormData({ sliceName: "", allocation: "", description: "" });
     } catch (err) {
-      console.error(err);
+      setTxError((err as unknown as { message: string }).message?.slice(0, 28));
       toast.error("Failed to create slice");
     }
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-6 max-w-8xl mx-auto space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column: Description */}
         <div className="bg-purple-50 p-6 rounded-lg">
@@ -82,10 +92,20 @@ export function SliceManagementView() {
             </div>
             <button
               type="submit"
-              className="btn btn-primary w-full"
+              className="btn btn-primary w-full md:w-4/12"
             >
               Create Slice
             </button>
+            {txResult && <div className="flex">
+              <p className="text-sm font-bold text-purple-600">
+                Deployed Tx Hash: {txResult}
+              </p>
+            </div>}
+            {txError && <div className="flex">
+              <p className="text-sm font-bold text-purple-600">
+                Deployed Tx Error: {txError}
+              </p>
+            </div>}
           </form>
         </div>
       </div>

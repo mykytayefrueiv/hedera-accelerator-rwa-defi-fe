@@ -74,4 +74,8 @@ export type VotingItem = {
 	startDate: string;
 	endDate: string;
 	userHasVoted: boolean;
-  };
+};
+
+export type QueryData<ArgType> = {
+	args: ArgType;
+};
