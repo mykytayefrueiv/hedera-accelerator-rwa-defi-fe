@@ -2,18 +2,18 @@
 
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { useSlices } from "@/hooks/useSlices";
+import { useSlicesData } from "@/hooks/useSlicesData";
 
 export function SliceManagementView() {
-  const [txResult, setTxResult] = useState<string>("0x123123123123123123123123123123123123123123123")
-  const [txError, setTxError] = useState<string>()
+  const [txResult, setTxResult] = useState<string>();
+  const [txError, setTxError] = useState<string>();
   const [formData, setFormData] = useState({
     sliceName: "",
     allocation: "",
     description: "",
   });
 
-  const { handleCreateSlice } = useSlices('');
+  const { handleCreateSlice } = useSlicesData();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -25,6 +25,7 @@ export function SliceManagementView() {
     e.preventDefault();
 
     try {
+      // TODO: endpoint to push / get slice metadata.
       const txOrHash = await handleCreateSlice();
       setTxResult(txOrHash as string);
       toast.success("Slice created successfully");
@@ -96,12 +97,14 @@ export function SliceManagementView() {
               Create Slice
             </button>
             {txResult && <div className="flex">
-              <p className="text-sm text-sky-700">
-                Tx result: {txResult}
+              <p className="text-sm font-bold text-purple-600">
+                Deployed Tx Result: {txResult}
               </p>
             </div>}
             {txError && <div className="flex">
-              {txError}
+              <p className="text-sm font-bold text-purple-600">
+                Deployed Tx Error: {txError}
+              </p>
             </div>}
           </form>
         </div>
