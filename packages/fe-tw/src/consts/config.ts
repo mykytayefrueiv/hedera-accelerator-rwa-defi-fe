@@ -11,4 +11,5 @@ export const appConfig = {
 		mirrorNodeUrl: "https://testnet.mirrornode.hedera.com",
 		chainId: "0x128",
 	},
+	pinataDomainUrl: process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL,
 };

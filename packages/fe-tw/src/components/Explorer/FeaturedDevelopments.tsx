@@ -22,12 +22,12 @@ export function FeaturedDevelopments({
 }: FeaturedDevelopmentsProps) {
   return (
     <>
-      <Link href="/dash/featured">
-        <h2 className="text-xl font-bold cursor-pointer">
+      <Link href="/dash">
+        <h2 className="text-xl font-bold mb-6 cursor-pointer">
           Featured upcoming developments in {selectedSliceName} →
         </h2>
       </Link>
-      <div className="flex overflow-x-auto space-x-4 mt-6 p-2">
+      <div className="flex overflow-x-auto space-x-4 p-2">
         {developments.map((development) => (
           <div
             key={development.id}

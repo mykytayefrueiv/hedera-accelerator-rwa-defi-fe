@@ -1,3 +1,5 @@
+"use client";
+
 import { BuildingData } from "@/types/erc3643/types";
 import { BuildingDetailInfo } from "./BuildingDetailInfo";
 import { BuildingBaseInfo } from "./BuildingBaseInfo";
@@ -7,10 +9,14 @@ import { BuildingVotings } from "./BuildingVotings";
 export const BuildingDetailPage = (props: BuildingData) => {
   return (
     <div className="flex flex-col space-y-8 px-6 sm:px-8 md:px-12 lg:px-16 py-6 mx-auto max-w-screen-xl">
-        <BuildingBaseInfo {...props} />
-        <BuildingDetailInfo {...props.info} />
+      <BuildingBaseInfo {...props} />
+      <BuildingDetailInfo {...props.info} />
+      {props.votingItems.length > 0 && (
         <BuildingVotings votings={props.votingItems} />
+      )}
+      {props.partOfSlices.length > 0 && (
         <BuildingSlices slices={props.partOfSlices} />
+      )}
     </div>
   );
 };
