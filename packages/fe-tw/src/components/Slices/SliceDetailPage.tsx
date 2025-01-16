@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Allocations from "@/components/Slices/Allocations";
+import { SliceData } from "@/types/erc3643/types";
 import Link from "next/link";
 import { ArrowBack } from "@mui/icons-material";
 
@@ -17,11 +18,7 @@ type TokenWithBuilding = {
   actualAllocation: string;
 };
 
-type ExtendedSliceData = {
-  id: number;
-  name: string;
-  description?: string;
-  imageUrl?: string;
+interface ExtendedSliceData extends SliceData {
   sliceValuation?: number;
   tokenPrice?: number;
   userBalance?: number;
@@ -109,7 +106,7 @@ export function SliceDetailPage({
           )}
 
           <div className="bg-white rounded-lg p-4">
-            <h2 className="text-xl font-semibold mb-2">Slice Info</h2>
+            <h2 className="text-2xl font-semibold mb-2">Slice Info</h2>
             <p className="mb-1">Slice Valuation: ${sliceData.sliceValuation ?? "-"}</p>
             <p className="mb-1">Token Price: ${sliceData.tokenPrice ?? "-"}</p>
             <p>Your Balance: {sliceData.userBalance ?? 0} tokens</p>
@@ -119,7 +116,7 @@ export function SliceDetailPage({
 
       <div className="bg-white rounded-lg p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Token Allocations</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Slice Token Allocations</h2>
           <button
             className="bg-purple-700 text-white px-4 py-2 rounded-full hover:bg-purple-900 transition"
             onClick={openModal}
