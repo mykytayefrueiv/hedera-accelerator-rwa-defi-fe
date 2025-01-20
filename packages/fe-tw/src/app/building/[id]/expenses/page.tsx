@@ -1,5 +1,5 @@
 import { ExpensesView } from "@/components/Expenses/ExpensesView";
-import { buildings } from "@/consts/buildings";
+import { useBuildings } from "@/hooks/useBuildings";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -8,13 +8,13 @@ type Props = {
 
 export default async function ExpensesPage({ params }: Props) {
   const { id } = await params;
-  const buildingId = parseInt(id, 10);
-  const building = buildings.find((b) => b.id === buildingId);
+  const { buildings } = useBuildings();
+  const building = buildings.find((b) => b.id === id);
 
   if (!building) {
     notFound();
   }
-  
+
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">

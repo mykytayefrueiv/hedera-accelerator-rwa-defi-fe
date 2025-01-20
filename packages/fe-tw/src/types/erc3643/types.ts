@@ -59,6 +59,7 @@ export type BuildingInfo = {
 export type BuildingData = {
 	id: string | number;
 	title: string;
+	address: string;
 	purchasedAt: number;
 	description: string;
 	info: BuildingInfo;
@@ -67,6 +68,11 @@ export type BuildingData = {
 	imageUrl?: string;
 	allocation: number;
 	copeIpfsHash?: string;
+}
+
+export type BuildingNFT = {
+	addr: string;
+	tokenURI: string;
 }
 
 export type VotingItem = {
@@ -79,7 +85,7 @@ export type VotingItem = {
 };
 
 export type QueryData<ArgType> = {
-	args: ArgType
+	args: ArgType;
 }
 
 export type BuildingNFTAttribute = {
@@ -89,11 +95,12 @@ export type BuildingNFTAttribute = {
 }
 
 export type BuildingNFTData = {
-	description: string,
-	image: string,
-	name: string,
-	allocation: number,
-	purchasedAt: number,
-	attributes: BuildingNFTAttribute[]
-	copeIpfsHash: string,
+	description: string;
+	image: string;
+	name: string;
+	address: string;
+	allocation: number;
+	purchasedAt: number;
+	attributes: BuildingNFTAttribute[];
+	copeIpfsHash: string;
 }

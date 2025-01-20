@@ -1,5 +1,5 @@
-import { PaymentsView} from "@/components/Payments/PaymentsView";
-import { buildings } from "@/consts/buildings";
+import { PaymentsView } from "@/components/Payments/PaymentsView";
+import { useBuildings } from "@/hooks/useBuildings";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -8,8 +8,8 @@ type Props = {
 
 export default async function PaymentsPage({ params }: Props) {
   const { id } = await params;
-  const buildingId = parseInt(id, 10);
-  const building = buildings.find((b) => b.id === buildingId);
+  const { buildings } = useBuildings();
+  const building = buildings.find((b) => b.id === id);
 
   if (!building) {
     notFound();

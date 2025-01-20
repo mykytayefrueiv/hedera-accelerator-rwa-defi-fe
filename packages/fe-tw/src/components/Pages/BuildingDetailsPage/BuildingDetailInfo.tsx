@@ -19,9 +19,9 @@ export const BuildingDetailInfo = (props: BuildingInfo) => {
         )}
         <p>
           Yield:{" "}
-          {financial.yield?.map((yi) => (
-            <span key={yi.percentage}>
-              {"\n"} {yi.percentage}% ({yi.days} days)
+          {financial.yield?.map((_yield) => (
+            <span key={_yield.percentage}>
+              {"\n"} {_yield.percentage}% ({_yield.days} days)
             </span>
           ))}
         </p>

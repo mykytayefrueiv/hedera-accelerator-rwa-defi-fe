@@ -1,12 +1,14 @@
+"use client";
+
 import { useState, useEffect } from "react";
 
-import { watchContractEvent } from "../services/contracts/watchContractEvent";
 import { useReadContract } from "@buidlerlabs/hashgraph-react-wallets";
-import { buildingFactoryAddress } from "../services/contracts/addresses";
-import { buildingFactoryAbi } from "../services/contracts/abi/buildingFactoryAbi";
-import { BuildingData, BuildingNFTAttribute, BuildingNFTData, QueryData } from "@/types/erc3643/types";
+import { buildingFactoryAddress } from "@/services/contracts/addresses";
+import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
+import { BuildingData, BuildingNFT, BuildingNFTAttribute, BuildingNFTData, QueryData } from "@/types/erc3643/types";
 import { buildingFinancialMock } from "@/consts/buildings";
 import { appConfig } from "@/consts/config";
+import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 
 /**
  * Fetching building NFT metadata from Pinata cloud
@@ -43,6 +45,7 @@ const convertBuildingNFTsData = (buildingNFTsData: BuildingNFTData[]): BuildingD
         partOfSlices: [],
         allocation: data.allocation,
         purchasedAt: data.purchasedAt,
+        address: data.address,
         info: {
             // todo: Use real financial data.
             financial: buildingFinancialMock,
@@ -64,6 +67,33 @@ export function useBuildings() {
 
     const { readContract } = useReadContract();
 
+    const requestBuildingNFTsData = async () => {
+        const buildingAddressesProxies = await Promise.all(
+            buildingsAddresses
+                .filter(address => !buildings.find(build => build.address === address))
+                .map((address) => readContract({
+                    abi: buildingFactoryAbi,
+                    address: buildingFactoryAddress,
+                    functionName: 'getBuildingDetails',
+                    args: [address],
+                }))
+        );
+
+        if (buildingAddressesProxies.every(build => !!build)) {
+            const buildingNFTsData = await Promise.all(buildingAddressesProxies.map(build => fetchBuildingNFTMetadata((build as { tokenURI: string })?.tokenURI)));
+
+            setBuildings(convertBuildingNFTsData(buildingNFTsData.map((data, id) => ({
+                ...data,
+                address: (buildingAddressesProxies[id] as BuildingNFT)?.addr,
+                copeIpfsHash: (buildingAddressesProxies[id] as BuildingNFT)?.tokenURI?.replace(`${appConfig.pinataDomainUrl}/ipfs/`, ''),
+            }))));
+        }
+    };
+
+    useEffect(() => {
+        requestBuildingNFTsData();
+    }, [buildingsAddresses]);
+
     watchContractEvent({
         address: buildingFactoryAddress,
         abi: buildingFactoryAbi,
@@ -76,31 +106,5 @@ export function useBuildings() {
         },
     });
 
-    const requestBuildingNFTsData = async () => {
-        const buildingAddressesProxies = await Promise.all(buildingsAddresses.map((address) => readContract({
-            abi: buildingFactoryAbi,
-            address: buildingFactoryAddress,
-            functionName: 'getBuildingDetails',
-            args: [address],
-        })));
-        console.log('buildingAddressesProxies', buildingAddressesProxies)
-        const buildingTokenUrls = buildingAddressesProxies.map(data => (data as { tokenURI: string })?.tokenURI);
-
-        if (buildingTokenUrls.every(url => !!url)) {
-            const buildingNFTsData = await Promise.all(buildingTokenUrls.map(tokenUrl => fetchBuildingNFTMetadata(tokenUrl)));
-
-            setBuildings(convertBuildingNFTsData(buildingNFTsData.map((data, id) => ({
-                ...data,
-                copeIpfsHash: buildingTokenUrls[id].replace(`${appConfig.pinataDomainUrl}/ipfs/`, ''),
-            }))));
-        }
-    };
-
-    useEffect(() => {
-        requestBuildingNFTsData();
-    }, [buildingsAddresses]);
-
-    return {
-        buildings,
-    };
+    return { buildings };
 }

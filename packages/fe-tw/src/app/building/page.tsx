@@ -1,7 +1,11 @@
-import { buildings } from "@/consts/buildings";
+"use client";
+
 import Link from "next/link";
+import { useBuildings } from "@/hooks/useBuildings";
 
 export default function BuildingIndexPage() {
+  const { buildings } = useBuildings();
+
   return (
     <div>
       <h1>All Buildings</h1>
