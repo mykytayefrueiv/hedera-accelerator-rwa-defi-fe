@@ -1,165 +1,113 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { WalletConnectModalRW } from "@/components/Wallets/WalletConnectModalRW";
+import { links } from "@/consts/nav";
+import { ToggleBarIcon } from "@/resources/icons/ToggleBarIcon";
+import type { LinkPages, NavbarLinkEntry } from "@/types/nav";
 import Link from "next/link";
-import { WalletConnectModal } from "@/components/Wallets/WalletConnectModal";
-import { NavbarUserActionsMenu } from "@/components/Navbar/NavbarUserActionsMenu";
+import { usePathname } from "next/navigation";
+import { NavbarUserActionsMenu } from "./NavbarUserActionsMenu";
 
-const SITE_LINKS = [
-  { title: "FAQ", url: "/faq" },
-  { title: "Admin", url: "/admin" },
-];
+type Props = {
+	linksForPage: LinkPages;
+	children: React.ReactElement;
+};
 
-export function Navbar({ children }: { children: React.ReactNode }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const explorerDetailsRef = useRef<HTMLDetailsElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      const detailsEl = explorerDetailsRef.current;
-      if (detailsEl && detailsEl.hasAttribute("open")) {
-        if (!detailsEl.contains(event.target as Node)) {
-          detailsEl.removeAttribute("open");
-        }
-      }
-    }
-
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
+export const Navbar = ({ linksForPage, children }: Props) => {
+	const renderNavbarItem = (link: NavbarLinkEntry, isSidebar = false) => {
+		return (
+			<Link
+				className={`text-xs uppercase py-2 font-bold block ${
+					usePathname().endsWith(link.url)
+						? "text-slate-400 hover:text-slate-700"
+						: link.title === "+ Building"
+							? "text-red-600 hover:text-red-700"
+							: "text-slate-700 hover:text-slate-500"
+				}`}
+				href={link.url}
+				key={link.url}
+			>
+				<li
+					{...(isSidebar && {
+						className: "flex flex-row",
+					})}
+				>
+					{isSidebar &&
+						(link.icon ? (
+							<i
+								className={`fas ${link.icon} mr-2 text-sm ${
+									usePathname().endsWith(link.url)
+										? "opacity-75"
+										: "text-slate-400"
+								}`}
+							/>
+						) : (
+							<i
+								className={`fas ${"fa-ticket"} mr-2 text-sm ${
+									usePathname().endsWith(link.url)
+										? "opacity-75"
+										: "text-slate-400"
+								}`}
+							/>
+						))}
+					<span>{link.title}</span>
+				</li>
+			</Link>
+		);
+	};
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Top Navbar */}
-      <div className="navbar bg-accent w-full px-4 py-2 relative z-50">
-        <div className="flex justify-between items-center w-full">
-          <div className="flex-none">
+    <div className="drawer">
+      <input id="drawer-toggler" type="checkbox" className="drawer-toggle" />
+      <div className="drawer-content flex flex-col">
+        {/* Navbar */}
+        <div className="navbar bg-accent w-full shadow-sm">
+          <div className="flex items-center">
             <Link
-              href="/explorer"
-              className="text-lg font-bold text-gray-700 hover:text-gray-900"
+              href="/landing"
+              className="text-lg font-bold px-4 text-gray-700 hover:text-gray-900"
             >
               BUILDINGS "R" US
             </Link>
           </div>
-
-          {/* Hamburger Menu (mobile) */}
-          <div className="lg:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+          <div className="flex-none lg:hidden">
+            <label
+              htmlFor="drawer-toggler"
+              aria-label="open sidebar"
               className="btn btn-square btn-ghost"
-              aria-label="Toggle menu"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 6h16M4 12h16m-7 6h7"
-                />
-              </svg>
-            </button>
+              <ToggleBarIcon />
+            </label>
           </div>
-
-          <div className="hidden lg:flex items-center gap-6 pr-4">
-            <details ref={explorerDetailsRef} className="group relative">
-              <summary
-                className="
-                  uppercase font-bold text-sm text-gray-700 hover:text-gray-900 
-                  list-none cursor-pointer flex items-center
-                "
-              >
-                Explorer
-
-                <svg
-                  className="ml-1 w-4 h-4 text-gray-600 group-hover:text-gray-800"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M5.23 7.21a.75.75 0 011.06.02L10 11.0l3.71-3.78a.75.75 0 011.08 1.04l-4.25 4.33a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" />
-                </svg>
-              </summary>
-
-              <ul
-                className="
-                  menu p-2 bg-white text-black rounded absolute
-                  top-full left-0 mt-2 w-48
-                  opacity-0 pointer-events-none
-                  group-open:opacity-100 group-open:pointer-events-auto
-                  transition-all
-                "
-              >
-                <li>
-                  <Link href="/explorer">Featured</Link>
-                </li>
-                <li>
-                  <Link href="/building">Buildings</Link>
-                </li>
-                <li>
-                  <Link href="/slices">Slices</Link>
-                </li>
-              </ul>
-            </details>
-
-            {SITE_LINKS.map((link) => (
-              <Link
-                key={link.url}
-                href={link.url}
-                className="uppercase font-bold text-sm text-gray-700 hover:text-gray-900"
-              >
-                {link.title}
-              </Link>
-            ))}
-
-            <NavbarUserActionsMenu />
-            <WalletConnectModal />
+          <div className="mx-2 flex-1 px-2" />
+          <div className="hidden flex-none lg:block">
+            <ul className="menu menu-horizontal">
+              {links[linksForPage]
+                .filter((linkEntry) => !linkEntry.hideFromNavbar)
+                .map((linkEntry) => renderNavbarItem(linkEntry))}
+            </ul>
+            <ul className="menu menu-horizontal">
+              <NavbarUserActionsMenu />
+            </ul>
           </div>
+          <WalletConnectModalRW />
         </div>
+        {children}
       </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="lg:hidden mt-2 px-4 space-y-4">
-          <div className="flex flex-col gap-3">
-            <details>
-              <summary className="uppercase font-bold text-sm text-gray-700 hover:text-gray-900">
-                Explorer
-              </summary>
-              <ul className="pl-4 mt-1 space-y-1 text-black">
-                <li>
-                  <Link href="/explorer">Explorer Home</Link>
-                </li>
-                <li>
-                  <Link href="/building">Buildings</Link>
-                </li>
-                <li>
-                  <Link href="/slices">Slices</Link>
-                </li>
-              </ul>
-            </details>
-
-            {SITE_LINKS.map((link) => (
-              <Link
-                key={link.url}
-                href={link.url}
-                className="text-gray-700 hover:text-gray-900"
-              >
-                {link.title}
-              </Link>
-            ))}
-
-            <NavbarUserActionsMenu />
-            <WalletConnectModal />
-          </div>
-        </div>
-      )}
-
-      <main className="flex-1 bg-base-100 w-full">{children}</main>
+      {/* Sidebar */}
+      <div className="drawer-side">
+        <label
+          htmlFor="drawer-toggler"
+          aria-label="close sidebar"
+          className="drawer-overlay"
+        />
+        <ul className="menu bg-base-200 min-h-full w-80 py-8 px-4">
+          {links[linksForPage].map((linkEntry) =>
+            renderNavbarItem(linkEntry, true)
+          )}
+        </ul>
+      </div>
     </div>
   );
-}
+};
