@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { useSlicesData } from "@/hooks/useSlicesData";
+import { useCreateSlice } from "@/hooks/useCreateSlice";
 
 export function SliceManagementView() {
   const [txResult, setTxResult] = useState<string>();
@@ -13,7 +13,7 @@ export function SliceManagementView() {
     description: "",
   });
 
-  const { handleCreateSlice } = useSlicesData();
+  const { handleCreateSlice } = useCreateSlice();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -27,7 +27,7 @@ export function SliceManagementView() {
     try {
       // TODO: endpoint to push / get slice metadata.
       const txOrHash = await handleCreateSlice();
-      setTxResult(txOrHash as string);
+      setTxResult((txOrHash as { transaction_hash: string })?.transaction_hash);
       toast.success("Slice created successfully");
 
       setFormData({ sliceName: "", allocation: "", description: "" });
