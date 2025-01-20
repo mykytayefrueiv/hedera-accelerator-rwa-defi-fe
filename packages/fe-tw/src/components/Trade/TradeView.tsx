@@ -45,21 +45,21 @@ export default function TradeView() {
   return (
     <div className="mt-8 flex flex-col gap-8 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row gap-8">
-        <TradePortfolio
+        {/** <TradePortfolio
           usdcBalance={usdcBalance}
           usdcChangePercentage={usdcChangePercentage}
           tokenBalance={tokenBalance}
           tokenUsdValue={tokenUsdValue}
           tokenChangePercentage={tokenChangePercentage}
-        />
+        /> **/}
         <TradeForm />
       </div>
-      <ProfitGraph
+      {/** <ProfitGraph
         profitDataDaily={profitDataDaily}
         profitDataWeekly={profitDataWeekly}
         profitDataMonthly={profitDataMonthly}
         profitDataYearly={profitDataYearly}
-      />
+      /> **/}
     </div>
   );
 }

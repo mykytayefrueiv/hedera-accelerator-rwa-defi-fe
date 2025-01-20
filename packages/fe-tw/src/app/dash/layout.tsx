@@ -13,19 +13,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
 	children,
-  }: Readonly<{
+}: Readonly<{
 	children: React.ReactNode;
-  }>) {
+}>) {
 	return (
-	  <>
-		<Navbar>
-		  <div className="relative bg-slate-100">
-			<HeaderStats />
-			<div className="px-4 md:px-10 mx-auto w-full -m-24">{children}</div>
-		  </div>
-		</Navbar>
-		<FooterAdmin />
-	  </>
+		<>
+			<Navbar linksForPage="regularUser">
+				<div className="relative bg-slate-100">
+					<HeaderStats />
+					<div className="px-4 md:px-10 mx-auto w-full -m-24">{children}</div>
+				</div>
+			</Navbar>
+			<FooterAdmin />
+		</>
 	);
-  }
-  
+}
+
