@@ -8,16 +8,24 @@ import { SlicesCarousel } from "./SlicesCarousel";
 import { BuildingsCarousel } from "./BuildingsCarousel";
 
 export function ExplorerView() {
-  const { slices, featuredDevelopments, singleSliceBuildings, multiSliceBuildings, selectedSlice, setSelectedSlice } = useExplorerData();
+  const {
+    slices,
+    featuredDevelopments,
+    buildings,
+    multiSliceBuildings,
+    singleSliceBuildings,
+    selectedSlice,
+    setSelectedSlice
+  } = useExplorerData();
 
   return (
     <div className="max-w-screen-xl mx-auto px-8 md:px-12 lg:px-20">
       <Link href={`/slices`}>
-                <h2 className="text-lg font-semibold mt-8">
-                  Featured Slices →
-                </h2>
-              </Link>
-              <br></br>
+        <h2 className="text-xl font-bold mt-8">
+          Featured Slices →
+        </h2>
+      </Link>
+      <br />
       <SlicesCarousel
         slices={slices}
         selectedSlice={selectedSlice}
@@ -25,27 +33,43 @@ export function ExplorerView() {
       />
 
       {selectedSlice && (
-        <div className="mt-6">
+        <div className="mt-8">
           <FeaturedDevelopments
             selectedSliceName={selectedSlice.name}
             developments={featuredDevelopments}
           />
 
-          <Link href={`/slices/${slugify(selectedSlice.name)}`}>
-            <h2 className="text-xl font-bold mt-8 cursor-pointer">
-              {selectedSlice.name} Slice →
-            </h2>
-          </Link>
-          <BuildingsCarousel buildings={singleSliceBuildings} />
-
-          {multiSliceBuildings && multiSliceBuildings.buildings?.length > 0 && (
+          {(singleSliceBuildings?.length ?? 0) > 0 && (
             <>
               <Link href={`/slices/${slugify(selectedSlice.name)}`}>
-                <h2 className="text-lg font-semibold mt-8">
-                  {selectedSlice.name} + {multiSliceBuildings.sliceName} Slice →
+                <h2 className="text-xl font-bold mt-8 cursor-pointer">
+                  {selectedSlice.name} Slice →
                 </h2>
               </Link>
-              <BuildingsCarousel buildings={multiSliceBuildings.buildings} />
+              <br />
+              <BuildingsCarousel buildings={singleSliceBuildings} />
+            </>
+          )}
+
+          {(multiSliceBuildings?.buildings?.length ?? 0) > 0 && (
+            <>
+              <Link href={`/slices/${slugify(selectedSlice.name)}`}>
+                <h2 className="text-xl font-semibold mt-8">
+                  {selectedSlice.name} + {multiSliceBuildings?.sliceName} Slice →
+                </h2>
+              </Link>
+              <br />
+              <BuildingsCarousel buildings={multiSliceBuildings?.buildings ?? []} />
+            </>
+          )}
+
+          {(buildings?.length ?? 0) > 0 && (
+            <>
+              <Link href="/building">
+                <h2 className="text-xl font-bold mt-8 cursor-pointer">All Buildings</h2>
+              </Link>
+              <br />
+              <BuildingsCarousel buildings={buildings} />
             </>
           )}
         </div>

@@ -1,5 +1,5 @@
 import { CopeView } from "@/components/Cope/CopeView";
-import { buildings } from "@/consts/buildings";
+import { useBuildings } from "@/hooks/useBuildings";
 import { notFound } from "next/navigation";
 
 // TODO: replace mock admin check function
@@ -13,8 +13,8 @@ type Props = {
 
 export default async function CopePage({ params }: Props) {
   const { id } = await params;
-  const buildingId = parseInt(id, 10);
-  const building = buildings.find((b) => b.id === buildingId);
+  const { buildings } = useBuildings();
+  const building = buildings.find((b) => b.id === id);
 
   if (!building) {
     notFound();

@@ -34,23 +34,26 @@ type BulidingYield = {
 
 export type BuildingInfo = {
 	financial: {
-		percentageOwned: number,
-		tokenPrice: number;
-		directExposure: number;
-		yield: BulidingYield[];
-		treasury: number;
+		percentageOwned?: number,
+		tokenPrice?: number;
+		directExposure?: number;
+		yield?: BulidingYield[];
+		treasury?: number;
 	},
 	demographics: {
-		constructedYear: number;
-		type: string;
-		location: string;
-		locationType: string;
+		constructedYear?: string | number;
+		type?: string | number;
+		size?: string | number;
+		state?: string | number;
+		location?: string | number;
+		locationType?: string | number;
 	};
 }
 
 export type BuildingData = {
-	id: number;
+	id: string | number;
 	title: string;
+	address: string;
 	purchasedAt: number;
 	description: string;
 	info: BuildingInfo;
@@ -59,6 +62,11 @@ export type BuildingData = {
 	imageUrl?: string;
 	allocation: number;
 	copeIpfsHash?: string;
+}
+
+export type BuildingNFT = {
+	addr: string;
+	tokenURI: string;
 }
 
 export type VotingItem = {
@@ -73,3 +81,20 @@ export type VotingItem = {
 export type QueryData<ArgType> = {
 	args: ArgType;
 };
+
+export type BuildingNFTAttribute = {
+	display_type: string,
+	trait_type: string,
+	value: string | number
+}
+
+export type BuildingNFTData = {
+	description: string;
+	image: string;
+	name: string;
+	address: string;
+	allocation: number;
+	purchasedAt: number;
+	attributes: BuildingNFTAttribute[];
+	copeIpfsHash: string;
+}

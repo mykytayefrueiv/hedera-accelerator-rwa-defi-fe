@@ -1,9 +1,11 @@
 import { useState, useMemo } from "react";
-import { getExplorerData } from "@/services/explorerService";
+import { useBuildings } from "./useBuildings";
 import { getSliceTags, buildingMatchesSlice, getBuildingTags, tokenize } from "@/utils/tagFilters";
+import { getExplorerData } from "@/services/explorerService";
 
 export function useExplorerData() {
-  const { slices, buildings, featuredDevelopments } = getExplorerData(); 
+  const { slices, featuredDevelopments } = getExplorerData();
+  const { buildings } = useBuildings();
 
   const [selectedSlice, setSelectedSlice] = useState(slices[0]);
 
@@ -18,7 +20,7 @@ export function useExplorerData() {
 
   // single slice buildings
   const singleSliceBuildings = useMemo(() => {
-    return buildings.filter(b => buildingMatchesSlice(getBuildingTags(b), selectedSliceTags));
+    return buildings.filter(b => b.partOfSlices.includes(selectedSlice.id));
   }, [buildings, selectedSliceTags]);
 
   // multi-slice logic with rand
@@ -30,18 +32,23 @@ export function useExplorerData() {
 
   const randomSliceTags = useMemo(() => (randomSlice ? getSliceTags(randomSlice.name) : []), [randomSlice]);
 
-  const combinedBuildings = useMemo(() => {
+  const multiSliceBuildings = useMemo(() => {
     if (!randomSlice) return null;
+
     const combinedTags = [...selectedSliceTags, ...randomSliceTags];
-    const blds = buildings.filter(b => buildingMatchesSlice(getBuildingTags(b), combinedTags));
-    return { sliceName: randomSlice.name, buildings: blds };
+
+    return {
+      sliceName: randomSlice.name,
+      buildings: buildings.filter(b => buildingMatchesSlice(getBuildingTags(b), combinedTags)),
+    };
   }, [randomSlice, selectedSliceTags, randomSliceTags, buildings]);
 
   return {
     slices,
     featuredDevelopments: filteredDevelopments,
     singleSliceBuildings,
-    multiSliceBuildings: combinedBuildings,
+    multiSliceBuildings,
+    buildings,
     selectedSlice,
     setSelectedSlice
   };

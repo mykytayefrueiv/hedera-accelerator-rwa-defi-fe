@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { buildings } from "@/consts/buildings";
+import { useBuildings } from "@/hooks/useBuildings";
 import SliceCardGrid from "@/components/Slices/SliceCardGrid";
 
 type Props = {
@@ -8,8 +8,8 @@ type Props = {
 
 export default async function SlicesPage({ params }: Props) {
   const { id } = await params;
-  const buildingId = parseInt(id, 10);
-  const building = buildings.find((b) => b.id === buildingId);
+  const { buildings } = useBuildings();
+  const building = buildings.find((b) => b.id === id);
 
   if (!building) {
     notFound();

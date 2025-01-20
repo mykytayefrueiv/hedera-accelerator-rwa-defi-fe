@@ -1,5 +1,5 @@
 import { ProposalsView } from "@/components/Proposals/ProposalsView";
-import { buildings } from "@/consts/buildings";
+import { useBuildings } from "@/hooks/useBuildings";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -8,13 +8,13 @@ type Props = {
 
 
 export default async function ProposalsPage({ params }: Props) {
-    const { id } = await params;
-    const buildingId = parseInt(id, 10);
-    const building = buildings.find((b) => b.id === buildingId);
-  
-    if (!building) {
-      notFound();
-    }
+  const { id } = await params;
+  const { buildings } = useBuildings();
+  const building = buildings.find((b) => b.id === id);
+
+  if (!building) {
+    notFound();
+  }
 
   return (
     <div className="p-4">
