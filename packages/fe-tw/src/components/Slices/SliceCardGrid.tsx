@@ -4,19 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import moment from "moment";
 import { slugify } from "@/utils/slugify";
-import { buildingSlices } from "@/consts/slices";
+import { useSlicesData } from "@/hooks/useSlicesData";
 
 type SliceCardGridProps = {
-  sliceIds: number[];
+  sliceIds: string[];
 };
 
 export default function SliceCardGrid({ sliceIds }: SliceCardGridProps) {
   const pathname = usePathname();
-  const buildingId = pathname.split("/")[2]; 
+  const buildingId = pathname.split("/")[2];
+  const { slices } = useSlicesData();
 
-  const relevantSlices = buildingSlices.filter((slice) =>
-    sliceIds.includes(slice.id)
-  );
+  const relevantSlices = slices.filter((slice) => sliceIds.includes(slice.id));
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">

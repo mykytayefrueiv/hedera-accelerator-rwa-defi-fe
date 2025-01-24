@@ -12,25 +12,19 @@ export type DeployTokenRequest = {
 export type SliceData = {
 	imageUrl?: string;
 	name: string;
-	id: number;
+	id: string;
+	timeToEnd?: number;
 	description?: string;
+	allocation?: number;
+	estimatedPrice?: number;
 }
-
-export type BuildingSliceData = {
-	imageUrl?: string;
-	name: string;
-	description: string;
-	allocation: number;
-	estimatedPrice: number;
-	id: number;
-};
 
 export type BuildingSliceCategoryData = {
 	id: number;
 	name: string;
 	title: string;
 	itemsSize?: AvatarSize;
-	items?: BuildingSliceData[];
+	items?: SliceData[];
 }
 
 type BulidingYield = {
@@ -61,7 +55,7 @@ export type BuildingData = {
 	description: string;
 	info: BuildingInfo;
 	votingItems: number[];
-	partOfSlices: number[];
+	partOfSlices: string[];
 	imageUrl?: string;
 	allocation: number;
 	copeIpfsHash?: string;
