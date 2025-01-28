@@ -18,7 +18,7 @@ export default async function StakingPage({ params }: Props) {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">
-        Staking for Building: {building.title}
+      {building.title}: Staking
       </h1>
       <StakingComponent buildingId={id} />
     </div>

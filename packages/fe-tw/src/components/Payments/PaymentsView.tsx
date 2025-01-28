@@ -34,57 +34,78 @@ export function PaymentsView({ buildingId }: PaymentsViewProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <div>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 text-base mt-1">
             Manage all incoming DAO revenue and contributions
           </p>
         </div>
 
         {data && (
           <div className="text-right">
-            <p className="text-gray-500 text-sm">Treasury Balance</p>
-            <p className="text-xl font-semibold">
+            <p className="text-gray-500 text-base">Treasury Balance</p>
+            <p className="text-2xl font-semibold">
               {data.balance.toLocaleString()} USDC
             </p>
           </div>
         )}
       </div>
 
-      <div className="overflow-x-auto bg-white">
-        <h2 className="text-xl font-bold mb-4">Payment History</h2>
+      <div className="bg-white rounded-lg p-4">
+        <h2 className="text-2xl font-bold mb-4">Payment History</h2>
 
-        {isLoading && <p className="text-gray-500">Loading payments...</p>}
-        {isError && <p className="text-red-500">Error fetching payments!</p>}
+        {isLoading && <p className="text-base text-gray-500">Loading payments...</p>}
+        {isError && <p className="text-base text-red-500">Error fetching payments!</p>}
 
         {!isLoading && !isError && payments && payments.length === 0 ? (
-          <p className="text-gray-500">No payments recorded yet.</p>
+          <p className="text-base text-gray-500">No payments recorded yet.</p>
         ) : (
-          <table className="table w-full">
-            <thead>
-              <tr>
-                <th className="bg-gray-50">Date</th>
-                <th className="bg-gray-50">Amount (USDC)</th>
-                <th className="bg-gray-50">Revenue Type</th>
-                <th className="bg-gray-50">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {payments?.map((payment) => (
-                <tr key={payment.id} className="hover">
-                  <td>{moment(payment.date).format("YYYY-MM-DD HH:mm")}</td>
-                  <td>{payment.amount}</td>
-                  <td>{payment.revenueType}</td>
-                  <td>{payment.notes || "-"}</td>
+          <div className="overflow-x-auto">
+            <table className="table-auto w-full text-left border-collapse">
+              <thead>
+                <tr className="text-gray-600 uppercase text-sm bg-gray-100 rounded-lg">
+                  <th className="p-3">Date</th>
+                  <th className="p-3">Amount</th>
+                  <th className="p-3">Revenue Type</th>
+                  <th className="p-3">Notes</th>
+                  <th className="p-3">Status</th>
+                  <th className="p-3">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {payments?.map((payment) => (
+                  <tr
+                    key={payment.id}
+                    className="hover:bg-gray-50 transition rounded-lg"
+                  >
+                    <td className="p-3 text-gray-800 rounded-l-lg">
+                      {moment(payment.date).format("YYYY-MM-DD HH:mm")}
+                    </td>
+                    <td className="p-3 text-gray-800">{payment.amount} USDC</td>
+                    <td className="p-3 text-gray-800">{payment.revenueType}</td>
+                    <td className="p-3 text-gray-800">
+                      {payment.notes || "No notes"}
+                    </td>
+                    <td className="p-3">
+                      <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-600">
+                        Success
+                      </span>
+                    </td>
+                    <td className="p-3 text-blue-500 rounded-r-lg">
+                      <button className="flex items-center gap-2 hover:underline">
+                        Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
       <div className="flex justify-end">
         <button
           onClick={() => setShowPaymentModal(true)}
-          className="btn btn-primary"
+          className="btn btn-primary text-white text-base font-normal"
         >
           Add Payment
         </button>
@@ -119,7 +140,7 @@ function PaymentModal({
         >
           ✕
         </button>
-        <h3 className="font-bold text-lg mb-4">Add Payment</h3>
+        <h3 className="font-bold text-2xl mb-4">Add Payment</h3>
 
         <PaymentForm
           buildingId={buildingId}

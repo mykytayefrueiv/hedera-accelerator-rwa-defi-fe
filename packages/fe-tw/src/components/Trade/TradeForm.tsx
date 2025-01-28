@@ -1,38 +1,39 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 import { useTradeData } from "@/hooks/useTradeData";
 import { buildings } from "@/consts/buildings";
 
 export default function TradeForm() {
   const [selectedBuildingId, setSelectedBuildingId] = useState<number>(buildings[0].id);
   const [amount, setAmount] = useState("");
-  const { data, sellTokens } = useTradeData();
+  const { sellTokens } = useTradeData();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(amount);
     if (isNaN(amt) || amt <= 0) {
-      alert("Invalid amount");
+      toast.error("Invalid amount. Please enter a positive number.");
       return;
     }
 
     try {
       await sellTokens({ buildingId: selectedBuildingId, amount: amt });
-      alert(`Sold ${amt} tokens for USDC!`);
+      toast.success(`Successfully sold ${amt} tokens for USDC!`);
       setAmount("");
     } catch (err: any) {
-      alert(err.message);
+      toast.error(`Failed to sell tokens: ${err.message}`);
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-md mx-auto p-6 bg-white rounded-xl shadow border-2 border-gray-300 space-y-4"
+      className="flex-1 bg-white rounded-lg p-6 border border-gray-300 space-y-4"
     >
-      <p className="mb-4">
-        Sell Token for USDC.  
+      <h2 className="text-xl font-semibold mb-4">Sell Tokens</h2>
+      <p className="text-gray-700">
         Select a building token you hold and sell it for USDC.
       </p>
 
@@ -77,15 +78,6 @@ export default function TradeForm() {
       >
         Sell Token for USDC
       </button>
-
-      {data && (
-        <div className="mt-4 text-sm text-gray-700">
-          <p>Current USDC Balance: {data.usdcBalance}</p>
-          <p>
-            Your Holdings for Selected Building: {data.buildingTokenBalances?.[selectedBuildingId] ?? 0} tokens
-          </p>
-        </div>
-      )}
     </form>
   );
 }

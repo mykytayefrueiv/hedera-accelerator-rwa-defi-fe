@@ -1,17 +1,5 @@
-import { buildings } from "@/consts/buildings";
-import Link from "next/link";
+import { BuildingsOverview } from "@/components/Buildings/BuildingsOverview";
 
 export default function BuildingIndexPage() {
-  return (
-    <div>
-      <h1>All Buildings</h1>
-      {buildings.map((b) => (
-        <div key={b.id}>
-          <Link href={`/building/${b.id}`}>
-            {b.title}
-          </Link>
-        </div>
-      ))}
-    </div>
-  );
+  return <BuildingsOverview />;
 }
