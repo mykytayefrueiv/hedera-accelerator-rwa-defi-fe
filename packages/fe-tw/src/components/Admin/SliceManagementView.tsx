@@ -27,13 +27,13 @@ export function SliceManagementView() {
     try {
       // TODO: endpoint to push / get slice metadata.
       const txOrHash = await handleCreateSlice();
-      setTxResult((txOrHash as { transaction_hash: string })?.transaction_hash);
-      toast.success("Slice created successfully");
 
+      toast.success("Slice created successfully");
+      setTxResult((txOrHash as { transaction_hash: string })?.transaction_hash);
       setFormData({ sliceName: "", allocation: "", description: "" });
     } catch (err) {
-      setTxError((err as unknown as { message: string }).message?.slice(0, 28));
       toast.error("Failed to create slice");
+      setTxError((err as unknown as { message: string }).message?.slice(0, 28));
     }
   };
 

@@ -1,44 +1,36 @@
+"use client";
+
 import { notFound } from "next/navigation";
 import { slugify } from "@/utils/slugify";
-import {
-  getAllSlices,
-  getSliceTokensData,
-  getSliceValuation,
-  getSliceTokenPrice,
-  getUserSliceBalance,
-} from "@/services/sliceService";
 import { SliceDetailPage } from "@/components/Slices/SliceDetailPage";
+import { useSlicesData } from "@/hooks/useSlicesData";
 
 type Props = {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 };
 
-export default async function Page({ params }: Props) {
-  const { slug } = await params;
+export default function Page({ params }: Props) {
+  const { slug } = params;
+  const { slices } = useSlicesData();
 
-  const allSlices = await getAllSlices();
-  const sliceData = allSlices.find(
-    (slice) => slugify(slice.id) === slugify(slug)
+  const slice = slices.find(
+    (slice) => slugify(slice.name) === slugify(slug)
   );
 
-  if (!sliceData) {
+  if (!slice) {
     notFound();
   }
-
-  const tokensWithBuilding = await getSliceTokensData(sliceData.name);
-  const sliceValuation = await getSliceValuation(sliceData.name);
-  const tokenPrice = await getSliceTokenPrice(sliceData.name);
-  const userBalance = await getUserSliceBalance(sliceData.name, "0xMockUserAddress");
 
   return (
     <SliceDetailPage
       sliceData={{
-        ...sliceData,
-        sliceValuation,
-        tokenPrice,
-        userBalance,
+        ...slice,
+        sliceValuation: 0,
+        tokenPrice: 0,
+        userBalance: 0,
       }}
-      tokensWithBuilding={tokensWithBuilding}
+      tokensWithBuilding={[]}
+      isInBuildingContext={true}
     />
   );
 }

@@ -12,10 +12,10 @@ type SliceCardGridProps = {
 
 export default function SliceCardGrid({ sliceIds }: SliceCardGridProps) {
   const pathname = usePathname();
-  const buildingId = pathname.split("/")[2];
   const { slices } = useSlicesData();
 
   const relevantSlices = slices.filter((slice) => sliceIds.includes(slice.id));
+  const buildingId = pathname.split("/")[2];
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
