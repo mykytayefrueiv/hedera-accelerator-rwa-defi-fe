@@ -1,18 +1,12 @@
 "use client";
 
+import { BuildingData } from "@/types/erc3643/types";
 import Link from "next/link";
 import { useState } from "react";
 
-type Building = {
-  id: number | string;
-  title: string;
-  imageUrl?: string;
-  allocation?: number;
-};
-
 type Props = {
   title?: string;
-  buildings: Building[];
+  buildings: BuildingData[];
 };
 
 export function BuildingsCarousel({ title, buildings }: Props) {
@@ -53,7 +47,7 @@ export function BuildingsCarousel({ title, buildings }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 px-6">
           {visibleBuildings.map((bld) => (
             <Link
-              key={bld.id}
+              key={bld.address}
               href={`/building/${bld.id}`}
               className="cursor-pointer"
             >

@@ -1,31 +1,37 @@
 "use client";
 
-import React, { use, Usable } from "react";
+import { LoadingView } from "@/components/LoadingView";
 import TradeView from "@/components/Trade/TradeView";
 import { useBuildings } from "@/hooks/useBuildings";
-import { notFound } from "next/navigation";
+import React, { use, Usable } from "react";
+import { PageHeader } from "@/components/Page/PageHeader";
+import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 
 type Props = {
   params: { id: string };
 };
 
-export default function TradePage({ params }: Props) {
+export default function BuildingTradePage({ params }: Props) {
   const { id } = use<{ id: string }>(params as unknown as Usable<{ id: string }>);
   const { buildings } = useBuildings();
-  const building = buildings.find((b) => b.id === id);
+  const { data: evmAddress } = useEvmAddress();
 
-  if (!id || !buildings?.length) {
-    return null;
+  if (!evmAddress) {
+    return <p>This page available only for authorized users</p>
+  }
+
+  const building = buildings.find(_building => _building.id === id);
+
+  if (!buildings?.length || !id) {
+    return <LoadingView isLoading />;
   } else if (!building) {
-    notFound();
+    return <p>Not found</p>;
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">
-        {building?.title}: Trade
-      </h1>
-      <TradeView />
+    <div className="p-4 flex flex-col gap-10">
+      <PageHeader title={`${building?.title}: Trade`} />
+      <TradeView building={building} />
     </div>
   );
 }

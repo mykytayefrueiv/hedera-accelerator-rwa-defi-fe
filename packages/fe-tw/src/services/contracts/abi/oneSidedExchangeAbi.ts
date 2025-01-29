@@ -123,7 +123,7 @@ export const oneSidedExchangeAbi = [
                 "type": "uint256"
             }
         ],
-        "name": "Deposit",
+        "name": "LiquidityAdded",
         "type": "event"
     },
     {
@@ -214,7 +214,7 @@ export const oneSidedExchangeAbi = [
                 "type": "uint256"
             }
         ],
-        "name": "deposit",
+        "name": "addLiquidityForToken",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -388,6 +388,11 @@ export const oneSidedExchangeAbi = [
             {
                 "internalType": "address",
                 "name": "token",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
                 "type": "address"
             },
             {

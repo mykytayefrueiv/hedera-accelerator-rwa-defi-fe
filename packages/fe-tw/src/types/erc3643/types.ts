@@ -51,9 +51,9 @@ export type BuildingInfo = {
 }
 
 export type BuildingData = {
-	id: string | number;
+	id: string;
 	title: string;
-	address: string;
+	address: `0x${string}`;
 	purchasedAt: number;
 	description: string;
 	info: BuildingInfo;
@@ -92,9 +92,54 @@ export type BuildingNFTData = {
 	description: string;
 	image: string;
 	name: string;
-	address: string;
+	address: `0x${string}`;
 	allocation: number;
 	purchasedAt: number;
 	attributes: BuildingNFTAttribute[];
 	copeIpfsHash: string;
+}
+
+export type SwapTradeItem = {
+	tokenA: string,
+	tokenB: string,
+	tokenAAmount: string,
+	tokenBAmount: string,
+};
+
+export type SwapLiquidityPair = {
+	tokenA: `0x${string}`,
+	tokenB: `0x${string}`,
+};
+
+export type SwapTokensRequestBody = {
+	path: string[],
+	amountIn: bigint,
+	amountOut: bigint,
+	deadline?: number,
+};
+
+export type SwapTokenPriceRequestBody = {
+	isSell: boolean,
+	token: `0x${string}`,
+	amount: bigint,
+	thresholdIntervalInSeconds: number,
+}
+
+export type SwapTokenAddLiquidityRequestBody = {
+	tokenA: string,
+	tokenB?: string,
+	amount: bigint,
+};
+
+export type SwapTokenSwapRequestBody = {
+	tokenA: string,
+	tokenB: string,
+	amount: bigint,
+};
+
+export type AddLiquidityRequestBody = {
+	tokenA: string,
+	tokenB: string,
+	tokenAAmount: string,
+	tokenBAmount: string,
 }

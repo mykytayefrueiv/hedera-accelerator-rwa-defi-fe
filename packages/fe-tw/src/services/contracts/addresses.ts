@@ -14,6 +14,6 @@ export const uniswapRouterAddress = "0xACE99ADFd95015dDB33ef19DCE44fee613DB82C2"
 
 export const pythOracleAddress = "0x330C40b17607572cf113973b8748fD1aEd742943" as const;
 
-export const oneSidedExchangeAddress = "0x6042748E49fd1f21d857E27a5A3fA578E69abacA" as const;
+export const oneSidedExchangeAddress = "0xac5b680F7be03D300255beD1B686c459dd54ab11" as const;
 
 export const buildingFactoryAddress = "0xF77AC43e31Cf5392f7365aB8858Ad35B06DA717F" as const;

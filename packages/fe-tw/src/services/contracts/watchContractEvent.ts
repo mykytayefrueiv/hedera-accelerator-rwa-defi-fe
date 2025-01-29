@@ -55,7 +55,7 @@ export function watchContractEvent<
 			}
 		}
 		if (isActive) {
-			timeOut = setTimeout(poll, result && result.length > 0 ? 100 : 5000);
+			timeOut = setTimeout(poll, result && result.length > 0 ? 10000 : 10000);
 		}
 	};
 

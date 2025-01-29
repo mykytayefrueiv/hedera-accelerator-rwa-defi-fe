@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 
-import { useReadContract } from "@buidlerlabs/hashgraph-react-wallets";
 import { buildingFactoryAddress } from "@/services/contracts/addresses";
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
-import { BuildingData, BuildingNFT, BuildingNFTAttribute, BuildingNFTData, QueryData } from "@/types/erc3643/types";
+import { BuildingData, BuildingNFTAttribute, BuildingNFTData } from "@/types/erc3643/types";
 import { buildingFinancialMock } from "@/consts/buildings";
 import { appConfig } from "@/consts/config";
 import { watchContractEvent } from "@/services/contracts/watchContractEvent";
+import { readContract } from "@/services/contracts/readContract";
 
 /**
  * Fetching building NFT metadata from Pinata cloud
@@ -61,50 +61,56 @@ const convertBuildingNFTsData = (buildingNFTsData: BuildingNFTData[]): BuildingD
     }));
 };
 
+const readBuildingDetails = (address: `0x${string}`) => readContract({
+    functionName: 'getBuildingDetails',
+    address: buildingFactoryAddress,
+    abi: buildingFactoryAbi,
+    args: [address],
+});
+
 export function useBuildings() {
-    const [buildingsAddresses, setBuildingAddresses] = useState<string[]>([]);
+    const [buildingsAddresses, setBuildingAddresses] = useState<`0x${string}`[]>([]);
     const [buildings, setBuildings] = useState<BuildingData[]>([]);
+    const [logs, setLogs] = useState<{ args: `0x${string}`[] }[]>([]);
 
-    const { readContract } = useReadContract();
-
-    const requestBuildingNFTsData = async () => {
+    const fetchBuildingNFTs = async () => {
         const buildingAddressesProxies = await Promise.all(
             buildingsAddresses
                 .filter(address => !buildings.find(build => build.address === address))
-                .map((address) => readContract({
-                    abi: buildingFactoryAbi,
-                    address: buildingFactoryAddress,
-                    functionName: 'getBuildingDetails',
-                    args: [address],
-                }))
+                .map((address) => readBuildingDetails(address))
         );
 
-        if (buildingAddressesProxies.every(build => !!build)) {
-            const buildingNFTsData = await Promise.all(buildingAddressesProxies.map(build => fetchBuildingNFTMetadata((build as { tokenURI: string })?.tokenURI)));
-
-            setBuildings(convertBuildingNFTsData(buildingNFTsData.map((data, id) => ({
-                ...data,
-                address: (buildingAddressesProxies[id] as BuildingNFT)?.addr,
-                copeIpfsHash: (buildingAddressesProxies[id] as BuildingNFT)?.tokenURI?.replace(`${appConfig.pinataDomainUrl}/ipfs/`, ''),
-            }))));
+        if (!buildingAddressesProxies[0]) {
+            return;
         }
-    };
 
-    useEffect(() => {
-        requestBuildingNFTsData();
-    }, [buildingsAddresses]);
+        const buildingNFTsData = await Promise.all(buildingAddressesProxies.map(_build => fetchBuildingNFTMetadata((buildingAddressesProxies[0][0][2]))));
+
+        setBuildings(convertBuildingNFTsData(buildingNFTsData.map((data, id) => ({
+            ...data,
+            address: buildingAddressesProxies[id][0][0],
+            copeIpfsHash: buildingAddressesProxies[id][0][2]?.replace(`${appConfig.pinataDomainUrl}/ipfs/`, ''),
+        }))));
+    };
 
     watchContractEvent({
         address: buildingFactoryAddress,
         abi: buildingFactoryAbi,
         eventName: 'NewBuilding',
         onLogs: (data) => {
-            setBuildingAddresses(prev => (prev.includes((data[0] as unknown as QueryData<string[]>).args[0]) ?
-                prev :
-                [...prev, (data[0] as unknown as QueryData<string[]>).args[0]]
-            ))
+            setLogs(prev => !prev.length ? data as unknown as { args: `0x${string}`[] }[] : prev);
         },
     });
+
+    useEffect(() => {
+        if (buildingsAddresses?.length) {
+            fetchBuildingNFTs();
+        }
+    }, [buildingsAddresses?.length]);
+
+    useEffect(() => {
+        setBuildingAddresses(logs.map(log => log.args[0]));
+    }, [logs?.length]);
 
     return { buildings };
 }

@@ -23,10 +23,11 @@ export function FeaturedDevelopments({
   return (
     <>
       <Link href="/dash">
-        <h2 className="text-xl font-bold mb-6 cursor-pointer">
+        <h2 className="text-xl font-bold cursor-pointer">
           Featured upcoming developments in {selectedSliceName} →
         </h2>
       </Link>
+      <br />
       <div className="flex overflow-x-auto space-x-4 p-2">
         {developments.map((development) => (
           <div
