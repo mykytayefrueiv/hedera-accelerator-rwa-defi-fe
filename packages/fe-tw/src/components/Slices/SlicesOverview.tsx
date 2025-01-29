@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { ArrowBack } from "@mui/icons-material";
+<<<<<<< HEAD
+=======
+import { buildingSlices } from "@/consts/slices";
+>>>>>>> feat-49708-building-sc-data-integration
 import { slugify } from "@/utils/slugify";
 import { SliceItem } from "./SliceItem";
 import { useSlicesData } from "@/hooks/useSlicesData";
@@ -35,11 +39,17 @@ export function SlicesOverview() {
         </p>
       </div>
 
+<<<<<<< HEAD
       <br />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {slices.map((slice) => (
           <Link key={slice.name} href={`/slices/${slugify(slice.id)}`}>
+=======
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {buildingSlices.map((slice) => (
+          <Link key={slice.name} href={`/slices/${slugify(slice.name)}`}>
+>>>>>>> feat-49708-building-sc-data-integration
             <div
               className="
                 bg-white border border-gray-300 rounded-lg p-4 shadow-md

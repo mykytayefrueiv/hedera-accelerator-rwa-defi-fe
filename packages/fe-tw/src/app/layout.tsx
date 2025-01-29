@@ -47,7 +47,7 @@ export default function RootLayout({
         <Providers>
           <ToastProvider />
           <div className="min-h-screen">
-            <Navbar linksForPage="regularUser">{children}</Navbar>
+            <Navbar>{children}</Navbar>
             <div className="mt-20">
               <Footer />
             </div>

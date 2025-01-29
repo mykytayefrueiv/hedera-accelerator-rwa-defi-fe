@@ -3,8 +3,8 @@
 import { LoadingView } from "@/components/LoadingView";
 import { BuildingDetailPage } from "@/components/Buildings/BuildingDetailsPage";
 import { BuildingData } from "@/types/erc3643/types";
-import { useBuildings } from "@/hooks/useBuildings";
 import React, { use, Usable } from "react";
+import { useBuildings } from "@/hooks/useBuildings";
 
 type Props = {
     params: Promise<{ id: string }>;

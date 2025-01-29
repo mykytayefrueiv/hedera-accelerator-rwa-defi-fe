@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { ArrowBack } from "@mui/icons-material";
-import { buildings } from "@/consts/buildings";
+import { useBuildings } from "@/hooks/useBuildings";
 
 export function BuildingsOverview() {
+  const { buildings } = useBuildings();
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="breadcrumbs text-sm text-gray-700 mb-4">
