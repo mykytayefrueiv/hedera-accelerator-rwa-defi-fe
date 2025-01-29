@@ -56,3 +56,17 @@ th, td {
   padding: 8px; 
   text-align: left;
 }
+
+button.btn-primary {
+  background-color: #8839E1;
+  color: #ffffff !important;
+  font-weight: bold;
+}
+
+button.btn-primary:hover {
+  background-color: #6a2dbd; 
+}
+
+button.btn {
+  border-radius: 50px; 
+}

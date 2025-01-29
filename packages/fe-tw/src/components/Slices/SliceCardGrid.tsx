@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import moment from "moment";
 import { slugify } from "@/utils/slugify";
 import { buildingSlices } from "@/consts/slices";
@@ -10,6 +11,9 @@ type SliceCardGridProps = {
 };
 
 export default function SliceCardGrid({ sliceIds }: SliceCardGridProps) {
+  const pathname = usePathname();
+  const buildingId = pathname.split("/")[2]; 
+
   const relevantSlices = buildingSlices.filter((slice) =>
     sliceIds.includes(slice.id)
   );
@@ -19,15 +23,14 @@ export default function SliceCardGrid({ sliceIds }: SliceCardGridProps) {
       {relevantSlices.map((slice) => (
         <Link
           key={slice.id}
-          href={`/slices/${slugify(slice.name)}`}
+          href={`/building/${buildingId}/slices/${slugify(slice.name)}`}
           className="cursor-pointer"
         >
           <div
             className="
-              bg-accent text-gray-800 rounded-lg shadow-md p-4 
+              bg-accent text-gray-800 rounded-lg p-4 
               transition-transform duration-300 
-              hover:scale-105 hover:bg-accent-focus hover:brightness-90
-              flex flex-col 
+              hover:scale-[1.02] hover:bg-accent-dark flex flex-col 
               h-[430px]
             "
           >

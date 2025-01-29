@@ -17,7 +17,7 @@ const StakingShareChart = ({
   const COLORS = ["#6b46c1", "#E5E5E5"]; 
 
   return (
-    <div className="card bg-grey rounded-lg shadow p-4 text-center">
+    <div className="card bg-grey rounded-lg p-6 border border-gray-300 space-y-4 text-center">
       <h2 className="card-title text-black mb-4">Your Staking Share</h2>
 
       <div className="w-full h-64">

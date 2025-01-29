@@ -18,7 +18,7 @@ export default async function PaymentsPage({ params }: Props) {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">
-        Payments for Building: {building.title}
+      {building.title}: Payments
       </h1>
       <PaymentsView buildingId={id} />
     </div>

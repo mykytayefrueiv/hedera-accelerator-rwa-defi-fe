@@ -9,7 +9,6 @@ import "@fortawesome/fontawesome-free/css/brands.css";
 import { Providers } from "@/app/providers";
 import { Footer } from "@/components/Footers/Footer";
 import { Navbar } from "@/components/Navbar/Navbar";
-import { PageContent } from "@/components/Page/PageContent";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -48,9 +47,7 @@ export default function RootLayout({
         <Providers>
         <ToastProvider />
           <div className="min-h-screen">
-            <Navbar linksForPage="regularUser">
-              <PageContent>{children}</PageContent>
-            </Navbar>
+          <Navbar>{children}</Navbar>
             <div className="mt-20">
               <Footer />
             </div>

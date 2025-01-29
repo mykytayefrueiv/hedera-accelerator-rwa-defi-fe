@@ -1,4 +1,6 @@
-import TradeForm from "@/components/Trade/TradeForm";
+import TradeView from "@/components/Trade/TradeView";
+import { buildings } from "@/consts/buildings";
+import { notFound } from "next/navigation";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -6,16 +8,18 @@ type Props = {
 
 export default async function TradePage({ params }: Props) {
   const { id } = await params;
+  const buildingId = parseInt(id, 10);
+  const building = buildings.find((b) => b.id === buildingId);
 
+  if (!building) {
+    notFound();
+  }
   return (
-    <div className="p-6">
+    <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">
-        Sell Token for USDC - Building {id}
+      {building.title}: Trade
       </h1>
-      <p className="text-base mb-4">
-        Select a building and sell your tokens for USDC.
-      </p>
-      <TradeForm />
+      <TradeView />
     </div>
   );
 }

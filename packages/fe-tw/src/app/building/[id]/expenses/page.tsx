@@ -18,7 +18,7 @@ export default async function ExpensesPage({ params }: Props) {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">
-        Expenses for Building: {building.title}
+      {building.title}: Expenses
       </h1>
       <ExpensesView buildingId={id} />
     </div>

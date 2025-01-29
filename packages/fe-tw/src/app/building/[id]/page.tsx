@@ -2,10 +2,10 @@
 
 import { LoadingView } from "@/components/LoadingView";
 import { PageRedirect } from "@/components/Page/PageRedirect";
-import { BuildingDetailPage } from "@/components/Pages/BuildingDetailsPage";
-import { useBuildings } from "@/hooks/useBuildings";
+import { BuildingDetailPage } from "@/components/Buildings/BuildingDetailsPage";
 import { BuildingData } from "@/types/erc3643/types";
 import React, { use, Usable } from "react";
+import { useBuildings } from "@/hooks/useBuildings";
 
 type Props = {
     params: Promise<{ id: string }>;

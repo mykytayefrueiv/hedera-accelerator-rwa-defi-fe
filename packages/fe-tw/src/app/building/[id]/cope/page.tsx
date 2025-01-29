@@ -23,7 +23,7 @@ export default async function CopePage({ params }: Props) {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">
-        COPE Metadata for Building: {building.title}
+        {building.title}: COPE
       </h1>
       <CopeView buildingId={id} isAdmin={isAdmin()} />
     </div>
