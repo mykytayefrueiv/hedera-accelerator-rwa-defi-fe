@@ -104,6 +104,7 @@ export type SwapTradeItem = {
 	tokenB: string,
 	tokenAAmount: string,
 	tokenBAmount: string,
+	id?: string,
 };
 
 export type SwapLiquidityPair = {
@@ -142,4 +143,9 @@ export type AddLiquidityRequestBody = {
 	tokenB: string,
 	tokenAAmount: string,
 	tokenBAmount: string,
+}
+
+export type SwapTradeProfit = {
+	dailyProfitInUSD: number,
+	weeklyProfitInUSD: number,
 }

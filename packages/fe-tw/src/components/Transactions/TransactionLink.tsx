@@ -7,7 +7,7 @@ export const TransactionLink = ({ hash }: { hash: string }) => {
     const blockExplorerUrl = chainData?.chain?.blockExplorers?.default?.url;
 
     return (
-        <Link target="_blank" href={`${blockExplorerUrl}/transaction/${hash}`}>
+        <Link target="_blank" href={`${blockExplorerUrl}/transaction/${hash}`} style={{ textDecoration: 'underline' }}>
             Deployed Tx Hash: {hash}
         </Link>
     );

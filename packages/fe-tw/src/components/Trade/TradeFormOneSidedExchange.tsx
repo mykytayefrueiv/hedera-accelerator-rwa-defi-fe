@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 import { ethers } from "ethers";
 import Select from "react-select";
 import { useOneSidedExchangeSwaps } from "@/hooks/useOneSidedExchangeSwaps";
-import { ONE_ERC2O_TOKEN_18decimals } from "@/consts/trade";
+import { DEFAULT_ERC20_DECIMALS } from "@/consts/trade";
 import { TransactionLink } from "../Transactions/TransactionLink";
 
 type Props = {
@@ -13,7 +13,7 @@ type Props = {
 }
 
 const colourStyles = {
-    control: (styles: object) => ({ ...styles, backgroundColor: '#fff' }),
+    control: (styles: object) => ({ ...styles, backgroundColor: '#fff', paddingTop: 4, paddingBottom: 4 }),
     option: (styles: any) => {
         return {
             ...styles,
@@ -37,7 +37,7 @@ export default function TradeFormOneSidedExchange({ buildingTokens }: Props) {
     const { checkBalanceOfLiquidityToken, handleSwapTokens, estimateTokensSwapSpendings } = useOneSidedExchangeSwaps();
     const [txResult, setTxResult] = useState<string>('0x12345');
     const [txError, setTxError] = useState<string>();
-    const [maxSwapTokenAmount, setMaxSwapTokenAmount] = useState<bigint>();
+    const [maxSwapTokenAmount, setMaxSwapTokenAmount] = useState<string>();
     const [tradeFormData, setTradeFormData] = useState({
         amount: '',
         tokenA: '',
@@ -52,8 +52,8 @@ export default function TradeFormOneSidedExchange({ buildingTokens }: Props) {
         if (exchangeTokenBalance >= tokenBAmount) {
             return true;
         } else {
-            toast.error(`Not enough token balance to make a swap, it has only ${exchangeTokenBalance / ONE_ERC2O_TOKEN_18decimals}`);
-            setMaxSwapTokenAmount(exchangeTokenBalance / ONE_ERC2O_TOKEN_18decimals);
+            toast.error(`Not enough token balance to make a swap, it has only ${ethers.formatUnits(exchangeTokenBalance, DEFAULT_ERC20_DECIMALS)}`);
+            setMaxSwapTokenAmount(ethers.formatUnits(exchangeTokenBalance, DEFAULT_ERC20_DECIMALS));
 
             return false;
         }
@@ -90,8 +90,9 @@ export default function TradeFormOneSidedExchange({ buildingTokens }: Props) {
                     setTxResult(transactionId);
                 }
             } catch (err) {
-                toast.error(`Failed to sell tokens: ${(err as { message: string })?.message}`);
-                setTxError(err?.toString());
+                const message = (err as { message: string })?.message?.slice(0, 28);
+                toast.error(`Failed to sell tokens: ${message}`);
+                setTxError(message);
             }
         }
     };
@@ -110,7 +111,7 @@ export default function TradeFormOneSidedExchange({ buildingTokens }: Props) {
                 <span className="text-sm text-gray-900">
                     Select a building token you hold and swap it for another building token or USDC
                 </span>
-                <div>
+                <div className="mt-5">
                     <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="tokenASelect">
                         Select token A
                     </label>
@@ -148,7 +149,7 @@ export default function TradeFormOneSidedExchange({ buildingTokens }: Props) {
                         placeholder="Token B"
                     />
                 </div>
-                <div className="mb-5">
+                <div>
                     <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="amount">
                         Amount of tokens to sell
                     </label>
@@ -159,25 +160,26 @@ export default function TradeFormOneSidedExchange({ buildingTokens }: Props) {
                             ...prev,
                             amount: e.target.value,
                         }))}
-                        className="input input-bordered w-full py-7 text-2xl"
+                        className="input input-bordered w-full text-xl"
                         placeholder="e.g. 10"
                         required
                     />
-                    {maxSwapTokenAmount ? <span>{maxSwapTokenAmount}</span> : <></>}
+                    {maxSwapTokenAmount ?
+                        <p className="mt-2 text-purple-400 text-md">Max amount of tokens to sell: {maxSwapTokenAmount}</p> :
+                        <></>
+                    }
+                    <button
+                        type="submit"
+                        className="px-6 py-3 mt-5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-full"
+                    >Swap tokens</button>
                 </div>
-                <button
-                    type="submit"
-                    className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-full"
-                >
-                    Swap tokens
-                </button>
-                {txResult && <div className="flex mt-10">
-                    <p className="text-xl font-bold text-purple-600">
+                {txResult && <div className="flex mt-5">
+                    <p className="text-md font-bold text-purple-600">
                         <TransactionLink hash={txResult} />
                     </p>
                 </div>}
-                {txError && <div className="flex mt-10">
-                    <p className="text-xl font-bold text-purple-600">
+                {txError && <div className="flex mt-5">
+                    <p className="text-md font-bold text-purple-600">
                         Deployed Tx Error: {txError}
                     </p>
                 </div>}

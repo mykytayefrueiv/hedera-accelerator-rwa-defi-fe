@@ -22,3 +22,5 @@ export const tradeState: TradeState = {
 };
 
 export const ONE_ERC2O_TOKEN_18decimals = 1000000000000000000n;
+
+export const DEFAULT_ERC20_DECIMALS = 18;
