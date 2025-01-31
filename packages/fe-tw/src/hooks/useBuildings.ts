@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 import { buildingFactoryAddress } from "@/services/contracts/addresses";
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
@@ -35,7 +35,7 @@ const findBuildingAttribute = (attributes: BuildingNFTAttribute[], attributeName
 */
 const convertBuildingNFTsData = (buildingNFTsData: BuildingNFTData[]): BuildingData[] => {
     return buildingNFTsData.map((data) => ({
-        id: data.copeIpfsHash,
+        id: data.address,
         title: data.name,
         description: data.description,
         imageUrl: `${appConfig.pinataDomainUrl}/ipfs/${data.image?.replace('ipfs://', '')}`,
@@ -61,6 +61,17 @@ const convertBuildingNFTsData = (buildingNFTsData: BuildingNFTData[]): BuildingD
     }));
 };
 
+export const fetchBuildingNFTsMetadata = async (buildingsAddresses: `0x${string}`[], buildings: BuildingData[]) => {
+    const buildingAddressesProxiesData = await Promise.all(
+        buildingsAddresses
+            .filter(address => !buildings.find(build => build.address === address))
+            .map((address) => readBuildingDetails(address))
+    );
+    const buildingNFTsData = await Promise.all(buildingAddressesProxiesData.map(proxy => fetchBuildingNFTMetadata(checkIsValidIPFSTokenUri(proxy[0][2]) ? proxy[0][2] : buildingAddressesProxiesData[0][0][2])));
+
+    return { buildingAddressesProxiesData, buildingNFTsData };
+};
+
 const checkIsValidIPFSTokenUri = (tokenUri: string) => {
     return !!tokenUri.match(`${appConfig.pinataDomainUrl}/ipfs/`);
 };
@@ -78,17 +89,12 @@ export function useBuildings() {
     const [logs, setLogs] = useState<{ args: `0x${string}`[] }[]>([]);
 
     const fetchBuildingNFTs = async () => {
-        const buildingAddressesProxies = await Promise.all(
-            buildingsAddresses
-                .filter(address => !buildings.find(build => build.address === address))
-                .map((address) => readBuildingDetails(address))
-        );
-        const buildingNFTsData = await Promise.all(buildingAddressesProxies.map(proxy => fetchBuildingNFTMetadata(checkIsValidIPFSTokenUri(proxy[0][2]) ? proxy[0][2] : buildingAddressesProxies[0][0][2])));
+        const { buildingNFTsData, buildingAddressesProxiesData } = await fetchBuildingNFTsMetadata(buildingsAddresses, buildings);
 
         setBuildings(convertBuildingNFTsData(buildingNFTsData.map((data, id) => ({
             ...data,
-            address: buildingAddressesProxies[id][0][0],
-            copeIpfsHash: buildingAddressesProxies[id][0][2]?.replace(`${appConfig.pinataDomainUrl}/ipfs/`, ''),
+            address: buildingAddressesProxiesData[id][0][0],
+            copeIpfsHash: buildingAddressesProxiesData[id][0][2]?.replace(`${appConfig.pinataDomainUrl}/ipfs/`, ''),
         }))));
     };
 

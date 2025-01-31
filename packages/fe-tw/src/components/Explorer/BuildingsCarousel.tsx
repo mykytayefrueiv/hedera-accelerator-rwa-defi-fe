@@ -47,7 +47,7 @@ export function BuildingsCarousel({ title, buildings }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 px-6">
           {visibleBuildings.map((bld) => (
             <Link
-              key={bld.address}
+              key={bld.id}
               href={`/building/${bld.id}`}
               className="cursor-pointer"
             >
