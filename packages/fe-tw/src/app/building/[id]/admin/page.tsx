@@ -1,5 +1,6 @@
 "use client";
 
+import { DeployERC3643TokenForm } from "@/components/Forms/DeployERC3643TokenForm";
 import { LoadingView } from "@/components/LoadingView";
 import { useBuildings } from "@/hooks/useBuildings";
 import React, { use, Usable } from "react";
@@ -25,6 +26,7 @@ export default function AdminPage({ params }: Props) {
       <h1 className="text-2xl font-bold mb-4">
         {building.title}: Admin
       </h1>
+      <DeployERC3643TokenForm buildingAddress={building.address} />
     </div>
   );
 }

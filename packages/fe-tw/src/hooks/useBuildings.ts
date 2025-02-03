@@ -15,7 +15,7 @@ import { readContract } from "@/services/contracts/readContract";
  * @param tokenUri NFT location on Pinata cloud server
  */
 const fetchBuildingNFTMetadata = async (tokenUri: string) => {
-    const response = await fetch(tokenUri);
+    const response = await fetch(tokenUri.replace('ipfs://', `${appConfig.pinataDomainUrl}/ipfs/`));
 
     return response.json();
 };

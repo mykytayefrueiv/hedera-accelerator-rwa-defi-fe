@@ -16,4 +16,4 @@ export const pythOracleAddress = "0x330C40b17607572cf113973b8748fD1aEd742943" as
 
 export const oneSidedExchangeAddress = "0xac5b680F7be03D300255beD1B686c459dd54ab11" as const;
 
-export const buildingFactoryAddress = "0xF77AC43e31Cf5392f7365aB8858Ad35B06DA717F" as const;
+export const buildingFactoryAddress = "0x47CE39E474A13D9E5a1890B212E6aBA4FFC867Dd" as const;

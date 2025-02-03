@@ -32,6 +32,22 @@ export const buildingFactoryAbi = [
         "type": "error"
     },
     {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "length",
+                "type": "uint256"
+            }
+        ],
+        "name": "StringsInsufficientHexLength",
+        "type": "error"
+    },
+    {
         "anonymous": false,
         "inputs": [
             {
@@ -74,6 +90,25 @@ export const buildingFactoryAbi = [
         "anonymous": false,
         "inputs": [
             {
+                "indexed": false,
+                "internalType": "address",
+                "name": "building",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+            }
+        ],
+        "name": "NewERC3643Token",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
                 "indexed": true,
                 "internalType": "address",
                 "name": "previousOwner",
@@ -88,6 +123,29 @@ export const buildingFactoryAbi = [
         ],
         "name": "OwnershipTransferred",
         "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "buildingAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "callableContract",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            }
+        ],
+        "name": "callFromBuilding",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
         "inputs": [
@@ -115,6 +173,16 @@ export const buildingFactoryAbi = [
                         "internalType": "string",
                         "name": "tokenURI",
                         "type": "string"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "identity",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "erc3643Token",
+                        "type": "address"
                     }
                 ],
                 "internalType": "struct BuildingFactory.BuildingInfo",
@@ -145,6 +213,16 @@ export const buildingFactoryAbi = [
                         "internalType": "string",
                         "name": "tokenURI",
                         "type": "string"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "identity",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "erc3643Token",
+                        "type": "address"
                     }
                 ],
                 "internalType": "struct BuildingFactory.BuildingInfo[]",
@@ -176,6 +254,16 @@ export const buildingFactoryAbi = [
                 "internalType": "address",
                 "name": "_buildingBeacon",
                 "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_onchainIdGateway",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_trexGateway",
+                "type": "address"
             }
         ],
         "name": "initialize",
@@ -192,6 +280,34 @@ export const buildingFactoryAbi = [
             }
         ],
         "name": "newBuilding",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "buildingAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+            },
+            {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+            }
+        ],
+        "name": "newERC3643Token",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
