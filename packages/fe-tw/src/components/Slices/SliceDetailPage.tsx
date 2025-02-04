@@ -8,7 +8,7 @@ import { ArrowBack } from "@mui/icons-material";
 type TokenWithBuilding = {
   tokenAddress: string;
   building: {
-    nftId?: number | null;
+    nftId?: string;
     name?: string;
     image?: string;
     location?: string;

@@ -10,10 +10,10 @@ export async function getBuildingForToken(tokenAddress: string) {
   if (!buildingData) return null;
 
   return {
-    nftId: buildingData.id,
+    nftId: buildingData.id as string,
     name: buildingData.title,
     image: buildingData.imageUrl,
-    location: buildingData.info.demographics.location,
+    location: buildingData.info.demographics.location as string,
   };
 }
 
@@ -25,7 +25,7 @@ export async function getBuildingValuation(buildingId: number): Promise<number> 
 export async function getSlicesForBuilding(buildingId: number): Promise<number[]> {
   const building = buildings.find((b) => b.id === buildingId);
   if (!building) {
-    return []; 
+    return [];
   }
   return building.partOfSlices ?? [];
 }
