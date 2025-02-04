@@ -143,9 +143,15 @@ export type AddLiquidityRequestBody = {
 	tokenB: string,
 	tokenAAmount: string,
 	tokenBAmount: string,
-}
+};
+
+export type CreateERC3643RequestBody = {
+	tokenName: string;
+	tokenSymbol: string;
+	tokenDecimals: number;
+};
 
 export type SwapTradeProfit = {
 	dailyProfitInUSD: number,
 	weeklyProfitInUSD: number,
-}
+};

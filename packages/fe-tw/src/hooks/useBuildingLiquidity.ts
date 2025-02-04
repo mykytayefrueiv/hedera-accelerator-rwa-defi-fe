@@ -9,6 +9,7 @@ import { tokenAbi } from "@/services/contracts/abi/tokenAbi";
 export function useBuildingLiquidity() {
   const [isAddingLiquidity, setIsAddingLiquidity] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
+  const [txError, setTxError] = useState(false);
 
   async function addLiquidity({
     buildingAddress,
@@ -62,6 +63,7 @@ export function useBuildingLiquidity() {
       setTxHash(receipt.transactionHash);
       toast.success("Liquidity added successfully!");
     } catch (error: any) {
+      setTxError(true);
       console.error(error);
       toast.error(`Failed to add liquidity: ${error.message}`);
     } finally {
@@ -72,6 +74,7 @@ export function useBuildingLiquidity() {
   return {
     isAddingLiquidity,
     txHash,
+    txError,
     addLiquidity,
   };
 }

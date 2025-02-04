@@ -1,4 +1,4 @@
-import { BuildingManagementView } from "@/components/Admin/BuildingManagementView";
+import { BuildingManagementView } from "@/components/Admin/Building/BuildingManagementView";
 
 export default function BuildingManagementPage() {
   return (

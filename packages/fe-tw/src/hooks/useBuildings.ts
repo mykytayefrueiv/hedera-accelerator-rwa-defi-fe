@@ -86,7 +86,7 @@ const readBuildingDetails = (address: `0x${string}`) => readContract({
 export function useBuildings() {
     const [buildingsAddresses, setBuildingAddresses] = useState<`0x${string}`[]>([]);
     const [buildings, setBuildings] = useState<BuildingData[]>([]);
-    const [logs, setLogs] = useState<{ args: `0x${string}`[] }[]>([]);
+    const [newBuildingLogs, setNewBuildingLogs] = useState<{ args: `0x${string}`[] }[]>([]);
 
     const fetchBuildingNFTs = async () => {
         const { buildingNFTsData, buildingAddressesProxiesData } = await fetchBuildingNFTsMetadata(buildingsAddresses, buildings);
@@ -103,7 +103,7 @@ export function useBuildings() {
         abi: buildingFactoryAbi,
         eventName: 'NewBuilding',
         onLogs: (data) => {
-            setLogs(prev => !prev.length ? data as unknown as { args: `0x${string}`[] }[] : prev);
+            setNewBuildingLogs(prev => !prev.length ? data as unknown as { args: `0x${string}`[] }[] : prev);
         },
     });
 
@@ -114,8 +114,8 @@ export function useBuildings() {
     }, [buildingsAddresses?.length]);
 
     useEffect(() => {
-        setBuildingAddresses(logs.map(log => log.args[0]));
-    }, [logs?.length]);
+        setBuildingAddresses(newBuildingLogs.map(log => log.args[0]));
+    }, [newBuildingLogs?.length]);
 
     return { buildings };
 }
