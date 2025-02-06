@@ -33,15 +33,11 @@ export function useBuildingDetails(building: BuildingData) {
     });
 
     useEffect(() => {
-        console.log('newTokenForBuildingLogs--', newTokenForBuildingLogs)
-
         setDeployedBuildingTokens(newTokenForBuildingLogs.map(log => ({
             tokenAddress: log.args[1],
             buildingAddress: log.args[0],
         })).filter((log) => log.buildingAddress === building.address));
     }, [newTokenForBuildingLogs?.length]);
-
-    console.log('deployedBuildingTokens--', deployedBuildingTokens)
 
     const isBuildingAdmin = useMemo(() => {
         if (!!buildingOwner) {

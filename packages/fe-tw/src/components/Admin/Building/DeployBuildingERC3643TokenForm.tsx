@@ -1,6 +1,8 @@
+import { BackButton } from "@/components/Buttons/BackButton";
 import { useBuildingAdmin } from "@/hooks/useBuildingAdmin";
+import { useBuildingDetails } from "@/hooks/useBuildingDetails";
 import { useBuildings } from "@/hooks/useBuildings";
-import { CreateERC3643RequestBody } from "@/types/erc3643/types";
+import { BuildingData, CreateERC3643RequestBody } from "@/types/erc3643/types";
 import { Field, Form, Formik } from "formik";
 import { useState } from "react";
 import { Button } from "react-daisyui";
@@ -10,6 +12,7 @@ import * as Yup from "yup";
 type Props = {
     buildingAddress?: `0x${string}`;
     onGetLiquidityView: (address: `0x${string}`) => void;
+    onGetDeployBuildingView?: () => void;
 }
 
 const initialValues = {
@@ -34,14 +37,14 @@ const colourStyles = {
     }),
 };
 
-export const DeployBuildingERC3643TokenForm = ({ buildingAddress, onGetLiquidityView }: Props) => {
+export const DeployBuildingERC3643TokenForm = ({ buildingAddress, onGetLiquidityView, onGetDeployBuildingView }: Props) => {
     const { buildings } = useBuildings();
+    const { deployedBuildingTokens } = useBuildingDetails({ address: buildingAddress } as BuildingData);
     const [selectedBuildingAddress, setSelectedBuildingAddress] = useState<`0x${string}`>('0x');
 
     const [txError, setTxError] = useState<string>();
     const [txResult, setTxResult] = useState<string>();
     const [loading, setLoading] = useState(false);
-    const [deployedTokens, setDeployedTokens] = useState<`0x${string}`[]>([]);
 
     const { createBuildingERC3643Token } = useBuildingAdmin(buildingAddress ?? selectedBuildingAddress);
 
@@ -55,7 +58,6 @@ export const DeployBuildingERC3643TokenForm = ({ buildingAddress, onGetLiquidity
             setTxError('Deploy of building token failed!');
         }
 
-        setDeployedTokens((prev) => [...prev, '0x123']);
         setLoading(false);
     };
 
@@ -71,6 +73,10 @@ export const DeployBuildingERC3643TokenForm = ({ buildingAddress, onGetLiquidity
                 setSubmitting(false);
             }}>
             <Form className="p-5 space-y-4 p-8 border border-gray-300">
+                {!!onGetDeployBuildingView && <BackButton onHandlePress={() => {
+                    onGetDeployBuildingView?.();
+                }} />}
+                <h3 className="text-xl font-semibold mt-5 mb-5">Deploy ERC3643 Token for Building</h3>
                 {!buildingAddress && (
                     <div className="w-full">
                         <label className="block text-md font-semibold text-purple-400" htmlFor="tokenName">
@@ -81,7 +87,7 @@ export const DeployBuildingERC3643TokenForm = ({ buildingAddress, onGetLiquidity
                             placeholder="Building Address"
                             name="buildingAddress"
                             onChange={(option) => {
-                                setSelectedBuildingAddress(option?.value ?? '0x');
+                                setSelectedBuildingAddress(option?.value as `0x${string}`);
                             }}
                             options={buildings.map((building) => ({
                                 value: building.address,
@@ -139,7 +145,7 @@ export const DeployBuildingERC3643TokenForm = ({ buildingAddress, onGetLiquidity
                         type="button"
                         color="secondary"
                         onClick={() => onGetLiquidityView(selectedBuildingAddress)}
-                        disabled={deployedTokens.length === 0}
+                        disabled={deployedBuildingTokens.length === 0}
                     >
                         To Add Luquidity
                     </Button>

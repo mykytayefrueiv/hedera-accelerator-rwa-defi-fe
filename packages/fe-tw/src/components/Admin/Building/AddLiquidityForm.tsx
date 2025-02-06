@@ -6,9 +6,11 @@ import Select from "react-select";
 import { useBuildingLiquidity } from "@/hooks/useBuildingLiquidity";
 import { useBuildingDetails } from "@/hooks/useBuildingDetails";
 import { BuildingData } from "@/types/erc3643/types";
+import { BackButton } from "@/components/Buttons/BackButton";
 
 type Props = {
   buildingAddress: `0x${string}`;
+  onGetDeployBuildingTokenView: () => void;
 };
 
 const colourStyles = {
@@ -27,7 +29,7 @@ const colourStyles = {
   }),
 };
 
-export function AddLiquidityForm({ buildingAddress }: Props) {
+export function AddLiquidityForm({ buildingAddress, onGetDeployBuildingTokenView }: Props) {
   const [formData, setFormData] = useState({
     buildingAddress: (buildingAddress as string) ?? "",
     tokenAAddress: "",
@@ -87,8 +89,11 @@ export function AddLiquidityForm({ buildingAddress }: Props) {
 
   return (
     <div className="bg-white rounded-lg p-8 border border-gray-300">
-      <h3 className="text-xl font-semibold mb-4">Add Liquidity</h3>
       <form onSubmit={handleAddLiquidity} className="space-y-4">
+        <BackButton onHandlePress={() => {
+          onGetDeployBuildingTokenView();
+        }} />
+        <h3 className="text-xl font-semibold mt-5 mb-5">Add Liquidity</h3>
         {!buildingAddress && <div>
           <label className="block text-md font-semibold text-purple-400" htmlFor="buildingAddress">Building Address</label>
           <input

@@ -18,7 +18,12 @@ export function TokenManagementView() {
       )
     } else if (currentSetupStep === 2) {
       return (
-        <AddLiquidityForm buildingAddress={selectedBuildingAddress} />
+        <AddLiquidityForm
+          buildingAddress={selectedBuildingAddress}
+          onGetDeployBuildingTokenView={() => {
+            setCurrentSetupStep(2);
+          }}
+        />
       )
     }
   }, [currentSetupStep]);

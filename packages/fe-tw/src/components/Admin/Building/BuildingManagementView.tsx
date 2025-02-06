@@ -25,11 +25,19 @@ export function BuildingManagementView() {
           onGetLiquidityView={() => {
             setCurrentSetupStep(3);
           }}
+          onGetDeployBuildingView={() => {
+            setCurrentSetupStep(1);
+          }}
         />
       )
     } else if (currentSetupStep === 3) {
       return (
-        <AddTokensLiquidityForm buildingAddress={deployedBuilding as `0x${string}`} />
+        <AddTokensLiquidityForm
+          buildingAddress={deployedBuilding as `0x${string}`}
+          onGetDeployBuildingTokenView={() => {
+            setCurrentSetupStep(2);
+          }}
+        />
       )
     }
   }, [currentSetupStep])

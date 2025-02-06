@@ -8,6 +8,7 @@ export const useBuildingAdmin = (buildingAddress: `0x${string}`) => {
     const { writeContract } = useWriteContract();
     const { watch } = useWatchTransactionReceipt();
 
+    // todo: fix newERC3643Token tx in SC? currently got an error from SC using valid arguments.
     const createBuildingERC3643Token = (payload: CreateERC3643RequestBody): Promise<string> => {
         return new Promise((res, rej) => {
             writeContract({
