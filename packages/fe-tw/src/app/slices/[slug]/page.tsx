@@ -14,11 +14,11 @@ type Props = {
 };
 
 export default async function Page({ params }: Props) {
-  const { slug } = await params; 
-  
+  const { slug } = await params;
+
   const allSlices = await getAllSlices();
   const sliceData = allSlices.find(
-    (slice) => slugify(slice.name) === slugify(slug)
+    (slice) => slugify(slice.id) === slugify(slug)
   );
 
   if (!sliceData) {

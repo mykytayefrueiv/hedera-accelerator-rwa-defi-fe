@@ -4,14 +4,16 @@ import React, { useState } from "react";
 import { useCopeData } from "@/hooks/useCopeData";
 import { CopeUpdateModal } from "@/components/Cope/CopeUpdateModal";
 import { CopeData } from "@/consts/cope";
+import { useBuildingDetails } from "@/hooks/useBuildingDetails";
+import { BuildingData } from "@/types/erc3643/types";
 
-interface CopeViewProps {
-  buildingId: string;
-  isAdmin: boolean;
+type Props = {
+  building: BuildingData;
 }
 
-export function CopeView({ buildingId, isAdmin }: CopeViewProps) {
-  const { data, isLoading, isError, updateData, isUpdating } = useCopeData(buildingId);
+export function CopeView({ building }: Props) {
+  const { isBuildingAdmin } = useBuildingDetails(building);
+  const { data, isLoading, isError, updateData, isUpdating } = useCopeData(building.id);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   if (isLoading) return <div>Loading COPE data...</div>;
@@ -59,7 +61,7 @@ export function CopeView({ buildingId, isAdmin }: CopeViewProps) {
             <strong>Notes:</strong> {notes}
           </p>
         )}
-        {isAdmin && (
+        {isBuildingAdmin && (
           <button
             onClick={() => setShowUpdateModal(true)}
             className="btn btn-primary mt-6 w-full"

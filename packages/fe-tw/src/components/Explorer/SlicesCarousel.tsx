@@ -1,30 +1,24 @@
 "use client";
 
+import { SliceData } from "@/types/erc3643/types";
 import { slugify } from "@/utils/slugify";
 import { useCallback } from "react";
-
-interface Slice {
-  id: number;
-  name: string;
-  imageUrl?: string;
-}
-
 interface SlicesCarouselProps {
-  slices: Slice[];
-  selectedSlice?: Slice
-  onSelectSlice: (slice: Slice) => void;
+  slices: SliceData[];
+  selectedSlice?: SliceData;
+  onSelectSlice: (slice: SliceData) => void;
 }
 
 export function SlicesCarousel({ slices, selectedSlice, onSelectSlice }: SlicesCarouselProps) {
   const handleClick = useCallback(
-    (slice: Slice) => {
+    (slice: SliceData) => {
       onSelectSlice(slice);
     },
     [onSelectSlice],
   );
 
   const handleDoubleClick = useCallback(
-    (slice: Slice) => {
+    (slice: SliceData) => {
       if (selectedSlice?.id === slice.id) {
         window.location.href = `/slices/${slugify(slice.name)}`;
       }
@@ -37,9 +31,8 @@ export function SlicesCarousel({ slices, selectedSlice, onSelectSlice }: SlicesC
       {slices.map((slice) => (
         <div
           key={slice.id}
-          className={`group flex-shrink-0 w-32 md:w-48 cursor-pointer transition-all duration-300 ${
-            selectedSlice?.id === slice.id ? "bg-gray-100 rounded-lg" : ""
-          }`}
+          className={`group flex-shrink-0 w-32 md:w-48 cursor-pointer transition-all duration-300 ${selectedSlice?.id === slice.id ? "bg-gray-100 rounded-lg" : ""
+            }`}
           onClick={() => handleClick(slice)}
           onDoubleClick={() => handleDoubleClick(slice)}
         >
@@ -55,9 +48,8 @@ export function SlicesCarousel({ slices, selectedSlice, onSelectSlice }: SlicesC
               </div>
             </div>
             <p
-              className={`my-2 text-sm md:text-md ${
-                selectedSlice?.id === slice.id ? "font-bold" : ""
-              }`}
+              className={`my-2 text-sm md:text-md ${selectedSlice?.id === slice.id ? "font-bold" : ""
+                }`}
             >
               {slice.name}
             </p>

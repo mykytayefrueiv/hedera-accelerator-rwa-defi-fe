@@ -1,24 +1,30 @@
+"use client";
+
 import { PaymentsView } from "@/components/Payments/PaymentsView";
+import { LoadingView } from "@/components/LoadingView";
 import { useBuildings } from "@/hooks/useBuildings";
-import { notFound } from "next/navigation";
+import React, { use, Usable } from "react";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 };
 
-export default async function PaymentsPage({ params }: Props) {
-  const { id } = await params;
+export default function PaymentsPage({ params }: Props) {
+  const { id } = use<{ id: string }>(params as unknown as Usable<{ id: string }>);
   const { buildings } = useBuildings();
-  const building = buildings.find((b) => b.id === id);
 
-  if (!building) {
-    notFound();
+  const building = buildings.find(_building => _building.id === id);
+
+  if (!buildings?.length || !id) {
+    return <LoadingView isLoading />;
+  } else if (!building) {
+    return <p>Not found</p>;
   }
 
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">
-      {building.title}: Payments
+        {building.title}: Payments
       </h1>
       <PaymentsView buildingId={id} />
     </div>

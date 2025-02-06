@@ -12,25 +12,19 @@ export type DeployTokenRequest = {
 export type SliceData = {
 	imageUrl?: string;
 	name: string;
-	id: number;
+	id: string;
+	timeToEnd?: number;
 	description?: string;
+	allocation?: number;
+	estimatedPrice?: number;
 }
-
-export type BuildingSliceData = {
-	imageUrl?: string;
-	name: string;
-	description: string;
-	allocation: number;
-	estimatedPrice: number;
-	id: number;
-};
 
 export type BuildingSliceCategoryData = {
 	id: number;
 	name: string;
 	title: string;
 	itemsSize?: AvatarSize;
-	items?: BuildingSliceData[];
+	items?: SliceData[];
 }
 
 type BulidingYield = {
@@ -57,14 +51,14 @@ export type BuildingInfo = {
 }
 
 export type BuildingData = {
-	id: string | number;
+	id: string;
 	title: string;
-	address: string;
+	address: `0x${string}`;
 	purchasedAt: number;
 	description: string;
 	info: BuildingInfo;
 	votingItems: number[];
-	partOfSlices: number[];
+	partOfSlices: string[];
 	imageUrl?: string;
 	allocation: number;
 	copeIpfsHash?: string;
@@ -86,7 +80,7 @@ export type VotingItem = {
 
 export type QueryData<ArgType> = {
 	args: ArgType;
-}
+};
 
 export type BuildingNFTAttribute = {
 	display_type: string,
@@ -98,9 +92,60 @@ export type BuildingNFTData = {
 	description: string;
 	image: string;
 	name: string;
-	address: string;
+	address: `0x${string}`;
 	allocation: number;
 	purchasedAt: number;
 	attributes: BuildingNFTAttribute[];
 	copeIpfsHash: string;
+}
+
+export type SwapTradeItem = {
+	tokenA: string,
+	tokenB: string,
+	tokenAAmount: string,
+	tokenBAmount: string,
+	id?: string,
+};
+
+export type SwapLiquidityPair = {
+	tokenA: `0x${string}`,
+	tokenB: `0x${string}`,
+};
+
+export type SwapTokensRequestBody = {
+	path: string[],
+	amountIn: bigint,
+	amountOut: bigint,
+	deadline?: number,
+};
+
+export type SwapTokenPriceRequestBody = {
+	isSell: boolean,
+	token: `0x${string}`,
+	amount: bigint,
+	thresholdIntervalInSeconds: number,
+}
+
+export type SwapTokenAddLiquidityRequestBody = {
+	tokenA: string,
+	tokenB?: string,
+	amount: bigint,
+};
+
+export type SwapTokenSwapRequestBody = {
+	tokenA: string,
+	tokenB: string,
+	amount: bigint,
+};
+
+export type AddLiquidityRequestBody = {
+	tokenA: string,
+	tokenB: string,
+	tokenAAmount: string,
+	tokenBAmount: string,
+}
+
+export type SwapTradeProfit = {
+	dailyProfitInUSD: number,
+	weeklyProfitInUSD: number,
 }

@@ -1,18 +1,12 @@
 "use client";
 
+import { BuildingData } from "@/types/erc3643/types";
 import Link from "next/link";
 import { useState } from "react";
 
-type Building = {
-  id: number | string;
-  title: string;
-  imageUrl?: string;
-  allocation?: number;
-};
-
 type Props = {
   title?: string;
-  buildings: Building[];
+  buildings: BuildingData[];
 };
 
 export function BuildingsCarousel({ title, buildings }: Props) {

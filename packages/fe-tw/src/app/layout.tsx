@@ -45,9 +45,9 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-base-100 text-neutral`}>
         <Providers>
-        <ToastProvider />
+          <ToastProvider />
           <div className="min-h-screen">
-          <Navbar>{children}</Navbar>
+            <Navbar>{children}</Navbar>
             <div className="mt-20">
               <Footer />
             </div>

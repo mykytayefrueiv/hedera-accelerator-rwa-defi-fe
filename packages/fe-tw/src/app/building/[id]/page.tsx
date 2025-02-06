@@ -1,7 +1,6 @@
 "use client";
 
 import { LoadingView } from "@/components/LoadingView";
-import { PageRedirect } from "@/components/Page/PageRedirect";
 import { BuildingDetailPage } from "@/components/Buildings/BuildingDetailsPage";
 import { BuildingData } from "@/types/erc3643/types";
 import React, { use, Usable } from "react";
@@ -15,15 +14,13 @@ export default function Home({ params }: Props) {
     const { id } = use<{ id: string }>(params as unknown as Usable<{ id: string }>);
     const { buildings } = useBuildings();
 
-    const buildingData = buildings?.find(item => item.id === id);
+    const building = buildings.find(_building => _building.id === id);
 
-    if (!buildings.length) {
+    if (!buildings?.length || !id) {
         return <LoadingView isLoading />;
+    } else if (!building) {
+        return <p>Not found</p>;
     }
 
-    return (
-        <PageRedirect notFound={!buildingData}>
-            <BuildingDetailPage {...buildingData as BuildingData} />
-        </PageRedirect>
-    );
+    return <BuildingDetailPage {...building as BuildingData} />;
 }
