@@ -1,6 +1,6 @@
 import { watchContractEvent } from '@/services/contracts/watchContractEvent';
 import { sliceFactoryAbi } from '@/services/contracts/abi/sliceFactoryAbi';
-import { sliceFactoryAddress } from "@/services/contracts/addresses";
+import { SLICE_FACTORY_ADDRESS } from "@/services/contracts/addresses";
 import { useEffect, useState } from 'react';
 import { QueryData, SliceData } from '@/types/erc3643/types';
 
@@ -25,7 +25,7 @@ export function useSlicesData() {
   const [slices, setSlices] = useState<SliceData[]>([]);
 
   watchContractEvent({
-    address: sliceFactoryAddress,
+    address: SLICE_FACTORY_ADDRESS,
     abi: sliceFactoryAbi,
     eventName: "SliceDeployed",
     onLogs: (data) => {
