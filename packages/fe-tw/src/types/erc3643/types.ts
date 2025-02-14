@@ -9,15 +9,22 @@ export type DeployTokenRequest = {
 	complianceSettings: EvmAddress[];
 };
 
-export type SliceData = {
-	imageUrl?: string;
-	name: string;
-	id: string;
-	timeToEnd?: number;
+export type SliceNFTData = {
+	name?: string;
 	description?: string;
 	allocation?: number;
+};
+
+export type SliceData = {
+	id: string;
+	address: `0x${string}`;
+	name: string;
+	allocation?: number;
+	description?: string;
+	ipfsImageCopeHash?: string;
+	timeToEnd?: number;
 	estimatedPrice?: number;
-}
+};
 
 export type BuildingSliceCategoryData = {
 	id: number;
@@ -25,12 +32,12 @@ export type BuildingSliceCategoryData = {
 	title: string;
 	itemsSize?: AvatarSize;
 	items?: SliceData[];
-}
+};
 
 type BulidingYield = {
 	percentage: number;
 	days: number;
-}
+};
 
 export type BuildingInfo = {
 	financial: {
@@ -61,13 +68,13 @@ export type BuildingData = {
 	// todo: after mock removal `const/buildings` change those to required.
 	address?: `0x${string}`;
 	copeIpfsHash?: string;
-}
+};
 
 export type BuildingNFTAttribute = {
 	display_type: string,
 	trait_type: string,
 	value: string
-}
+};
 
 export type BuildingNFTData = {
 	description: string;
@@ -78,7 +85,7 @@ export type BuildingNFTData = {
 	purchasedAt: number;
 	attributes: BuildingNFTAttribute[];
 	copeIpfsHash: string;
-}
+};
 
 export type VotingItem = {
 	id: number;
@@ -95,6 +102,24 @@ export type CreateERC3643RequestBody = {
 	tokenDecimals: number;
 };
 
+export type CreateSliceRequestBody = SliceNFTData;
+
 export type QueryData<ArgType> = {
 	args: ArgType;
+};
+
+export type DeployAutoCompounderRequest = {
+	tokenName: string;
+	tokenSymbol: string;
+};
+
+export type DeployVaultRequest = {
+	stakingToken: string;
+	shareTokenName: string;
+	shareTokenSymbol: string;
+	vaultRewardController: string;
+	feeConfigController: string;
+	receiver: string;
+	token: string;
+	feePercentage: bigint;
 };

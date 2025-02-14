@@ -1,4 +1,4 @@
-export const sliceFactoryAbi = [
+export const autoCompounderFactoryAbi = [
     {
         "inputs": [],
         "stateMutability": "nonpayable",
@@ -32,6 +32,31 @@ export const sliceFactoryAbi = [
             {
                 "indexed": true,
                 "internalType": "address",
+                "name": "autoCompounder",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+            }
+        ],
+        "name": "AutoCompounderDeployed",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
                 "name": "previousOwner",
                 "type": "address"
             },
@@ -46,35 +71,23 @@ export const sliceFactoryAbi = [
         "type": "event"
     },
     {
-        "anonymous": false,
         "inputs": [
             {
-                "indexed": true,
-                "internalType": "address",
-                "name": "slice",
-                "type": "address"
-            },
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "name": "autoCompounderDeployed",
+        "outputs": [
             {
-                "indexed": true,
                 "internalType": "address",
-                "name": "pyth",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "address",
-                "name": "uniswapRouter",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "address",
-                "name": "usdc",
+                "name": "",
                 "type": "address"
             }
         ],
-        "name": "SliceDeployed",
-        "type": "event"
+        "stateMutability": "view",
+        "type": "function"
     },
     {
         "inputs": [
@@ -87,12 +100,12 @@ export const sliceFactoryAbi = [
                 "components": [
                     {
                         "internalType": "address",
-                        "name": "pyth",
+                        "name": "uniswapV2Router",
                         "type": "address"
                     },
                     {
                         "internalType": "address",
-                        "name": "uniswapRouter",
+                        "name": "vault",
                         "type": "address"
                     },
                     {
@@ -102,63 +115,29 @@ export const sliceFactoryAbi = [
                     },
                     {
                         "internalType": "string",
-                        "name": "name",
+                        "name": "aTokenName",
                         "type": "string"
                     },
                     {
                         "internalType": "string",
-                        "name": "symbol",
+                        "name": "aTokenSymbol",
                         "type": "string"
-                    },
-                    {
-                        "internalType": "bytes32",
-                        "name": "group",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "bytes32",
-                        "name": "description",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "uint8",
-                        "name": "decimals",
-                        "type": "uint8"
                     }
                 ],
-                "internalType": "struct ISliceFactory.SliceDetails",
-                "name": "sliceDetails",
+                "internalType": "struct IAutoCompounderFactory.AutoCompounderDetails",
+                "name": "autoCompounderDetails",
                 "type": "tuple"
             }
         ],
-        "name": "deploySlice",
+        "name": "deployAutoCompounder",
         "outputs": [
             {
                 "internalType": "address",
-                "name": "slice",
+                "name": "autoCompounder",
                 "type": "address"
             }
         ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes32",
-                "name": "group",
-                "type": "bytes32"
-            }
-        ],
-        "name": "getSlicesByGroup",
-        "outputs": [
-            {
-                "internalType": "address[]",
-                "name": "",
-                "type": "address[]"
-            }
-        ],
-        "stateMutability": "view",
+        "stateMutability": "payable",
         "type": "function"
     },
     {
@@ -214,4 +193,3 @@ export const sliceFactoryAbi = [
         "type": "function"
     }
 ]
-

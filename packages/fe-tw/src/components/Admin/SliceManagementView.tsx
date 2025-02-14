@@ -3,36 +3,25 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useCreateSlice } from "@/hooks/useCreateSlice";
+import { CreateSliceRequestBody } from "@/types/erc3643/types";
+import { DeploySliceForm } from "./DeploySliceForm";
 
 export function SliceManagementView() {
   const [txResult, setTxResult] = useState<string>();
   const [txError, setTxError] = useState<string>();
-  const [formData, setFormData] = useState({
-    sliceName: "",
-    allocation: "",
-    description: "",
-  });
+  const [isTransactionInProgress, setIsTransactionInProgress] = useState<boolean>(false);
 
   const { handleCreateSlice } = useCreateSlice();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onHandleSubmit = async (values: CreateSliceRequestBody) => {
     try {
-      // TODO: endpoint to push / get slice metadata.
-      const txOrHash = await handleCreateSlice();
+      setIsTransactionInProgress(true);
+      const txOrHash = await handleCreateSlice(values);
 
       toast.success("Slice created successfully");
-      setTxResult((txOrHash as { transaction_hash: string })?.transaction_hash);
-      setFormData({ sliceName: "", allocation: "", description: "" });
+      setTxResult(txOrHash);
     } catch (err) {
-      toast.error("Failed to create slice");
+      setIsTransactionInProgress(false);
       setTxError((err as unknown as { message: string }).message?.slice(0, 28));
     }
   };
@@ -54,59 +43,23 @@ export function SliceManagementView() {
         {/* Right Column: Slice Management Form */}
         <div className="bg-white rounded-lg p-8 border border-gray-300">
           <h2 className="text-xl font-semibold mb-6">Create Slice</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold">Slice Name</label>
-              <input
-                type="text"
-                name="sliceName"
-                value={formData.sliceName}
-                onChange={handleInputChange}
-                className="input input-bordered w-full"
-                placeholder="Enter slice name"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold">Allocation (%)</label>
-              <input
-                type="text"
-                name="allocation"
-                value={formData.allocation}
-                onChange={handleInputChange}
-                className="input input-bordered w-full"
-                placeholder="Enter allocation percentages"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold">Description</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                className="textarea textarea-bordered w-full"
-                placeholder="Enter a brief description"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="btn btn-primary w-full md:w-4/12"
-            >
-              Create Slice
-            </button>
-            {txResult && <div className="flex">
-              <p className="text-sm font-bold text-purple-600">
-                Deployed Tx Hash: {txResult}
-              </p>
-            </div>}
-            {txError && <div className="flex">
-              <p className="text-sm font-bold text-purple-600">
-                Deployed Tx Error: {txError}
-              </p>
-            </div>}
-          </form>
+          <DeploySliceForm
+            isLoading={isTransactionInProgress}
+            submitCreateSlice={onHandleSubmit}
+          >
+            <>
+              {txResult && <div className="flex">
+                <p className="text-sm font-bold text-purple-600">
+                  Deployed Tx Hash: {txResult}
+                </p>
+              </div>}
+              {txError && <div className="flex">
+                <p className="text-sm font-bold text-purple-600">
+                  Deployed Tx Error: {txError}
+                </p>
+              </div>}
+            </>
+          </DeploySliceForm>
         </div>
       </div>
     </div>

@@ -6,7 +6,6 @@ import { BUILDING_FACTORY_ADDRESS } from "@/services/contracts/addresses";
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
 import { BuildingData, BuildingNFTAttribute, BuildingNFTData } from "@/types/erc3643/types";
 import { buildingFinancialMock } from "@/consts/buildings";
-import { appConfig } from "@/consts/config";
 import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 import { readContract } from "@/services/contracts/readContract";
 

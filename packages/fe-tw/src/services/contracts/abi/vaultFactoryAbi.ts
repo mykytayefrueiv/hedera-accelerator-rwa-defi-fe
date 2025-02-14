@@ -1,4 +1,4 @@
-export const sliceFactoryAbi = [
+export const vaultFactoryAbi = [
     {
         "inputs": [],
         "stateMutability": "nonpayable",
@@ -51,29 +51,23 @@ export const sliceFactoryAbi = [
             {
                 "indexed": true,
                 "internalType": "address",
-                "name": "slice",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "pyth",
+                "name": "vault",
                 "type": "address"
             },
             {
                 "indexed": false,
-                "internalType": "address",
-                "name": "uniswapRouter",
-                "type": "address"
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
             },
             {
                 "indexed": false,
-                "internalType": "address",
-                "name": "usdc",
-                "type": "address"
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
             }
         ],
-        "name": "SliceDeployed",
+        "name": "VaultDeployed",
         "type": "event"
     },
     {
@@ -87,78 +81,66 @@ export const sliceFactoryAbi = [
                 "components": [
                     {
                         "internalType": "address",
-                        "name": "pyth",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "uniswapRouter",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "usdc",
+                        "name": "stakingToken",
                         "type": "address"
                     },
                     {
                         "internalType": "string",
-                        "name": "name",
+                        "name": "shareTokenName",
                         "type": "string"
                     },
                     {
                         "internalType": "string",
-                        "name": "symbol",
+                        "name": "shareTokenSymbol",
                         "type": "string"
                     },
                     {
-                        "internalType": "bytes32",
-                        "name": "group",
-                        "type": "bytes32"
+                        "internalType": "address",
+                        "name": "vaultRewardController",
+                        "type": "address"
                     },
                     {
-                        "internalType": "bytes32",
-                        "name": "description",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "uint8",
-                        "name": "decimals",
-                        "type": "uint8"
+                        "internalType": "address",
+                        "name": "feeConfigController",
+                        "type": "address"
                     }
                 ],
-                "internalType": "struct ISliceFactory.SliceDetails",
-                "name": "sliceDetails",
+                "internalType": "struct IVaultFactory.VaultDetails",
+                "name": "vaultDetails",
+                "type": "tuple"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "token",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "feePercentage",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct FeeConfiguration.FeeConfig",
+                "name": "feeConfig",
                 "type": "tuple"
             }
         ],
-        "name": "deploySlice",
+        "name": "deployVault",
         "outputs": [
             {
                 "internalType": "address",
-                "name": "slice",
+                "name": "vault",
                 "type": "address"
             }
         ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes32",
-                "name": "group",
-                "type": "bytes32"
-            }
-        ],
-        "name": "getSlicesByGroup",
-        "outputs": [
-            {
-                "internalType": "address[]",
-                "name": "",
-                "type": "address[]"
-            }
-        ],
-        "stateMutability": "view",
+        "stateMutability": "payable",
         "type": "function"
     },
     {
@@ -212,6 +194,24 @@ export const sliceFactoryAbi = [
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "name": "vaultDeployed",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     }
 ]
-

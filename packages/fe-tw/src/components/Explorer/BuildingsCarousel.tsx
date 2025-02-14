@@ -1,23 +1,17 @@
 "use client";
 
+import { BuildingData } from "@/types/erc3643/types";
 import Link from "next/link";
 import { useState } from "react";
 
-type Building = {
-  id: number;
-  title: string;
-  imageUrl?: string;
-  allocation?: number;
-};
-
 type Props = {
   title?: string;
-  buildings: Building[];
+  buildings: BuildingData[];
 };
 
 export function BuildingsCarousel({ title, buildings }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsPerPage = 4; 
+  const itemsPerPage = 4;
   const totalPages = Math.ceil(buildings.length / itemsPerPage);
 
   const goToPrevious = () => {
@@ -80,7 +74,7 @@ export function BuildingsCarousel({ title, buildings }: Props) {
         <button
           onClick={goToNext}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-10 btn btn-circle bg-gray-200 bg-opacity-70 text-gray-500 hover:bg-gray-300 hover:text-gray-600 transition-all"
-          >
+        >
           ❯
         </button>
       </div>
