@@ -9,3 +9,6 @@ export const buildingFactoryAddress =
 
 export const buildingMetadataAddressIPFS =
     "ipfs://bafkreifuy6zkjpyqu5ygirxhejoryt6i4orzjynn6fawbzsuzofpdgqscq";
+
+export const BUILDING_FACTORY_ADDRESS =
+	"0x47CE39E474A13D9E5a1890B212E6aBA4FFC867Dd" as const;

@@ -2,7 +2,8 @@
 
 import moment from "moment";
 import { useState } from "react";
-import { Proposal, ProposalType } from "@/types/props";
+import { Check as CheckIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Proposal } from "@/types/props";
 import { ProposalDetails } from "./ProposalDetails";
 import { VoteType } from "@/types/common";
 
@@ -35,20 +36,18 @@ export function ProposalItem({
 
   const totalVotes = votesYes + votesNo;
   const yesPercent = totalVotes === 0 ? 0 : (votesYes / totalVotes) * 100;
-  const noPercent = 100 - yesPercent; // Remaining portion goes to "No"
+  const noPercent = 100 - yesPercent;
 
   return (
     <li
       className="
         border 
-        rounded-xl   /* rounder corners */
+        rounded-xl 
         p-4 
         bg-white 
-        shadow-sm 
         transition-colors 
         duration-150 
         ease-in-out 
-        hover:shadow-md 
         hover:bg-gray-50
       "
     >
@@ -57,16 +56,19 @@ export function ProposalItem({
         {!concluded && !hasVoted && (
           <div className="flex gap-2">
             <button
-              className="btn btn-md btn-primary"
+              className="w-10 h-10 border-2 border-purple-500 text-purple-500 flex items-center justify-center rounded-full hover:bg-purple-100 transition"
               onClick={() => handleVote("yes")}
+              aria-label="Vote Yes"
             >
-              Yes
+              <CheckIcon fontSize="small" />
             </button>
+
             <button
-              className="btn btn-md btn-secondary"
+              className="w-10 h-10 bg-gray-200 text-white flex items-center justify-center rounded-full hover:bg-gray-300 transition"
               onClick={() => handleVote("no")}
+              aria-label="Vote No"
             >
-              No
+              <CloseIcon fontSize="small" />
             </button>
           </div>
         )}
@@ -96,7 +98,7 @@ export function ProposalItem({
             style={{ width: `${yesPercent}%` }}
           />
           <div
-            className="absolute top-0 right-0 h-full bg-red-300"
+            className="absolute top-0 right-0 h-full bg-gray-200"
             style={{ width: `${noPercent}%` }}
           />
         </div>

@@ -6,7 +6,7 @@ import { BuildingVotings } from "./BuildingVotings";
 
 export const BuildingDetailPage = (props: BuildingData) => {
   return (
-    <div className="flex flex-col space-y-8 px-6 sm:px-8 md:px-12 lg:px-16 py-6 mx-auto max-w-screen-xl">
+    <div >
         <BuildingBaseInfo {...props} />
         <BuildingDetailInfo {...props.info} />
         <BuildingVotings votings={props.votingItems} />
