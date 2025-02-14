@@ -14,7 +14,7 @@ export type SliceData = {
 	name: string;
 	id: number;
 	description?: string;
-}
+};
 
 export type BuildingSliceData = {
 	imageUrl?: string;
@@ -31,29 +31,30 @@ export type BuildingSliceCategoryData = {
 	title: string;
 	itemsSize?: AvatarSize;
 	items?: BuildingSliceData[];
-}
+};
 
 type BulidingYield = {
 	percentage: number;
 	days: number;
-}
+};
 
 export type BuildingInfo = {
 	financial: {
-		percentageOwned: number,
+		percentageOwned: number;
 		tokenPrice: number;
 		directExposure: number;
 		yield: BulidingYield[];
 		treasury: number;
-	},
+	};
 	demographics: {
 		constructedYear: number;
 		type: string;
 		location: string;
 		locationType: string;
 	};
-}
+};
 
+//
 export type BuildingData = {
 	id: number;
 	title: string;
@@ -65,7 +66,7 @@ export type BuildingData = {
 	imageUrl?: string;
 	allocation: number;
 	copeIpfsHash?: string;
-}
+};
 
 export type VotingItem = {
 	id: number;
@@ -74,4 +75,4 @@ export type VotingItem = {
 	startDate: string;
 	endDate: string;
 	userHasVoted: boolean;
-  };
+};
