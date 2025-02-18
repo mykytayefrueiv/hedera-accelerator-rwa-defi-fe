@@ -7,14 +7,8 @@ export const trexFactoryAddress =
 export const AUDIT_REGISTRY_ADDRESS =
 	"0xc1124b3FD168308f8edccE8d22A7589c06413165" as const;
 
-export const buildingFactoryAddress =
-    "0xF77AC43e31Cf5392f7365aB8858Ad35B06DA717F";
-
-export const buildingMetadataAddressIPFS =
-    "ipfs://bafkreifuy6zkjpyqu5ygirxhejoryt6i4orzjynn6fawbzsuzofpdgqscq";
-
 export const BUILDING_FACTORY_ADDRESS =
-	"0x47CE39E474A13D9E5a1890B212E6aBA4FFC867Dd" as const;
+	"0x5253764FFb0C024bF21CB8c65bD62bcDdf793E33" as const;
 
-export const ONE_SIDED_EXCHANGE_ADDRESS = "0xac5b680F7be03D300255beD1B686c459dd54ab11" as const;
-
+export const ONE_SIDED_EXCHANGE_ADDRESS =
+	"0xac5b680F7be03D300255beD1B686c459dd54ab11" as const;

@@ -1,5 +1,5 @@
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
-import { buildingFactoryAddress } from "@/services/contracts/addresses";
+import { BUILDING_FACTORY_ADDRESS } from "@/services/contracts/addresses";
 import type { EvmAddress, TransactionExtended } from "@/types/common";
 import {
 	useReadContract,
@@ -36,7 +36,7 @@ export function DeployBuilding({
 	const loadBuildings = async () => {
 		try {
 			const buildings = (await readContract({
-				address: buildingFactoryAddress,
+				address: BUILDING_FACTORY_ADDRESS,
 				abi: buildingFactoryAbi,
 				functionName: "getBuildingList",
 			})) as DeployedBuilding[];
@@ -119,7 +119,7 @@ export function DeployBuilding({
 	const deployNewBuilding = async () => {
 		try {
 			const transactionIdOrHash = await writeContract({
-				contractId: buildingFactoryAddress,
+				contractId: BUILDING_FACTORY_ADDRESS,
 				abi: buildingFactoryAbi,
 				functionName: "newBuilding",
 				metaArgs: { gas: 1_200_000 },
