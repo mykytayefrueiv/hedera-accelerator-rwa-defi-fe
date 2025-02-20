@@ -1,3 +1,4 @@
+import { uploadFileToPinata, uploadJsonToPinata } from "@/services/ipfsService";
 import { prepareIPFSfileURL } from "@/utils/helpers";
 import { pinata } from "@/utils/pinata";
 import { useField } from "formik";
@@ -6,7 +7,7 @@ import { FileInput, Loading } from "react-daisyui";
 import { toast } from "react-hot-toast";
 
 export function UploadImageForm() {
-	const [_, meta, helpers] = useField("buildingImageIpfsURL");
+	const [_, meta, helpers] = useField("buildingImageIpfsId");
 	const [, fileMeta, fileHelpers] = useField("buildingImageIpfsFile");
 	const [isUploading, setIsUploading] = useState(false);
 
@@ -14,15 +15,22 @@ export function UploadImageForm() {
 		setIsUploading(true);
 
 		try {
-			const keyImageRequest = await fetch("/api/pinataKey");
-			const keyImageData = await keyImageRequest.json();
-			const imageUploadResult = await pinata.upload
-				.file(fileToUpload)
-				.key(keyImageData.JWT);
+			//@TODO switch to upload via server call
+			// const keyImageRequest = await fetch("/api/pinataKey");
+			// const keyImageData = await keyImageRequest.json();
+			// const imageUploadResult = await pinata.upload
+			// 	.file(fileToUpload)
+			// 	.key(keyImageData.JWT);
+			//
+			// const ipfsURL = prepareIPFSfileURL(imageUploadResult.IpfsHash);
 
-			const ipfsURL = prepareIPFSfileURL(imageUploadResult.IpfsHash);
+			//TEMPORARY upload via frontend call
+			const ipfsHash = await uploadFileToPinata(
+				fileToUpload,
+				`image-${fileToUpload.name}`,
+			);
 
-			await helpers.setValue(ipfsURL);
+			await helpers.setValue(ipfsHash);
 
 			setIsUploading(false);
 		} catch (e) {

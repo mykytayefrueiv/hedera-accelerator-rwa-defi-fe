@@ -1,4 +1,5 @@
 import { UploadImageForm } from "@/components/Account/UploadImageForm";
+import { uploadJsonToPinata } from "@/services/ipfsService";
 import { prepareIPFSfileURL } from "@/utils/helpers";
 import { pinata } from "@/utils/pinata";
 import { ErrorMessage, Field, Form, Formik } from "formik";
@@ -11,35 +12,39 @@ interface newBuildingFormProps {
 	buildingTitle: string;
 	buildingDescription?: string;
 	buildingPurchaseDate?: string;
-	buildingImageIpfsURL: string;
+	buildingImageIpfsId: string;
 	buildingImageIpfsFile?: File;
 	buildingConstructedYear?: string;
 	buildingType?: string;
 	buildingLocation?: string;
 	buildingLocationType?: string;
-	buildingCopeIpfsHash?: string;
+	// buildingCopeIpfsHash?: string;
+	buildingTokenSupply: number;
 }
 
 const newBuildingFormInitialValues: newBuildingFormProps = {
 	buildingTitle: "",
 	buildingDescription: "",
 	buildingPurchaseDate: "",
-	buildingImageIpfsURL: "",
+	buildingImageIpfsId: "",
 	buildingConstructedYear: "",
 	buildingType: "",
 	buildingLocation: "",
 	buildingLocationType: "",
-	buildingCopeIpfsHash: "",
+	// buildingCopeIpfsHash: "",
+	buildingTokenSupply: 1000000,
 };
 
 interface deployBuildingMetadataProps {
 	setDeployedMetadataIPFS: Dispatch<SetStateAction<string>>;
+	onBuildingDeployed: () => void;
 }
 
 //@TODO preview metadata after deploy
 
 export function DeployBuildingMetadata({
 	setDeployedMetadataIPFS,
+	onBuildingDeployed,
 }: deployBuildingMetadataProps) {
 	const [isUploading, setIsUploading] = useState(false);
 
@@ -47,27 +52,48 @@ export function DeployBuildingMetadata({
 		setIsUploading(true);
 
 		const formDataJson = {
-			title: formValues.buildingTitle,
-			purchasedAt: formValues.buildingPurchaseDate,
+			name: formValues.buildingTitle,
 			description: formValues.buildingDescription,
-			imageUrl: formValues.buildingImageIpfsURL,
-			copeIpfsHash: formValues.buildingCopeIpfsHash,
-			demographics: {
-				constructedYear: formValues.buildingConstructedYear,
-				type: formValues.buildingType,
-				location: formValues.buildingLocation,
-				locationType: formValues.buildingLocationType,
-			},
+			image: formValues.buildingImageIpfsId,
+			purchasedAt: formValues.buildingPurchaseDate,
+			// copeIpfsHash: formValues.buildingCopeIpfsHash,
+			attributes: [
+				{
+					trait_type: "constructedYear",
+					value: formValues.buildingConstructedYear,
+				},
+				{ trait_type: "type", value: formValues.buildingType },
+				{ trait_type: "location", value: formValues.buildingLocation },
+				{ trait_type: "locationType", value: formValues.buildingLocationType },
+				{
+					trait_type: "tokenSupply",
+					value: formValues.buildingTokenSupply.toString(),
+				},
+			],
 		};
 
+		const sanitizedBuildingName = formValues.buildingTitle
+			.replace(/\s+/g, "-")
+			.toLowerCase();
+
 		try {
-			const keyRequest = await fetch("/api/pinataKey");
-			const keyData = await keyRequest.json();
-			const upload = await pinata.upload.json(formDataJson).key(keyData.JWT);
+			//@TODO switch to upload via server call
+			// const keyRequest = await fetch("/api/pinataKey");
+			// const keyData = await keyRequest.json();
+			// const upload = await pinata.upload.json(formDataJson).key(keyData.JWT);
 
-			const ipfsURL = prepareIPFSfileURL(upload.IpfsHash);
+			// const ipfsURL = prepareIPFSfileURL(upload.IpfsHash);
 
-			setDeployedMetadataIPFS(ipfsURL);
+			//TEMPORARY upload via frontend call
+			const ipfsHash = await uploadJsonToPinata(
+				formDataJson,
+				`metadata-${sanitizedBuildingName}`,
+			);
+
+			setDeployedMetadataIPFS(ipfsHash);
+
+			onBuildingDeployed();
+
 			setIsUploading(false);
 		} catch (e) {
 			toast.error("Metadata JSON upload to IPFS failed");
@@ -145,16 +171,16 @@ export function DeployBuildingMetadata({
 							</ErrorMessage>
 						</label>
 
-						<label className="label" htmlFor="buildingImageIpfsURL">
-							<span className="label-text">Building image IPFS URL</span>
+						<label className="label" htmlFor="buildingImageIpfsId">
+							<span className="label-text">Building image IPFS Id</span>
 						</label>
 						<Field
-							name="buildingImageIpfsURL"
+							name="buildingImageIpfsId"
 							type="text"
 							className="input input-bordered w-full max-w-xs"
 						/>
-						<label className="label" htmlFor="buildingImageIpfsURL">
-							<ErrorMessage name="buildingImageIpfsURL">
+						<label className="label" htmlFor="buildingImageIpfsId">
+							<ErrorMessage name="buildingImageIpfsId">
 								{(error) => (
 									<span className="label-text-alt text-red-700">{error}</span>
 								)}
@@ -227,16 +253,32 @@ export function DeployBuildingMetadata({
 							</ErrorMessage>
 						</label>
 
-						<label className="label" htmlFor="buildingCopeIpfsHash">
-							<span className="label-text">Building COPE IPFS hash</span>
+						{/*<label className="label" htmlFor="buildingCopeIpfsHash">*/}
+						{/*	<span className="label-text">Building COPE IPFS hash</span>*/}
+						{/*</label>*/}
+						{/*<Field*/}
+						{/*	name="buildingCopeIpfsHash"*/}
+						{/*	type="text"*/}
+						{/*	className="input input-bordered w-full max-w-xs"*/}
+						{/*/>*/}
+						{/*<label className="label" htmlFor="buildingCopeIpfsHash">*/}
+						{/*	<ErrorMessage name="buildingCopeIpfsHash">*/}
+						{/*		{(error) => (*/}
+						{/*			<span className="label-text-alt text-red-700">{error}</span>*/}
+						{/*		)}*/}
+						{/*	</ErrorMessage>*/}
+						{/*</label>*/}
+
+						<label className="label" htmlFor="buildingTokenSupply">
+							<span className="label-text">Token Supply</span>
 						</label>
 						<Field
-							name="buildingCopeIpfsHash"
-							type="text"
+							name="buildingTokenSupply"
+							type="number"
 							className="input input-bordered w-full max-w-xs"
 						/>
-						<label className="label" htmlFor="buildingCopeIpfsHash">
-							<ErrorMessage name="buildingCopeIpfsHash">
+						<label className="label" htmlFor="buildingTokenSupply">
+							<ErrorMessage name="buildingTokenSupply">
 								{(error) => (
 									<span className="label-text-alt text-red-700">{error}</span>
 								)}

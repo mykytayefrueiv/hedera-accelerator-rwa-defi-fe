@@ -20,7 +20,8 @@ interface DeployedBuilding {
 
 export function DeployBuilding({
 	deployedMetadataIPFS,
-}: { deployedMetadataIPFS: string }) {
+	onBuildingDeployed,
+}: { deployedMetadataIPFS: string; onBuildingDeployed: () => void }) {
 	const { readContract } = useReadContract();
 	const { writeContract } = useWriteContract();
 	const { watch } = useWatchTransactionReceipt({
@@ -80,6 +81,9 @@ export function DeployBuilding({
 				loadBuildings();
 
 				setIsLoading(false);
+
+				onBuildingDeployed();
+
 				return transaction;
 			},
 			onError: (transaction, error) => {
@@ -171,7 +175,7 @@ export function DeployBuilding({
 				<Form>
 					<div className="form-control w-full max-w-xs">
 						<label className="label" htmlFor="buildingMetadataIPFS">
-							<span className="label-text">Building metadata IPFS URL</span>
+							<span className="label-text">Building metadata IPFS Id</span>
 						</label>
 						<Field
 							name="buildingMetadataIPFS"
