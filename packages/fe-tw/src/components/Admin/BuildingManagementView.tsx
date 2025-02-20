@@ -5,6 +5,7 @@ import { AddBuildingForm } from "./AddBuildingForm";
 import { AddBuildingTokenLiquidityForm } from "./AddBuildingTokenLiquidityForm";
 import { DeployBuildingERC3643TokenForm } from "./DeployBuildingERC3643TokenForm";
 import { useState, useMemo } from "react";
+import { DeployVaultAToken } from "./DeployVaultAToken";
 
 export function BuildingManagementView() {
   const [currentSetupStep, setCurrentSetupStep] = useState(1);
@@ -15,8 +16,10 @@ export function BuildingManagementView() {
       return (
         <AddBuildingForm onBuildingDeployed={() => {
           setCurrentSetupStep(2);
+        }} onGetVaultStep={() => {
+          setCurrentSetupStep(4);
         }} />
-      )
+      );
     } else if (currentSetupStep === 2) {
       return (
         <DeployBuildingERC3643TokenForm
@@ -28,7 +31,7 @@ export function BuildingManagementView() {
             setCurrentSetupStep(1);
           }}
         />
-      )
+      );
     } else if (currentSetupStep === 3) {
       return (
         <AddBuildingTokenLiquidityForm
@@ -37,18 +40,21 @@ export function BuildingManagementView() {
             setCurrentSetupStep(2);
           }}
         />
-      )
+      );
+    } else if (currentSetupStep === 4) {
+      return (
+        <DeployVaultAToken />
+      );
     }
   }, [currentSetupStep])
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <AdminInfoPanel />
-
-      <div className="flex flex-col md:flex-row gap-6">
-        <div className="flex-1">
-          {renderSetupStepView}
+    <div className="p-6 max-w-8xl mx-auto space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-purple-50 p-6 rounded-lg">
+          <AdminInfoPanel />
         </div>
+        {renderSetupStepView}
       </div>
     </div>
   );

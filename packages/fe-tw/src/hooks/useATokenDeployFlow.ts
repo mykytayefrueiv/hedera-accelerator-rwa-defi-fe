@@ -1,27 +1,29 @@
-import { useWriteContract, useWatchTransactionReceipt } from '@buidlerlabs/hashgraph-react-wallets';
+import { useWriteContract, useWatchTransactionReceipt, useEvmAddress } from '@buidlerlabs/hashgraph-react-wallets';
 import { autoCompounderFactoryAbi } from '@/services/contracts/abi/autoCompounderFactoryAbi';
 import { vaultFactoryAbi } from '@/services/contracts/abi/vaultFactoryAbi';
-import { AUTO_COMPOUNDER_FACTORY_ADDRESS, VAULT_FACTORY_ADDRESS } from '@/services/contracts/addresses';
+import { AUTO_COMPOUNDER_FACTORY_ADDRESS, UNISWAP_ROUTER_ADDRESS, USDC_ADDRESS, VAULT_FACTORY_ADDRESS } from '@/services/contracts/addresses';
 import { ContractId } from "@hashgraph/sdk";
 import { DeployAutoCompounderRequest, DeployVaultRequest } from '@/types/erc3643/types';
+import * as uuid from 'uuid';
 
 export const useATokenDeployFlow = () => {
     const { writeContract } = useWriteContract();
     const { watch } = useWatchTransactionReceipt();
+    const { data: evmAddress } = useEvmAddress();
 
     const handleDeployVault = async (data: DeployVaultRequest): Promise<string> => {
         return new Promise((res, rej) => {
-            const salt = "";
+            const salt = uuid.v4();
             const details = {
-                stakingToken: '0x',
+                stakingToken: data.stakingToken,
                 shareTokenName: data.shareTokenName,
                 shareTokenSymbol: data.shareTokenSymbol,
-                vaultRewardController: data.vaultRewardController,
-                feeConfigController: data.feeConfigController,
+                vaultRewardController: evmAddress,
+                feeConfigController: evmAddress,
             };
             const feeConfig = {
-                receiver: data.receiver,
-                token: data.token,
+                receiver: data.feeReceiver,
+                token: data.feeToken,
                 feePercentage: data.feePercentage,
             };
             writeContract({
@@ -32,13 +34,13 @@ export const useATokenDeployFlow = () => {
             }).then(tx => {
                 watch(tx as string, {
                     onSuccess: (transaction) => {
-                        res(transaction.transaction_id)
+                        res(transaction.transaction_id);
 
                         return transaction;
                     },
                     onError: (transaction, err) => {
-                        rej(err)
-
+                        rej(err);
+                        
                         return transaction;
                     },
                 })
@@ -50,14 +52,14 @@ export const useATokenDeployFlow = () => {
 
     const handleDeployAutoCompounder = async (data: DeployAutoCompounderRequest): Promise<string> => {
         return new Promise((res, rej) => {
-            const salt = "";
+            const salt = uuid.v4();
             const details = {
-                uniswapV2Router: '0x',
-                vault: '0x',
-                usdc: '0x',
+                uniswapV2Router: UNISWAP_ROUTER_ADDRESS,
+                usdc: USDC_ADDRESS,
+                vault: data.tokenAsset,
                 aTokenName: data.tokenName,
                 aTokenSymbol: data.tokenSymbol,
-            }
+            };
             writeContract({
                 contractId: ContractId.fromEvmAddress(0, 0, AUTO_COMPOUNDER_FACTORY_ADDRESS),
                 abi: autoCompounderFactoryAbi,
@@ -66,7 +68,7 @@ export const useATokenDeployFlow = () => {
             }).then(tx => {
                 watch(tx as string, {
                     onSuccess: (transaction) => {
-                        res(transaction.transaction_id)
+                        res(transaction.transaction_id);
 
                         return transaction;
                     },

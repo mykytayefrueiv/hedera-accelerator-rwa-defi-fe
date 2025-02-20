@@ -5,11 +5,15 @@ import { toast } from "react-hot-toast";
 import { useCreateSlice } from "@/hooks/useCreateSlice";
 import { CreateSliceRequestBody } from "@/types/erc3643/types";
 import { DeploySliceForm } from "./DeploySliceForm";
+import { AddAllocationForm } from "./AddAllocationForm";
+
+type SliceDeployStep = 'DeploySlice' | 'DeploySliceAllocation';
 
 export function SliceManagementView() {
   const [txResult, setTxResult] = useState<string>();
   const [txError, setTxError] = useState<string>();
   const [isTransactionInProgress, setIsTransactionInProgress] = useState<boolean>(false);
+  const [deployStep, setDeployStep] = useState<SliceDeployStep>('DeploySlice');
 
   const { handleCreateSlice } = useCreateSlice();
 
@@ -18,11 +22,11 @@ export function SliceManagementView() {
       setIsTransactionInProgress(true);
       const txOrHash = await handleCreateSlice(values);
 
-      toast.success("Slice created successfully");
+      toast.success(`Slice ${values.name} created successfully`);
       setTxResult(txOrHash);
     } catch (err) {
       setIsTransactionInProgress(false);
-      setTxError((err as unknown as { message: string }).message?.slice(0, 28));
+      setTxError((err as unknown as { message: string }).message);
     }
   };
 
@@ -42,24 +46,35 @@ export function SliceManagementView() {
 
         {/* Right Column: Slice Management Form */}
         <div className="bg-white rounded-lg p-8 border border-gray-300">
-          <h2 className="text-xl font-semibold mb-6">Create Slice</h2>
-          <DeploySliceForm
-            isLoading={isTransactionInProgress}
-            submitCreateSlice={onHandleSubmit}
-          >
-            <>
-              {txResult && <div className="flex">
-                <p className="text-sm font-bold text-purple-600">
-                  Deployed Tx Hash: {txResult}
-                </p>
-              </div>}
-              {txError && <div className="flex">
-                <p className="text-sm font-bold text-purple-600">
-                  Deployed Tx Error: {txError}
-                </p>
-              </div>}
-            </>
-          </DeploySliceForm>
+          <h2 className="text-xl font-semibold mb-6">
+            {deployStep === 'DeploySlice' ? 'Create New Slice' : 'Add Slice Allocation'}
+          </h2>
+          {deployStep === 'DeploySlice' ? (
+            <DeploySliceForm
+              isLoading={isTransactionInProgress}
+              submitCreateSlice={onHandleSubmit}
+              getSliceAllocationForm={() => {
+                setDeployStep('DeploySliceAllocation');
+              }}
+            >
+              <>
+                {txResult && <div className="flex">
+                  <p className="text-sm font-bold text-purple-600">
+                    Deployed Tx Hash: {txResult}
+                  </p>
+                </div>}
+                {txError && <div className="flex">
+                  <p className="text-sm font-bold text-purple-600">
+                    Deployed Tx Error: {txError}
+                  </p>
+                </div>}
+              </>
+            </DeploySliceForm>
+          ) : (
+              <AddAllocationForm handleBack={() => {
+                setDeployStep('DeploySlice');
+            }} />
+          )}
         </div>
       </div>
     </div>

@@ -18,7 +18,11 @@ export function useCreateSlice() {
                     pyth: PYTH_ORACLE_ADDRESS,
                     uniswapRouter: UNISWAP_ROUTER_ADDRESS,
                     usdc: USDC_ADDRESS,
-                    ipfsHash,
+                    name: data.name,
+                    symbol: 'mysymbol',
+                    group: '0x7465737400000000000000000000000000000000000000000000000000000000',
+                    description: '0x7465737400000000000000000000000000000000000000000000000000000000',
+                    decimals: 18,
                 };
 
                 writeContract({

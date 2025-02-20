@@ -115,6 +115,6 @@ export function useBuildings() {
     useEffect(() => {
         setBuildingAddresses(newBuildingLogs.map(log => log.args[0]));
     }, [newBuildingLogs?.length]);
-
+    
     return { buildings };
 }

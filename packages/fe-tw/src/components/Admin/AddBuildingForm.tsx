@@ -13,6 +13,7 @@ import { useBuildings } from "@/hooks/useBuildings";
 
 type Props = {
   onBuildingDeployed: () => void;
+  onGetVaultStep: () => void;
 };
 
 interface FormValues {
@@ -21,7 +22,7 @@ interface FormValues {
   tokenSupply: number;
 }
 
-export function AddBuildingForm({ onBuildingDeployed }: Props) {
+export function AddBuildingForm({ onBuildingDeployed, onGetVaultStep }: Props) {
   const { writeContract } = useWriteContract();
   const { buildings } = useBuildings();
   const [isLoading, setIsLoading] = useState(false);
@@ -110,7 +111,7 @@ export function AddBuildingForm({ onBuildingDeployed }: Props) {
               />
             </div>
 
-            <div className="flex gap-5 mt-5">
+            <div className="flex flex-wrap gap-5 mt-5">
               <Button
                 className="pr-20 pl-20"
                 type="submit"
@@ -128,6 +129,15 @@ export function AddBuildingForm({ onBuildingDeployed }: Props) {
                 disabled={buildings.length === 0}
               >
                 To Add Luquidity
+              </Button>
+              <Button
+                className="pr-10 pl-10"
+                type="button"
+                color="secondary"
+                onClick={() => onGetVaultStep()}
+                disabled={buildings.length === 0}
+              >
+                To Vault Deployment
               </Button>
             </div>
           </Form>

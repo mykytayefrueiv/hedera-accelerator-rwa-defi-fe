@@ -10,20 +10,20 @@ export type DeployTokenRequest = {
 };
 
 export type SliceNFTData = {
-	name?: string;
-	description?: string;
-	allocation?: number;
+	name: string;
+	description: string;
+	allocation: number;
 };
 
 export type SliceData = {
 	id: string;
 	address: `0x${string}`;
 	name: string;
-	allocation?: number;
-	description?: string;
-	ipfsImageCopeHash?: string;
-	timeToEnd?: number;
-	estimatedPrice?: number;
+	allocation: number;
+	description: string;
+	imageIpfsUrl: string;
+	endDate: string;
+	estimatedPrice: number;
 };
 
 export type BuildingSliceCategoryData = {
@@ -33,6 +33,8 @@ export type BuildingSliceCategoryData = {
 	itemsSize?: AvatarSize;
 	items?: SliceData[];
 };
+
+export type BuildingToken = { tokenAddress: `0x${string}`, buildingAddress: `0x${string}` };
 
 type BulidingYield = {
 	percentage: number;
@@ -111,6 +113,7 @@ export type QueryData<ArgType> = {
 export type DeployAutoCompounderRequest = {
 	tokenName: string;
 	tokenSymbol: string;
+	tokenAsset: string;
 };
 
 export type DeployVaultRequest = {
@@ -119,7 +122,12 @@ export type DeployVaultRequest = {
 	shareTokenSymbol: string;
 	vaultRewardController: string;
 	feeConfigController: string;
-	receiver: string;
-	token: string;
-	feePercentage: bigint;
+	feeReceiver: string;
+	feeToken: string;
+	feePercentage?: number;
+};
+
+export type AddAllocationRequest = {
+	tokenAsset: string;
+	allocation?: number;
 };
