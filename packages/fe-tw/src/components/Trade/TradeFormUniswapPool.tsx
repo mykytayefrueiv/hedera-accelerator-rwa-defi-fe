@@ -1,28 +1,38 @@
 "use client";
 
-import { SwapLiquidityPair, SwapUniswapTokensRequestBody } from "@/types/erc3643/types";
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { toast } from "react-hot-toast";
 import { ethers } from "ethers";
 import Select, { SingleValue } from "react-select";
-
-// todo: Change this hook mock to real uniswap hook in scope of (https://uti.unicsoft.com.ua/issues/50179).
-const useUniswapSwaps = (_buildingAddress: `0x${string}`) => {
-    const handleSwapTokens = (payload: SwapUniswapTokensRequestBody): Promise<string> => {
-        return Promise.resolve('00000');
-    }
-
-    const liquidityPairs: SwapLiquidityPair[] = [];
-
-    return { liquidityPairs, handleSwapTokens };
-};
+import { useUniswapTradeSwaps } from "@/hooks/swaps/useUniswapTradeSwaps";
 
 type Props = {
-    buildingAddress: `0x${string}`;
-}
+    buildingTokens: `0x${string}`[];
+};
 
-export default function TradeFormUniswapPool({ buildingAddress }: Props) {
-    const { liquidityPairs, handleSwapTokens } = useUniswapSwaps(buildingAddress);
+const colourStyles = {
+    control: (styles: object) => ({ ...styles, backgroundColor: '#fff', paddingTop: 4, paddingBottom: 4 }),
+    option: (styles: any) => {
+        return {
+            ...styles,
+            backgroundColor: '#fff',
+            color: '#000',
+
+            ':active': {
+                ...styles[':active'],
+                backgroundColor: '#9333ea36',
+            },
+
+            ':focused': {
+                backgroundColor: '#9333ea36',
+            }
+        };
+    },
+    placeholder: (styles: object) => ({ ...styles, color: '#9333ea9e' }),
+};
+
+export default function TradeFormUniswapPool({ buildingTokens }: Props) {
+    const { handleSwap } = useUniswapTradeSwaps();
     const [txResult, setTxResult] = useState<string>();
     const [txError, setTxError] = useState<string>();
     const [tradeFormData, setTradeFormData] = useState({
@@ -31,26 +41,10 @@ export default function TradeFormUniswapPool({ buildingAddress }: Props) {
         tokenB: '',
     });
 
-    const [liquidityPairsTo, setLiquidityPairsTo] = useState<SwapLiquidityPair[]>([]);
-
-    useEffect(() => {
-        if (liquidityPairs?.length) {
-            setTradeFormData({
-                tokenA: liquidityPairs[0].tokenA,
-                tokenB: liquidityPairs[0].tokenB,
-                amount: 0,
-            });
-            setLiquidityPairsTo(liquidityPairs.filter(pair => pair.tokenA === liquidityPairs[0].tokenA));
-        }
-    }, [liquidityPairs]);
-
-    const handleSelectPairFrom = (tokenA: SingleValue<{ value: `0x${string}`; label: `0x${string}`; }>) => {
-        setTradeFormData((prev) => ({
-            ...prev,
-            tokenA: tokenA?.value as string,
-        }));
-        setLiquidityPairsTo(liquidityPairs.filter(pair => pair.tokenA === tokenA?.value as string));
-    };
+    const buildingTokensOptions = useMemo(() => buildingTokens.map(token => ({
+        value: token,
+        label: token,
+    })), []);
 
     const handleSwapSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -62,7 +56,7 @@ export default function TradeFormUniswapPool({ buildingAddress }: Props) {
             toast.error('All fields in trade form are required');
         } else {
             try {
-                const transaction_id = await handleSwapTokens({
+                const transaction_id = await handleSwap({
                     amountIn: ethers.parseEther(amount.toString()),
                     amountOut: ethers.parseEther(amount.toString()),
                     path: [tradeFormData.tokenA, tradeFormData.tokenB],
@@ -92,16 +86,19 @@ export default function TradeFormUniswapPool({ buildingAddress }: Props) {
                 <span className="text-sm text-gray-900">
                     Select a building token you hold and swap it for another building token or USDC
                 </span>
-                <div>
+                <div className="mt-5">
                     <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="tokenASelect">
                         Select token A
                     </label>
                     <Select
-                        onChange={handleSelectPairFrom}
-                        options={liquidityPairs.map(token => ({
-                            value: token.tokenA,
-                            label: token.tokenA,
-                        }))}
+                        styles={colourStyles}
+                        onChange={(value) => {
+                            setTradeFormData(prev => ({
+                                ...prev,
+                                tokenA: value?.value as `0x${string}`,
+                            }))
+                        }}
+                        options={buildingTokensOptions}
                     />
                 </div>
                 <div>
@@ -109,16 +106,14 @@ export default function TradeFormUniswapPool({ buildingAddress }: Props) {
                         Select token B
                     </label>
                     <Select
+                        styles={colourStyles}
                         onChange={(value) => {
                             setTradeFormData(prev => ({
                                 ...prev,
                                 tokenB: value?.value as `0x${string}`,
                             }))
                         }}
-                        options={liquidityPairsTo.map(token => ({
-                            value: token.tokenB,
-                            label: token.tokenB,
-                        }))}
+                        options={buildingTokensOptions}
                     />
                 </div>
                 <div className="mb-5">
@@ -133,7 +128,7 @@ export default function TradeFormUniswapPool({ buildingAddress }: Props) {
                             ...prev,
                             amount: !e.target.value ? 0 : parseFloat(e.target.value),
                         }))}
-                        className="input input-bordered w-full py-7"
+                        className="input input-bordered w-full text-sm"
                         placeholder="e.g. 10"
                         required
                     />

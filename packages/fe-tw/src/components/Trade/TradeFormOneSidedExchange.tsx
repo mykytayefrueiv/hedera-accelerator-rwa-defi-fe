@@ -9,7 +9,7 @@ import { TransactionLink } from "@/components/Typography/TransactionLink";
 
 type Props = {
     buildingTokens: `0x${string}`[];
-}
+};
 
 const colourStyles = {
     control: (styles: object) => ({ ...styles, backgroundColor: '#fff', paddingTop: 4, paddingBottom: 4 }),
@@ -34,7 +34,7 @@ const colourStyles = {
 
 export default function TradeFormOneSidedExchange({ buildingTokens }: Props) {
     const { checkBalanceOfLiquidityToken, handleSwapTokens, estimateTokensSwapSpendings } = useOneSidedExchangeSwaps();
-    const [txResult, setTxResult] = useState<string>('0x12345');
+    const [txResult, setTxResult] = useState<string>();
     const [txError, setTxError] = useState<string>();
     const [maxSwapTokenAmount, setMaxSwapTokenAmount] = useState<string>();
     const [tradeFormData, setTradeFormData] = useState({
