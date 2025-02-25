@@ -1,4 +1,5 @@
 import { BackButton } from "@/components/Buttons/BackButton";
+import { colourStyles } from "@/consts/theme";
 import { useBuildingAdmin } from "@/hooks/useBuildingAdmin";
 import { useBuildingDetails } from "@/hooks/useBuildingDetails";
 import { useBuildings } from "@/hooks/useBuildings";
@@ -18,22 +19,6 @@ const initialValues = {
     tokenName: '',
     tokenSymbol: '',
     tokenDecimals: 18,
-};
-
-const colourStyles = {
-    control: (styles: object) => ({ ...styles, paddingTop: 6, paddingBottom: 6, borderRadius: 8, backgroundColor: "#fff" }),
-    option: (styles: any) => ({
-        ...styles,
-        backgroundColor: "#fff",
-        color: "#000",
-        ":active": {
-            ...styles[":active"],
-            backgroundColor: "#9333ea36",
-        },
-        ":focused": {
-            backgroundColor: "#9333ea36",
-        },
-    }),
 };
 
 export const DeployBuildingERC3643TokenForm = ({ onGetLiquidityView, onGetDeployBuildingView }: Props) => {

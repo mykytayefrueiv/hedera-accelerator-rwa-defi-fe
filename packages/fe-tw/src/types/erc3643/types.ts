@@ -129,7 +129,7 @@ export type SwapUniswapTokensRequestBody = {
 	path: string[],
 	amountIn: bigint,
 	amountOut: bigint,
-	deadline?: number,
+	deadline: number,
 };
 
 export type SwapTradeItem = {

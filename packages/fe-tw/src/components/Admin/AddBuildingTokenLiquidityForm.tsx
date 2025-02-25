@@ -9,26 +9,11 @@ import { BackButton } from "@/components/Buttons/BackButton";
 import { useBuildingLiquidity } from "@/hooks/useBuildingLiquidity";
 import { useBuildingDetails } from "@/hooks/useBuildingDetails";
 import { useBuildings } from "@/hooks/useBuildings";
+import { colourStyles } from "@/consts/theme";
 
 type Props = {
   buildingAddress: `0x${string}`;
   onGetDeployBuildingTokenView: () => void;
-};
-
-const colourStyles = {
-  control: (styles: object) => ({ ...styles, paddingTop: 6, paddingBottom: 6, borderRadius: 8, backgroundColor: "#fff" }),
-  option: (styles: any) => ({
-    ...styles,
-    backgroundColor: "#fff",
-    color: "#000",
-    ":active": {
-      ...styles[":active"],
-      backgroundColor: "#9333ea36",
-    },
-    ":focused": {
-      backgroundColor: "#9333ea36",
-    },
-  }),
 };
 
 export function AddBuildingTokenLiquidityForm({ onGetDeployBuildingTokenView, buildingAddress }: Props) {

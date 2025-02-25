@@ -3,32 +3,13 @@
 import React, { useState, useMemo } from "react";
 import { toast } from "react-hot-toast";
 import { ethers } from "ethers";
-import Select, { SingleValue } from "react-select";
+import Select from "react-select";
 import { useUniswapTradeSwaps } from "@/hooks/swaps/useUniswapTradeSwaps";
+import { colourStyles } from "@/consts/theme";
+import { oneHourTimePeriod } from "@/consts/trade";
 
 type Props = {
     buildingTokens: `0x${string}`[];
-};
-
-const colourStyles = {
-    control: (styles: object) => ({ ...styles, backgroundColor: '#fff', paddingTop: 4, paddingBottom: 4 }),
-    option: (styles: any) => {
-        return {
-            ...styles,
-            backgroundColor: '#fff',
-            color: '#000',
-
-            ':active': {
-                ...styles[':active'],
-                backgroundColor: '#9333ea36',
-            },
-
-            ':focused': {
-                backgroundColor: '#9333ea36',
-            }
-        };
-    },
-    placeholder: (styles: object) => ({ ...styles, color: '#9333ea9e' }),
 };
 
 export default function TradeFormUniswapPool({ buildingTokens }: Props) {
@@ -39,6 +20,7 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
         amount: 0,
         tokenA: '',
         tokenB: '',
+        autoRevertsAfter: oneHourTimePeriod,
     });
 
     const buildingTokensOptions = useMemo(() => buildingTokens.map(token => ({
@@ -60,11 +42,13 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                     amountIn: ethers.parseEther(amount.toString()),
                     amountOut: ethers.parseEther(amount.toString()),
                     path: [tradeFormData.tokenA, tradeFormData.tokenB],
+                    deadline: Date.now() + (tradeFormData.autoRevertsAfter ?? oneHourTimePeriod),
                 });
                 setTradeFormData({
                     amount: 0,
                     tokenA: '',
                     tokenB: '',
+                    autoRevertsAfter: oneHourTimePeriod,
                 });
 
                 toast.success(`Successfully sold ${amount} tokens for ${tokenB}!`);
@@ -76,15 +60,20 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
         }
     };
 
+    const revertsInOptions = new Array(24).fill(null).map((hour, index) => ({
+        label: `In ${index + 1} hour`,
+        value: (hour + 1) * oneHourTimePeriod,
+    }));
+
     return (
         <div className="flex-1 flex-col gap-4 w-6/12">
             <form
                 onSubmit={handleSwapSubmit}
                 className="bg-white rounded-lg p-10 border border-gray-300"
             >
-                <h1 className="text-2xl font-bold mb-4">Swap Token</h1>
+                <h1 className="text-2xl font-bold mb-4">Trade Token via Uniswap Gateway</h1>
                 <span className="text-sm text-gray-900">
-                    Select a building token you hold and swap it for another building token or USDC
+                    Select a building token you hold and swap it to another building token or USDC
                 </span>
                 <div className="mt-5">
                     <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="tokenASelect">
@@ -116,9 +105,9 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                         options={buildingTokensOptions}
                     />
                 </div>
-                <div className="mb-5">
+                <div>
                     <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="amount">
-                        Amount of tokens to sell
+                        Amount of tokens to exchange
                     </label>
                     <input
                         id="amount"
@@ -131,6 +120,21 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                         className="input input-bordered w-full text-sm"
                         placeholder="e.g. 10"
                         required
+                    />
+                </div>
+                <div className="mb-5">
+                    <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="autoRevertsAfter">
+                        Auto reverts period in hours
+                    </label>
+                    <Select
+                        styles={colourStyles}
+                        onChange={(value) => {
+                            setTradeFormData(prev => ({
+                                ...prev,
+                                autoRevertsAfter: value?.value as unknown as number,
+                            }))
+                        }}
+                        options={revertsInOptions}
                     />
                 </div>
                 <button

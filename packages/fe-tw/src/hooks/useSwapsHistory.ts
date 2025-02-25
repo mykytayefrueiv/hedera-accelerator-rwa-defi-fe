@@ -19,6 +19,7 @@ const filterSwapHistoryItems = (swapItems: Log[], trader: `0x${string}`) => {
 
 export const useSwapsHistory = () => {
     const [oneSidedExchangeSwapsHistory, setOneSidedExchangeSwapsHistory] = useState<SwapTradeItem[]>([]);
+    const [uniswapExchangeHistory, setUniswapExchangeHistory] = useState<SwapTradeItem[]>([]);
     const [logs, setLogs] = useState<Log[]>([]);
 
     const { data: evmAddress } = useEvmAddress();
@@ -44,5 +45,5 @@ export const useSwapsHistory = () => {
         }, 10000);
     }, []);
 
-    return { oneSidedExchangeSwapsHistory };
+    return { oneSidedExchangeSwapsHistory, uniswapExchangeHistory };
 };
