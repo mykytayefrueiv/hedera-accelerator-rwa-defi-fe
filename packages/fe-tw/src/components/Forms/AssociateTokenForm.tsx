@@ -1,3 +1,4 @@
+import type { TransactionExtended } from "@/types/common";
 import {
 	useAssociateTokens,
 	useWatchTransactionReceipt,
@@ -7,12 +8,6 @@ import { useState } from "react";
 import { Button } from "react-daisyui";
 import toast from "react-hot-toast";
 import * as Yup from "yup";
-
-type TransactionExtended = {
-	transaction_id: string;
-	consensus_timestamp?: string;
-	result?: string;
-};
 
 export function AssociateTokenForm() {
 	const { associateTokens } = useAssociateTokens();

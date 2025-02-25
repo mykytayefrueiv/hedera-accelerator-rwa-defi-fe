@@ -18,7 +18,7 @@ export interface SliceData {
 	// Time to end in units of seconds.
 	timeToEnd?: number;
 	allocation?: number;
-}
+};
 
 export type BuildingSliceData = {
 	imageUrl?: string;
@@ -35,28 +35,28 @@ export type BuildingSliceCategoryData = {
 	title: string;
 	itemsSize?: AvatarSize;
 	items?: BuildingSliceData[];
-}
+};
 
 type BulidingYield = {
 	percentage: number;
 	days: number;
-}
+};
 
 export type BuildingInfo = {
 	financial: {
-		percentageOwned: number,
+		percentageOwned: number;
 		tokenPrice: number;
 		directExposure: number;
 		yield: BulidingYield[];
 		treasury: number;
-	},
+	};
 	demographics: {
 		constructedYear: string;
 		type: string;
 		location: string;
 		locationType: string;
 	};
-}
+};
 
 export type BuildingData = {
 	id: string | number;
@@ -70,7 +70,7 @@ export type BuildingData = {
 	imageUrl?: string;
 	address?: `0x${string}`;
 	copeIpfsHash?: string;
-}
+};
 
 export type BuildingNFTAttribute = {
 	display_type: string,
