@@ -10,6 +10,14 @@ export type DeployTokenRequest = {
 };
 
 export type SliceNFTData = {
+	imageUrl?: string;
+	name: string;
+	description: string;
+	allocation: number;
+};
+
+export type BuildingSliceData = {
+	imageUrl?: string;
 	name: string;
 	description: string;
 	allocation: number;
@@ -34,7 +42,11 @@ export type BuildingSliceCategoryData = {
 	items?: SliceData[];
 };
 
-export type BuildingToken = { tokenAddress: `0x${string}`, buildingAddress: `0x${string}` };
+export type BuildingToken = {
+	tokenAddress: `0x${string}`,
+	buildingAddress: `0x${string}`,
+	items?: BuildingSliceData[],
+};
 
 type BulidingYield = {
 	percentage: number;
@@ -43,19 +55,19 @@ type BulidingYield = {
 
 export type BuildingInfo = {
 	financial: {
-		percentageOwned: number,
+		percentageOwned: number;
 		tokenPrice: number;
 		directExposure: number;
 		yield: BulidingYield[];
 		treasury: number;
-	},
+	};
 	demographics: {
 		constructedYear: string;
 		type: string;
 		location: string;
 		locationType: string;
 	};
-}
+};
 
 export type BuildingData = {
 	id: string | number;
@@ -65,11 +77,10 @@ export type BuildingData = {
 	info: BuildingInfo;
 	votingItems: number[];
 	partOfSlices: (number | `0x${string}`)[];
-	imageUrl?: string;
 	allocation: number;
-	// todo: after mock removal `const/buildings` change those to required.
-	address?: `0x${string}`;
 	copeIpfsHash?: string;
+	address?: `0x${string}`;
+	imageUrl?: string;
 };
 
 export type BuildingNFTAttribute = {
@@ -87,6 +98,18 @@ export type BuildingNFTData = {
 	purchasedAt: number;
 	attributes: BuildingNFTAttribute[];
 	copeIpfsHash: string;
+};
+
+export type BuildingERCToken = {
+	tokenAddress: string;
+	idealAllocation: string;
+	actualAllocation: string;
+	building: {
+		nftId?: number | null;
+		name?: string;
+		image?: string;
+		location?: string;
+	};
 };
 
 export type VotingItem = {
@@ -130,4 +153,48 @@ export type DeployVaultRequest = {
 export type AddAllocationRequest = {
 	tokenAsset: string;
 	allocation?: number;
+};
+
+export type SwapTradeProfit = {
+	dailyProfitInUSD: number,
+	weeklyProfitInUSD: number,
+};
+
+export type SwapUniswapTokensRequestBody = {
+	path: string[],
+	amountIn: bigint,
+	amountOut: bigint,
+	deadline?: number,
+};
+
+export type SwapTradeItem = {
+	tokenA: string,
+	tokenB: string,
+	tokenAAmount: string,
+	tokenBAmount: string,
+	id?: string,
+};
+
+export type SwapLiquidityPair = {
+	tokenA: `0x${string}`,
+	tokenB: `0x${string}`,
+};
+
+export type SwapTokenPriceRequestBody = {
+	isSell: boolean,
+	token: `0x${string}`,
+	amount: bigint,
+	thresholdIntervalInSeconds: number,
+};
+
+export type SwapTokenAddLiquidityRequestBody = {
+	tokenA: string,
+	tokenB?: string,
+	amount: bigint,
+};
+
+export type SwapTokenSwapRequestBody = {
+	tokenA: string,
+	tokenB: string,
+	amount: bigint,
 };

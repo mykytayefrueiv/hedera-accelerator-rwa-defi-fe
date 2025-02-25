@@ -34,7 +34,7 @@ export default function SliceCardGrid({ sliceIds }: SliceCardGridProps) {
             "
           >
             <img
-              src={slice.imageUrl ?? "/default-building.jpg"}
+              src={slice.imageIpfsUrl ?? "assets/dome.jpeg"}
               alt={slice.name}
               className="rounded-md object-cover w-full h-40 mb-3"
             />
@@ -64,7 +64,7 @@ export default function SliceCardGrid({ sliceIds }: SliceCardGridProps) {
               )}
 
               <p className="text-xs text-gray-600 mt-1">
-                Time to End: {moment(slice.timeToEnd).fromNow()}
+                Time to End: {moment(slice.endDate).fromNow()}
               </p>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { mockSliceTokens, mockTokenToBuildingMap } from "@/consts/allocations";
+import { mockSliceTokens } from "@/consts/allocations";
 import { getBuildingForToken } from "./buildingService";
 
 export async function getSliceTokensData(sliceName: string) {
@@ -13,7 +13,7 @@ export async function getSliceTokensData(sliceName: string) {
         building: building ?? {
           nftId: null,
           name: "Unknown Building",
-          image: "/default-building.jpg",
+          image: "assets/dome.jpeg",
           location: "Unknown",
         },
       };

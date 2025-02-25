@@ -27,10 +27,9 @@ export default function Page({ params }: Props) {
         ...slice,
         sliceValuation: 0,
         tokenPrice: 0,
-        userBalance: 0,
+        tokenBalance: 0,
       }}
       tokensWithBuilding={[]}
-      isInBuildingContext={true}
     />
   );
 }

@@ -53,7 +53,7 @@ export function BuildingsCarousel({ title, buildings }: Props) {
             >
               <div className="bg-accent text-gray-800 rounded-lg shadow-md p-4 hover:scale-105 hover:bg-accent-focus transition-all duration-300">
                 <img
-                  src={bld.imageUrl ?? "/default-building.jpg"}
+                  src={bld.imageUrl ?? "assets/dome.jpeg"}
                   alt={bld.title}
                   className="rounded-md object-cover w-full h-40 mb-2"
                 />

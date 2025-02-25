@@ -2,31 +2,19 @@
 
 import React, { useState } from "react";
 import Allocations from "@/components/Slices/Allocations";
-import { SliceData } from "@/types/erc3643/types";
 import Link from "next/link";
 import { ArrowBack } from "@mui/icons-material";
-
-type TokenWithBuilding = {
-  tokenAddress: string;
-  building: {
-    nftId?: number | null;
-    name?: string;
-    image?: string;
-    location?: string;
-  };
-  idealAllocation: string;
-  actualAllocation: string;
-};
+import { BuildingERCToken, SliceData } from "@/types/erc3643/types";
 
 interface ExtendedSliceData extends SliceData {
-  sliceValuation?: number;
-  tokenPrice?: number;
-  userBalance?: number;
-};
+  sliceValuation: number;
+  tokenPrice: number;
+  tokenBalance: number;
+}
 
-type SliceDetailProps = {
+type Props = {
   sliceData: ExtendedSliceData;
-  tokensWithBuilding: TokenWithBuilding[];
+  tokensWithBuilding: BuildingERCToken[];
   isInBuildingContext?: boolean;
   buildingId?: string;
 };
@@ -36,8 +24,8 @@ export function SliceDetailPage({
   tokensWithBuilding,
   isInBuildingContext = false,
   buildingId,
-}: SliceDetailProps) {
-  const [allocations, setAllocations] = useState<TokenWithBuilding[]>(tokensWithBuilding);
+}: Props) {
+  const [allocations, setAllocations] = useState<BuildingERCToken[]>(tokensWithBuilding);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
@@ -93,7 +81,7 @@ export function SliceDetailPage({
       <div className="flex flex-col md:flex-row gap-6">
         <div className="md:w-64 md:h-64 w-full h-64">
           <img
-            src={sliceData.imageUrl ?? "/default-building.jpg"}
+            src={sliceData.imageIpfsUrl ?? "assets/dome.jpeg"}
             alt={sliceData.name}
             className="object-cover rounded-lg w-full h-full"
           />
@@ -109,7 +97,7 @@ export function SliceDetailPage({
             <h2 className="text-2xl font-semibold mb-2">Slice Info</h2>
             <p className="mb-1">Slice Valuation: ${sliceData.sliceValuation ?? "-"}</p>
             <p className="mb-1">Token Price: ${sliceData.tokenPrice ?? "-"}</p>
-            <p>Your Balance: {sliceData.userBalance ?? 0} tokens</p>
+            <p>Your Balance: {sliceData.tokenBalance ?? 0} tokens</p>
           </div>
         </div>
       </div>
@@ -132,7 +120,7 @@ export function SliceDetailPage({
                 className="p-4 rounded-lg bg-[#F9F3F8] hover:bg-[#EADFEA] transition duration-200 cursor-pointer"
               >
                 <img
-                  src={item.building.image ?? "/default-building.jpg"}
+                  src={item.building.image ?? "assets/dome.jpeg"}
                   alt={item.building.name ?? "Unnamed Building"}
                   className="mb-2 w-full h-32 object-cover rounded"
                 />

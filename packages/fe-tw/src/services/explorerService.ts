@@ -1,4 +1,3 @@
-import { buildings } from "@/consts/buildings";
 import { featuredDevelopments } from "@/consts/featuredDevelopments";
 import { useSlicesData } from "@/hooks/useSlicesData";
 
@@ -7,7 +6,6 @@ export function getExplorerData() {
 
   return {
     slices,
-    buildings,
     featuredDevelopments
   };
 }

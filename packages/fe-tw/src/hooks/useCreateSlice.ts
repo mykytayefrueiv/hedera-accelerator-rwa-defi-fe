@@ -13,7 +13,7 @@ export function useCreateSlice() {
 
     const handleCreateSlice = async (data: CreateSliceRequestBody): Promise<string> => {
         return new Promise((res, rej) => {
-            uploadJsonToPinata<CreateSliceRequestBody>(data, `Slice-${data.name}`).then(ipfsHash => {
+            uploadJsonToPinata(data, `Slice-${data.name}`).then(ipfsHash => {
                 const sliceDetails = {
                     pyth: PYTH_ORACLE_ADDRESS,
                     uniswapRouter: UNISWAP_ROUTER_ADDRESS,

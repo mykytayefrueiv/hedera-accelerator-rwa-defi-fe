@@ -10,7 +10,7 @@ export function SliceItem({ slice }: { slice: SliceData }) {
     >
       {/* Rectangular Image */}
       <img
-        src={slice.imageUrl ?? "/default-slice.jpg"}
+        src={slice.imageUrl ?? "assets/dome.jpeg"}
         alt={slice.name}
         className="w-full h-32 object-cover rounded-md mb-3"
       />
