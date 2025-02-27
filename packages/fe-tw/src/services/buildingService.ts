@@ -57,7 +57,7 @@ export const convertBuildingNFTsData = (buildingNFTsData: BuildingNFTData[]): Bu
         description: data.description,
         imageUrl: prepareStorageIPFSfileURL(data.image?.replace('ipfs://', '')),
         copeIpfsHash: data.copeIpfsHash,
-        voteItems: [],
+        votingItems: [],
         partOfSlices: [],
         allocation: data.allocation,
         purchasedAt: data.purchasedAt,

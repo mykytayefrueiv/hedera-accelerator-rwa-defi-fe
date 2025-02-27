@@ -5,7 +5,7 @@ import { getAuditRecordIdsForBuilding, getAuditRecordDetails } from "@/services/
 import { fetchJsonFromIpfs } from "@/services/ipfsService";
 import { CopeData } from "@/types/cope";
 
-export function useCopeData(buildingId: number) {
+export function useCopeData(buildingAddress: string) {
   const [data, setData] = useState<CopeData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -16,7 +16,7 @@ export function useCopeData(buildingId: number) {
         setIsLoading(true);
         setIsError(false);
 
-        const recordIds = await getAuditRecordIdsForBuilding(buildingId);
+        const recordIds = await getAuditRecordIdsForBuilding(buildingAddress);
         if (!recordIds || recordIds.length === 0) {
           setData(null);
           return;
@@ -41,7 +41,7 @@ export function useCopeData(buildingId: number) {
     }
 
     loadData();
-  }, [buildingId]);
+  }, [buildingAddress]);
 
   return { data, isLoading, isError };
 }

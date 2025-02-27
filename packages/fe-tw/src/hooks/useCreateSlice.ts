@@ -1,4 +1,4 @@
-import { PYTH_ORACLE_ADDRESS, UNISWAP_ROUTER_ADDRESS, USDC_ADDRESS } from "@/services/contracts/addresses";
+import { UNISWAP_ROUTER_ADDRESS, USDC_ADDRESS } from "@/services/contracts/addresses";
 import { sliceFactoryAbi } from '@/services/contracts/abi/sliceFactoryAbi';
 import { SLICE_FACTORY_ADDRESS } from "@/services/contracts/addresses";
 import { CreateSliceRequestBody } from "@/types/erc3643/types";
@@ -11,29 +11,26 @@ export function useCreateSlice() {
     const { writeContract } = useWriteContract();
     const { watch } = useWatchTransactionReceipt();
 
-    const handleCreateSlice = async (data: CreateSliceRequestBody): Promise<string> => {
+    const handleCreateSlice = async (formData: CreateSliceRequestBody): Promise<string> => {
         return new Promise((res, rej) => {
-            uploadJsonToPinata(data, `Slice-${data.name}`).then(ipfsHash => {
+            uploadJsonToPinata(formData, `Slice-${formData.name}`).then(ipfsHash => {
                 const sliceDetails = {
-                    pyth: PYTH_ORACLE_ADDRESS,
                     uniswapRouter: UNISWAP_ROUTER_ADDRESS,
                     usdc: USDC_ADDRESS,
-                    name: data.name,
-                    symbol: 'mysymbol',
-                    group: '0x7465737400000000000000000000000000000000000000000000000000000000',
-                    description: '0x7465737400000000000000000000000000000000000000000000000000000000',
-                    decimals: 18,
+                    name: formData.name,
+                    symbol: formData.symbol,
+                    metadataUri: ipfsHash,
                 };
 
                 writeContract({
                     contractId: ContractId.fromEvmAddress(0, 0, SLICE_FACTORY_ADDRESS),
                     abi: sliceFactoryAbi,
                     functionName: "deploySlice",
-                    args: [uuid.v4(), sliceDetails], // todo: use IPFS uri hash insertion here
+                    args: [uuid.v4(), sliceDetails],
                 }).then(tx => {
                     watch(tx as string, {
                         onSuccess: (transaction) => {
-                            res(transaction.transaction_id)
+                            res(transaction.transaction_id);
 
                             return transaction;
                         },

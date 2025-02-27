@@ -41,7 +41,7 @@ export function ExplorerView() {
 
           {multiSliceBuildings && multiSliceBuildings.buildings?.length > 0 && (
             <>
-              <Link href={`/slices/${slugify(selectedSlice.name)}`}>
+              <Link href={`/slices/${slugify(selectedSlice.id)}`}>
                 <h2 className="text-lg font-semibold mt-8">
                   {selectedSlice.name} + {multiSliceBuildings.sliceName} Slice →
                 </h2>

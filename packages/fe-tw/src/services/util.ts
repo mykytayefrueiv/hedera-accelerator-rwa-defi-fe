@@ -36,3 +36,6 @@ export function shortEvmAddress(address: string | undefined): string {
 
 	return address;
 }
+
+export const prepareStorageIPFSfileURL = (ipfsHash: string) =>
+	`https://ipfs.io/ipfs/${ipfsHash}`;

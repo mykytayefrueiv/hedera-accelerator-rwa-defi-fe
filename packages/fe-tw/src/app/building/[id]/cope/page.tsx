@@ -26,7 +26,7 @@ export default function CopePage({ params }: Props) {
       <h1 className="text-2xl font-bold mb-4">
         {building.title}: COPE
       </h1>
-      <CopeView buildingAddress={building.address as `0x${string}`} />
+      <CopeView buildingAddress={building.address as `0x${string}`} isAdmin />
     </div>
   );
 }

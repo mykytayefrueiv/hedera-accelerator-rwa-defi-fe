@@ -21,7 +21,7 @@ export function SlicesCarousel({ slices, selectedSlice, onSelectSlice }: SlicesC
   const handleDoubleClick = useCallback(
     (slice: SliceData) => {
       if (selectedSlice?.id === slice.id) {
-        window.location.href = `/slices/${slugify(slice.name)}`;
+        window.location.href = `/slices/${slugify(slice.id)}`;
       }
     },
     [selectedSlice],
@@ -39,7 +39,7 @@ export function SlicesCarousel({ slices, selectedSlice, onSelectSlice }: SlicesC
         >
           <div className="flex flex-col items-center">
             {/* Avatar with Ring and Hover Effect */}
-            <div className="avatar transition-transform duration-300 group-hover:scale-110">
+            <div className="avatar transition-transform duration-300 group-hover:scale-110 pt-5">
               <div className="ring-gray-300 ring-offset-base-100 w-20 h-20 rounded-full ring ring-offset-2">
                 <img
                   src={slice.imageIpfsUrl ?? "/assets/dome.jpeg"}

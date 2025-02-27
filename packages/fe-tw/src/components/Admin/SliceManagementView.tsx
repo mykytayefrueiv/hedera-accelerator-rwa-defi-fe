@@ -6,6 +6,7 @@ import { useCreateSlice } from "@/hooks/useCreateSlice";
 import { CreateSliceRequestBody } from "@/types/erc3643/types";
 import { DeploySliceForm } from "./DeploySliceForm";
 import { AddAllocationForm } from "./AddAllocationForm";
+import { useRouter } from "next/navigation";
 
 type SliceDeployStep = 'DeploySlice' | 'DeploySliceAllocation';
 
@@ -16,7 +17,8 @@ export function SliceManagementView() {
   const [deployStep, setDeployStep] = useState<SliceDeployStep>('DeploySlice');
 
   const { handleCreateSlice } = useCreateSlice();
-
+  const { push } = useRouter();
+  
   const onHandleSubmit = async (values: CreateSliceRequestBody) => {
     try {
       setIsTransactionInProgress(true);
@@ -24,9 +26,11 @@ export function SliceManagementView() {
 
       toast.success(`Slice ${values.name} created successfully`);
       setTxResult(txOrHash);
-    } catch (err) {
       setIsTransactionInProgress(false);
+      push('/slices');
+    } catch (err) {
       setTxError((err as unknown as { message: string }).message);
+      setIsTransactionInProgress(false);
     }
   };
 

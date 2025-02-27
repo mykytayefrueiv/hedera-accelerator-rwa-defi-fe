@@ -1,14 +1,16 @@
 import { CreateSliceRequestBody } from "@/types/erc3643/types";
-import { Formik, Field, Form } from "formik"
+import { Formik, Field, Form, ErrorMessage } from "formik"
 import React from "react";
 import { Button } from "react-daisyui";
+import { UploadImageForm } from "@/components/Account/UploadImageForm";
 
 const initialValues = {
     name: '',
     description: '',
     allocation: 0,
     endDate: '',
-    imageIpfsUrl: '',
+    sliceImageIpfsHash: '',
+    symbol: '',
 };
 
 type Props = {
@@ -59,14 +61,21 @@ export const DeploySliceForm = ({ submitCreateSlice, getSliceAllocationForm, isL
                     />
                 </div>
                 <div>
-                    <label className="block text-md font-semibold text-purple-400" htmlFor="imageIpfsURL">Slice Image URL</label>
+                    <label className="block text-md font-semibold text-purple-400" htmlFor="sliceImageIpfsHash">
+                        Slice Image IPFS Hash
+                    </label>
+                    <ErrorMessage name="sliceImageIpfsHash">
+						{(error) => (
+							<span className="label-text-alt text-red-700">{error}</span>
+					    )}
+				   </ErrorMessage>
 					<Field
-						name="imageIpfsURL"
+						name="sliceImageIpfsHash"
                         className="input input-bordered w-full mt-2"
                         placeholder="e.g. /url"
-					/>
+                    />
+                    <UploadImageForm fileHashName="sliceImageIpfsHash" />
                 </div>
-                {/** <!-- Upload image form --> (PR https://github.com/hashgraph/hedera-accelerator-rwa-re-ui/pull/45/) */}
                 {children}
                 <div className="flex gap-5 mt-5">
                     <Button

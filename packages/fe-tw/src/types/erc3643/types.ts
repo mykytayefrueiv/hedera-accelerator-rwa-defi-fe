@@ -10,16 +10,17 @@ export type DeployTokenRequest = {
 };
 
 export type SliceNFTData = {
-	imageUrl?: string;
 	name: string;
 	description: string;
 	allocation: number;
+	sliceImageIpfsHash: string;
 };
 
 export type BuildingSliceData = {
 	imageUrl?: string;
 	name: string;
 	description: string;
+	symbol: string;
 	allocation: number;
 };
 
@@ -76,11 +77,11 @@ export type BuildingData = {
 	description: string;
 	info: BuildingInfo;
 	votingItems: number[];
-	partOfSlices: (number | `0x${string}`)[];
+	partOfSlices: `0x${string}`[];
+	imageUrl?: string;
 	allocation: number;
 	copeIpfsHash?: string;
 	address?: `0x${string}`;
-	imageUrl?: string;
 };
 
 export type BuildingNFTAttribute = {
@@ -127,7 +128,13 @@ export type CreateERC3643RequestBody = {
 	tokenDecimals: number;
 };
 
-export type CreateSliceRequestBody = SliceNFTData;
+export type CreateSliceRequestBody = {
+	name: string;
+	allocation: number;
+	description: string;
+	sliceImageIpfsHash: string;
+	symbol: string;
+};
 
 export type QueryData<ArgType> = {
 	args: ArgType;

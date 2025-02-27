@@ -1,19 +1,22 @@
+import { useEffect, useState } from 'react';
 import { watchContractEvent } from '@/services/contracts/watchContractEvent';
 import { sliceFactoryAbi } from '@/services/contracts/abi/sliceFactoryAbi';
 import { SLICE_FACTORY_ADDRESS } from "@/services/contracts/addresses";
-import { useEffect, useState } from 'react';
-import { QueryData, SliceData } from '@/types/erc3643/types';
+import { SliceData } from '@/types/erc3643/types';
+import { fetchJsonFromIpfs } from '@/services/ipfsService';
+import { readContract } from '@/services/contracts/readContract';
+import { sliceAbi } from '@/services/contracts/abi/sliceAbi';
+import { prepareStorageIPFSfileURL } from '@/utils/helpers';
 
-// todo: update with call to ipfs
-const sliceItemMock = (address: `0x${string}`) => ({
-  imageUrl: "https://ca-times.brightspotcdn.com/dims4/default/ba0c5a1/2147483647/strip/true/crop/7872x5247+95+0/resize/2000x1333!/quality/75/?url=https%3A%2F%2Fcalifornia-times-brightspot.s3.amazonaws.com%2F63%2F4d%2F265a177543e6a76e7559aa0e5210%2F1243075903.jpg",
-  name: "Stadiums",
-  description: "Premier stadium developments supporting sports and large-scale events.",
-  estimatedPrice: 70,
-  timeToEnd: 1500000,
-  allocation: 25,
-  id: address,
-  address,
+/**
+ * Reads slice details from SC.
+ * @param address Slice address
+ */
+const readSliceMetdataUri = (sliceAddress: `0x${string}`) => readContract({
+  functionName: 'metadataUri',
+  address: sliceAddress,
+  abi: sliceAbi,
+  args: [],
 });
 
 export function useSlicesData() {
@@ -27,26 +30,33 @@ export function useSlicesData() {
       abi: sliceFactoryAbi,
       eventName: "SliceDeployed",
       onLogs: (data) => {
-        setSliceLogs(data.map(log => (log as unknown as QueryData<string[]>).args[0]));
+        setSliceLogs(data);
       },
     });
   }, [setSliceLogs]);
 
   const requestSlicesDetails = async () => {
-    const slicesMetadata = await Promise.all(sliceAddresses.map(address => sliceItemMock(address)));
+    const slicesMetadataUris = await Promise.all(sliceLogs.map(log => readSliceMetdataUri(log.args[0])));
+    const sliceMetdatas = await Promise.all(slicesMetadataUris.map((uri: string[]) => fetchJsonFromIpfs(uri[0])))
 
-    setSlices(slicesMetadata);
+    setSliceAddresses(sliceLogs.map(log => log.args[0]));
+    setSlices(sliceMetdatas.map((m, sliceId) => ({
+      id: sliceLogs[sliceId].args[0],
+      address: sliceLogs[sliceId].args[0],
+      name: m.name,
+      allocation: m.allocation,
+      description: m.description,
+      imageIpfsUrl: prepareStorageIPFSfileURL(m.sliceImageIpfsHash?.replace('ipfs://', '')),
+      endDate: m.endDate,
+      estimatedPrice: 0,
+    })));
   };
 
   useEffect(() => {
-    setSliceAddresses(sliceLogs);
-  }, [sliceLogs?.length]);
-
-  useEffect(() => {
-    if (!slices.length) {
+    if (sliceLogs?.length) {
       requestSlicesDetails();
     }
-  }, [sliceAddresses?.length]);
+  }, [sliceLogs?.length]);
 
   return {
     sliceAddresses,

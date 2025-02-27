@@ -6,15 +6,15 @@ import { SliceDetailPage } from "@/components/Slices/SliceDetailPage";
 import { useSlicesData } from "@/hooks/useSlicesData";
 
 type Props = {
-  params: Promise<{ id: string; slug: string }>;
+  params: { id: string; slug: string };
 };
 
-export default async function Page({ params }: Props) {
-  const { id: buildingId, slug } = await params;
+export default function Page({ params }: Props) {
+  const { id: buildingId, slug } = params;
   const { slices } = useSlicesData();
   
   const slice = slices.find(
-    (slice) => slugify(slice.name) === slugify(slug)
+    (slice) => slugify(slice.id) === slugify(slug)
   );
 
     if (!slice) {
