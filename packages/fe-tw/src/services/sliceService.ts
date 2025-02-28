@@ -1,12 +1,5 @@
-import { slices } from "@/consts/slices";
-import { mockSliceTokens, mockTokenToBuildingMap } from "@/consts/allocations";
+import { mockSliceTokens } from "@/consts/allocations";
 import { getBuildingForToken } from "./buildingService";
-
-// TODO: replace with a contract call to SliceFactory contract
-export async function getAllSlices() {
-  // mocked from slices.ts
-  return slices;
-}
 
 export async function getSliceTokensData(sliceName: string) {
   // TODO: replace mock

@@ -9,24 +9,30 @@ export type DeployTokenRequest = {
 	complianceSettings: EvmAddress[];
 };
 
-export interface SliceData {
+export type SliceNFTData = {
 	name: string;
-	id: `0x${string}`;
-	description?: string;
-	imageUrl?: string;
-	estimatedPrice?: number;
-	// Time to end in units of seconds.
-	timeToEnd?: number;
-	allocation?: number;
+	description: string;
+	allocation: number;
+	sliceImageIpfsHash: string;
 };
 
 export type BuildingSliceData = {
 	imageUrl?: string;
 	name: string;
 	description: string;
+	symbol: string;
 	allocation: number;
+};
+
+export type SliceData = {
+	id: `0x${string}`;
+	address: `0x${string}`;
+	name: string;
+	allocation: number;
+	description: string;
+	imageIpfsUrl: string;
+	endDate: string;
 	estimatedPrice: number;
-	id: number;
 };
 
 export type BuildingSliceCategoryData = {
@@ -34,7 +40,13 @@ export type BuildingSliceCategoryData = {
 	name: string;
 	title: string;
 	itemsSize?: AvatarSize;
-	items?: BuildingSliceData[];
+	items?: SliceData[];
+};
+
+export type BuildingToken = {
+	tokenAddress: `0x${string}`,
+	buildingAddress: `0x${string}`,
+	items?: BuildingSliceData[],
 };
 
 type BulidingYield = {
@@ -64,19 +76,19 @@ export type BuildingData = {
 	purchasedAt: number;
 	description: string;
 	info: BuildingInfo;
-	voteItems: number[];
+	votingItems: number[];
 	partOfSlices: `0x${string}`[];
-	allocation: number;
 	imageUrl?: string;
-	address?: `0x${string}`;
+	allocation: number;
 	copeIpfsHash?: string;
+	address?: `0x${string}`;
 };
 
 export type BuildingNFTAttribute = {
 	display_type: string,
 	trait_type: string,
 	value: string
-}
+};
 
 export type BuildingNFTData = {
 	description: string;
@@ -87,7 +99,7 @@ export type BuildingNFTData = {
 	purchasedAt: number;
 	attributes: BuildingNFTAttribute[];
 	copeIpfsHash: string;
-}
+};
 
 export type BuildingERCToken = {
 	tokenAddress: string;
@@ -116,8 +128,38 @@ export type CreateERC3643RequestBody = {
 	tokenDecimals: number;
 };
 
+export type CreateSliceRequestBody = {
+	name: string;
+	allocation: number;
+	description: string;
+	sliceImageIpfsHash: string;
+	symbol: string;
+};
+
 export type QueryData<ArgType> = {
 	args: ArgType;
+};
+
+export type DeployAutoCompounderRequest = {
+	tokenName: string;
+	tokenSymbol: string;
+	tokenAsset: string;
+};
+
+export type DeployVaultRequest = {
+	stakingToken: string;
+	shareTokenName: string;
+	shareTokenSymbol: string;
+	vaultRewardController: string;
+	feeConfigController: string;
+	feeReceiver: string;
+	feeToken: string;
+	feePercentage?: number;
+};
+
+export type AddAllocationRequest = {
+	tokenAsset: string;
+	allocation?: number;
 };
 
 export type SwapTradeProfit = {

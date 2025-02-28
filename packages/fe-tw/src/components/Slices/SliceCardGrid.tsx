@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import moment from "moment";
 import { slugify } from "@/utils/slugify";
-import { slices } from "@/consts/slices";
+import { useSlicesData } from "@/hooks/useSlicesData";
 
 type SliceCardGridProps = {
   sliceIds: `0x${string}`[];
@@ -13,7 +13,8 @@ type SliceCardGridProps = {
 export default function SliceCardGrid({ sliceIds }: SliceCardGridProps) {
   const pathname = usePathname();
   const buildingId = pathname.split("/")[2];
-
+  const { slices } = useSlicesData();
+  
   const relevantSlices = slices.filter((slice) =>
     sliceIds.includes(slice.id)
   );
@@ -23,7 +24,7 @@ export default function SliceCardGrid({ sliceIds }: SliceCardGridProps) {
       {relevantSlices.map((slice) => (
         <Link
           key={slice.id}
-          href={`/building/${buildingId}/slices/${slugify(slice.name)}`}
+          href={`/building/${buildingId}/slices/${slugify(slice.id)}`}
           className="cursor-pointer"
         >
           <div
@@ -35,7 +36,7 @@ export default function SliceCardGrid({ sliceIds }: SliceCardGridProps) {
             "
           >
             <img
-              src={slice.imageUrl ?? "assets/dome.jpeg"}
+              src={slice.imageIpfsUrl ?? "assets/dome.jpeg"}
               alt={slice.name}
               className="rounded-md object-cover w-full h-40 mb-3"
             />
@@ -65,7 +66,7 @@ export default function SliceCardGrid({ sliceIds }: SliceCardGridProps) {
               )}
 
               <p className="text-xs text-gray-600 mt-1">
-                Time to End: {moment(slice.timeToEnd).fromNow()}
+                Time to End: {moment(slice.endDate).fromNow()}
               </p>
             </div>
           </div>

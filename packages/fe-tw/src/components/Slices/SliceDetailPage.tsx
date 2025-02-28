@@ -81,7 +81,7 @@ export function SliceDetailPage({
       <div className="flex flex-col md:flex-row gap-6">
         <div className="md:w-64 md:h-64 w-full h-64">
           <img
-            src={sliceData.imageUrl ?? "assets/dome.jpeg"}
+            src={sliceData.imageIpfsUrl ?? "assets/dome.jpeg"}
             alt={sliceData.name}
             className="object-cover rounded-lg w-full h-full"
           />
@@ -104,7 +104,7 @@ export function SliceDetailPage({
 
       <div className="bg-white rounded-lg p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Token Allocations</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Slice Token Allocations</h2>
           <button
             className="bg-purple-700 text-white px-4 py-2 rounded-full hover:bg-purple-900 transition"
             onClick={openModal}
