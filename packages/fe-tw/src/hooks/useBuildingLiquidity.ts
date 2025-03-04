@@ -64,7 +64,7 @@ export function useBuildingLiquidity() {
       const tokenBData = tokens.find(
         (t) => t.address.toLowerCase() === tokenBAddress.toLowerCase()
       );
-      const decimalsB = tokenBData ? tokenBData.decimals : 18;
+      const decimalsB = tokenBData ? tokenBData.decimals : 6;
 
       const parsedTokenA = BigInt(
         Math.floor(parseFloat(tokenAAmount) * 10 ** decimalsA)
@@ -99,7 +99,7 @@ export function useBuildingLiquidity() {
         functionName: "addLiquidity",
         args: [tokenAAddress, parsedTokenA, tokenBAddress, parsedTokenB],
         metaArgs: {
-          gas: 800000,
+          gas: 2000000,
         },
       })) as HederaWriteContractResult;
 

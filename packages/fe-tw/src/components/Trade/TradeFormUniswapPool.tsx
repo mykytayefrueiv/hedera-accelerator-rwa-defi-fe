@@ -7,19 +7,25 @@ import Select from "react-select";
 import { useUniswapTradeSwaps } from "@/hooks/swaps/useUniswapTradeSwaps";
 import { colourStyles } from "@/consts/theme";
 import { oneHourTimePeriod } from "@/consts/trade";
+import { USDC_ADDRESS } from "@/services/contracts/addresses";
 
 type Props = {
     buildingTokens: `0x${string}`[];
 };
 
 export default function TradeFormUniswapPool({ buildingTokens }: Props) {
-    const { handleSwap } = useUniswapTradeSwaps();
+    const { handleSwap, getAmountsOut } = useUniswapTradeSwaps();
     const [txResult, setTxResult] = useState<string>();
     const [txError, setTxError] = useState<string>();
-    const [tradeFormData, setTradeFormData] = useState({
-        amount: 0,
-        tokenA: '',
-        tokenB: '',
+    const [tradeFormData, setTradeFormData] = useState<{
+        amount?: number,
+        tokenA?: `0x${string}`,
+        tokenB?: `0x${string}`,
+        autoRevertsAfter: number,
+    }>({
+        amount: undefined,
+        tokenA: undefined,
+        tokenB: USDC_ADDRESS,
         autoRevertsAfter: oneHourTimePeriod,
     });
 
@@ -31,32 +37,40 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
     const handleSwapSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const amount = tradeFormData.amount;
+        const amountA = tradeFormData.amount;
         const tokenB = tradeFormData.tokenB;
+        const tokenA = tradeFormData.tokenA;
 
-        if (!amount || !tradeFormData.tokenA || !tradeFormData.tokenB) {
-            toast.error('All fields in trade form are required');
-        } else {
-            try {
-                const transaction_id = await handleSwap({
-                    amountIn: ethers.parseEther(amount.toString()),
-                    amountOut: ethers.parseEther(amount.toString()),
-                    path: [tradeFormData.tokenA, tradeFormData.tokenB],
-                    deadline: Date.now() + (tradeFormData.autoRevertsAfter ?? oneHourTimePeriod),
-                });
-                setTradeFormData({
-                    amount: 0,
-                    tokenA: '',
-                    tokenB: '',
-                    autoRevertsAfter: oneHourTimePeriod,
-                });
+        try {
+            const amountB = await getAmountsOut(amountA!, [tokenA!, tokenB!]);
+            console.log('amountB', amountB)
 
-                toast.success(`Successfully sold ${amount} tokens for ${tokenB}!`);
-                setTxResult(transaction_id);
-            } catch (err) {
-                toast.error(`Failed to sell tokens: ${(err as { message: string })?.message}`);
-                setTxError((err as unknown as { message: string }).message);
+            if (!amountA || !amountB || !tokenA || !tokenB) {
+                toast.error('All fields in trade form are required');
+            } else {
+                try {
+                    const transaction_id = await handleSwap({
+                        amountIn: ethers.parseEther(amountA.toString()),
+                        amountOut: ethers.parseEther(amountB.toString()),
+                        path: [tokenA, tokenB],
+                        deadline: Date.now() + (tradeFormData.autoRevertsAfter ?? oneHourTimePeriod),
+                    });
+                    setTradeFormData({
+                        amount: 0,
+                        tokenA: undefined,
+                        tokenB: undefined,
+                        autoRevertsAfter: oneHourTimePeriod,
+                    });
+    
+                    toast.success(`Successfully trade ${amountA} tokens for ${tokenB}!`);
+                    setTxResult(transaction_id);
+                } catch (err) {
+                    toast.error(`Failed to sell tokens: ${(err as { message: string })?.message}`);
+                    setTxError((err as unknown as { message: string }).message);
+                }
             }
+        } catch (err) {
+            // todo
         }
     };
 
@@ -90,11 +104,16 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                         options={buildingTokensOptions}
                     />
                 </div>
-                <div>
+                <div className="mt-5">
                     <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="tokenBSelect">
                         Select token B
                     </label>
                     <Select
+                        value={{
+                            value: USDC_ADDRESS as `0x${string}`,
+                            label: 'USDC',
+                        }}
+                        isDisabled
                         styles={colourStyles}
                         onChange={(value) => {
                             setTradeFormData(prev => ({
@@ -105,7 +124,7 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                         options={buildingTokensOptions}
                     />
                 </div>
-                <div>
+                <div className="mt-5">
                     <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="amount">
                         Amount of tokens to exchange
                     </label>
@@ -122,7 +141,7 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                         required
                     />
                 </div>
-                <div className="mb-5">
+                <div className="mt-5 mb-5">
                     <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="autoRevertsAfter">
                         Auto reverts period in hours
                     </label>

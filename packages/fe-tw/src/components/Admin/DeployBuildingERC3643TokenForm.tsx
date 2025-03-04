@@ -22,7 +22,7 @@ const initialValues = {
 };
 
 export const DeployBuildingERC3643TokenForm = ({ onGetLiquidityView, onGetDeployBuildingView }: Props) => {
-    const [selectedBuildingAddress, setSelectedBuildingAddress] = useState<`0x${string}`>();
+    const [selectedBuildingAddress, setSelectedBuildingAddress] = useState<`0x${string}`>('0x1360Aa4cb6c7Ee608E1860f7097EbF741F93a2d4');
     const [txError, setTxError] = useState<string>();
     const [txResult, setTxResult] = useState<string>();
     const [loading, setLoading] = useState(false);

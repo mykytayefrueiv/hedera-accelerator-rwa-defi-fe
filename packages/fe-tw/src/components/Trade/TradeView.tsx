@@ -45,15 +45,14 @@ const TradeFormTypeTabs = ({ swapTypeForm, onSwapTabChange }: TradeFormTypeTabsP
 export default function TradeView({ building }: Props) {
   const { oneSidedExchangeSwapsHistory, uniswapExchangeHistory } = useSwapsHistory();
   const [swapTypeForm, setSwapTypeForm] = useState<SwapType>('uniswap');
-  const { deployedBuildingTokens } = useBuildingDetails(building.address as `0x${string}`);
-
-  const buildingTokens = deployedBuildingTokens.map(tok => tok.tokenAddress);
+  // const { deployedBuildingTokens } = useBuildingDetails(building.address as `0x${string}`);
+  // const buildingTokens = deployedBuildingTokens.map(tok => tok.tokenAddress);
 
   return (
     <div className="mt-8 flex flex-col gap-8">
       <TradeFormTypeTabs swapTypeForm={swapTypeForm} onSwapTabChange={(swapType) => setSwapTypeForm(swapType)} />
       <div className="mt-8 flex flex-wrap flex-row gap-8 w-full">
-        {swapTypeForm === 'uniswap' ? <TradeFormUniswapPool buildingTokens={buildingTokens} /> : <TradeFormOneSidedExchange buildingTokens={buildingTokens} />}
+        {swapTypeForm === 'uniswap' ? <TradeFormUniswapPool buildingTokens={['0x167B65bC7C4039268dEfABE763B39c97e796429C']} /> : <TradeFormOneSidedExchange buildingTokens={buildingTokens} />}
         <TradePortfolio tradeHistory={swapTypeForm === 'uniswap' ? uniswapExchangeHistory : oneSidedExchangeSwapsHistory} tradeProfitData={tradeProfitDataMock} />
       </div>
     </div>

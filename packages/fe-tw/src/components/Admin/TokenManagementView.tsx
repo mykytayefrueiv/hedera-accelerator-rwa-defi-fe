@@ -21,7 +21,7 @@ export function TokenManagementView() {
         <AddBuildingTokenLiquidityForm
           buildingAddress={selectedBuildingAddress}
           onGetDeployBuildingTokenView={() => {
-            setCurrentSetupStep(2);
+            setCurrentSetupStep(1);
           }}
         />
       )

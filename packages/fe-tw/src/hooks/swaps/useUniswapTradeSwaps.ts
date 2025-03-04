@@ -1,13 +1,23 @@
 import { uniswapRouterAbi } from "@/services/contracts/abi/uniswapRouterAbi";
 import { UNISWAP_ROUTER_ADDRESS } from "@/services/contracts/addresses";
 import { SwapUniswapTokensRequestBody } from "@/types/erc3643/types";
-import { useWriteContract, useWatchTransactionReceipt, useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
+import { useWriteContract, useReadContract, useWatchTransactionReceipt, useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 import { ContractId } from "@hashgraph/sdk";
 
 export const useUniswapTradeSwaps = () => {
     const { watch } = useWatchTransactionReceipt();
     const { writeContract } = useWriteContract();
+    const { readContract } = useReadContract()
     const { data: evmAddress } = useEvmAddress();
+
+    const getAmountsOut = async (amount: number, tokens: `0x${string}`[]) => {
+        return await readContract({
+            address: UNISWAP_ROUTER_ADDRESS,
+            abi: uniswapRouterAbi,
+            functionName: "getAmountsOut",
+            args: [BigInt(Math.floor(amount * 10 ** 18)), tokens],
+        });
+    };
 
     const handleSwap = async (payload: SwapUniswapTokensRequestBody): Promise<string> => {
         return new Promise((res, rej) => {
@@ -35,5 +45,5 @@ export const useUniswapTradeSwaps = () => {
         });
     };
 
-    return { handleSwap };
+    return { handleSwap, getAmountsOut };
 };

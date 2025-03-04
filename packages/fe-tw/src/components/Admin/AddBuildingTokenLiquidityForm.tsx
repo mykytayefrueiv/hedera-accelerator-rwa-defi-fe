@@ -10,6 +10,7 @@ import { useBuildingLiquidity } from "@/hooks/useBuildingLiquidity";
 import { useBuildingDetails } from "@/hooks/useBuildingDetails";
 import { useBuildings } from "@/hooks/useBuildings";
 import { colourStyles } from "@/consts/theme";
+import { USDC_ADDRESS } from "@/services/contracts/addresses";
 
 type Props = {
   buildingAddress: `0x${string}`;
@@ -47,15 +48,10 @@ export function AddBuildingTokenLiquidityForm({ onGetDeployBuildingTokenView, bu
     actions.resetForm();
   }
 
-  const tokenSelectOptions = useMemo(() => [
-    ...deployedBuildingTokens.map(token => ({
-      value: token.tokenAddress,
-      label: token.tokenAddress, // todo: replace with token name
-    })), {
-      value: '0x0000000000000000000000000000000000211103',
-      label: 'USDC',
-    }
-  ], [deployedBuildingTokens?.length]);
+  const tokenSelectOptions = useMemo(() => deployedBuildingTokens.map(token => ({
+    value: token.tokenAddress,
+    label: token.tokenAddress,
+  })), [deployedBuildingTokens]);
 
   const buildingSelectOptions = useMemo(() => {
     return buildings.map(building => ({
@@ -76,9 +72,9 @@ export function AddBuildingTokenLiquidityForm({ onGetDeployBuildingTokenView, bu
         initialValues={{
           buildingAddress: '',
           tokenAAddress: '',
-          tokenBAddress: '',
-          tokenAAmount: '100',
-          tokenBAmount: '1',
+          tokenBAddress: USDC_ADDRESS,
+          tokenAAmount: '',
+          tokenBAmount: '',
         }}
         onSubmit={handleSubmit}
       >
@@ -149,16 +145,11 @@ export function AddBuildingTokenLiquidityForm({ onGetDeployBuildingTokenView, bu
                 onChange={(option: SingleValue<{ value: string; label: string }>) => {
                   setFieldValue('tokenBAddress', option?.value || "");
                 }}
-                value={
-                  values.tokenBAddress
-                    ? {
-                      value: values.tokenBAddress,
-                      label:
-                        tokenSelectOptions.find((t) => t.value === values.tokenBAddress)
-                          ?.label || values.tokenBAddress,
-                    }
-                    : null
-                }
+                value={{
+                  value: USDC_ADDRESS,
+                  label: 'USDC',
+                }}
+                isDisabled
               />
             </div>
             <div>
