@@ -1,103 +1,80 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import {
-  getAuditRecordIdsForBuilding,
-  getAuditRecordDetails
-} from "@/services/auditRegistryService";
-import { fetchJsonFromIpfs } from "@/services/ipfsService";
-import { CopeData } from "@/types/cope";
-import { CopeModal } from "./CopeModal";
+import React from "react";
+import type { CopeData } from "@/types/erc3643/types";
 
 interface CopeViewProps {
-  buildingAddress: string; 
-  isAdmin: boolean;
+  cope?: CopeData;
 }
 
-export function CopeView({ buildingAddress, isAdmin }: CopeViewProps) {
-  const [copeData, setCopeData] = useState<CopeData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
-
-  async function loadLatestCopeData() {
-    try {
-      setLoading(true);
-      setError(null);
-      setCopeData(null);
-
-      const recordIds = await getAuditRecordIdsForBuilding(buildingAddress);
-      if (recordIds.length === 0) {
-        return; 
-      }
-
-      const latestId = recordIds[recordIds.length - 1];
-      const record = await getAuditRecordDetails(latestId);
-      const ipfsHash = record.ipfsHash || record[2]; 
-      if (!ipfsHash) return;
-
-      const data = await fetchJsonFromIpfs(ipfsHash);
-      setCopeData(data as CopeData);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message ?? "Failed to load COPE data");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    loadLatestCopeData();
-  }, [buildingAddress]);
-
-  if (loading) {
-    return <div>Loading COPE data...</div>;
-  }
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-  if (!copeData) {
-    return (
-      <div>
-        <p>No COPE data found for building {buildingAddress}.</p>
-        {isAdmin && (
-          <button className="btn" onClick={() => setShowModal(true)}>
-            Add COPE Data
-          </button>
-        )}
-        {showModal && (
-          <CopeModal
-            buildingAddress={buildingAddress}
-            onClose={() => setShowModal(false)}
-          />
-        )}
-      </div>
-    );
-  }
+export function CopeView({ cope = {} as CopeData }: CopeViewProps) {
+  const { construction, occupancy, protection, exposure } = cope;
 
   return (
-    <div className="max-w-3xl mx-auto p-4 bg-white rounded-md shadow">
-      <h2 className="text-xl font-bold mb-2">COPE Data (Latest Record)</h2>
-      <p><strong>Provider:</strong> {copeData.insuranceProvider ?? "N/A"}</p>
-      <p><strong>Coverage:</strong> {copeData.coverageAmount ?? "N/A"}</p>
-      <p><strong>Start:</strong> {copeData.coverageStart ?? "N/A"}</p>
-      <p><strong>End:</strong> {copeData.coverageEnd ?? "N/A"}</p>
-      <p><strong>Notes:</strong> {copeData.notes ?? "N/A"}</p>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Construction Card */}
+      <div className="bg-gray-50 p-4 rounded-md shadow">
+        <h2 className="text-lg font-semibold mb-2">Construction</h2>
+        <p>
+          <strong>Materials:</strong>{" "}
+          {construction?.materials || "N/A"}
+        </p>
+        <p>
+          <strong>Year Built:</strong>{" "}
+          {construction?.yearBuilt || "N/A"}
+        </p>
+        <p>
+          <strong>Roof Type:</strong>{" "}
+          {construction?.roofType || "N/A"}
+        </p>
+        <p>
+          <strong>Floors:</strong>{" "}
+          {construction?.numFloors || "N/A"}
+        </p>
+      </div>
 
-      {isAdmin && (
-        <button className="btn mt-4" onClick={() => setShowModal(true)}>
-          Add Another COPE Record
-        </button>
-      )}
-      {showModal && (
-        <CopeModal
-          buildingAddress={buildingAddress}
-          existingData={copeData}
-          onClose={() => {
-            setShowModal(false);
-          }}
-        />
-      )}
+      {/* Occupancy Card */}
+      <div className="bg-gray-50 p-4 rounded-md shadow">
+        <h2 className="text-lg font-semibold mb-2">Occupancy</h2>
+        <p>
+          <strong>Type:</strong>{" "}
+          {occupancy?.type || "N/A"}
+        </p>
+        <p>
+          <strong>% Occupied:</strong>{" "}
+          {occupancy?.percentageOccupied || "N/A"}
+        </p>
+      </div>
+
+      {/* Protection Card */}
+      <div className="bg-gray-50 p-4 rounded-md shadow">
+        <h2 className="text-lg font-semibold mb-2">Protection</h2>
+        <p>
+          <strong>Fire Protection:</strong>{" "}
+          {protection?.fire || "N/A"}
+        </p>
+        <p>
+          <strong>Sprinklers:</strong>{" "}
+          {protection?.sprinklers || "N/A"}
+        </p>
+        <p>
+          <strong>Security:</strong>{" "}
+          {protection?.security || "N/A"}
+        </p>
+      </div>
+
+      {/* Exposure Card */}
+      <div className="bg-gray-50 p-4 rounded-md shadow">
+        <h2 className="text-lg font-semibold mb-2">Exposure</h2>
+        <p>
+          <strong>Nearby Risks:</strong>{" "}
+          {exposure?.nearbyRisks || "N/A"}
+        </p>
+        <p>
+          <strong>Flood Zone:</strong>{" "}
+          {exposure?.floodZone || "N/A"}
+        </p>
+      </div>
     </div>
   );
 }
