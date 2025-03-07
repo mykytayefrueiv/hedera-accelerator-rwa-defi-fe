@@ -13,11 +13,11 @@ export const BuildingSlice = ({ sliceId }: { sliceId: `0x${string}` }) => {
     if (!slice) return null;
 
     return (
-        <Link href={`/slices/${slugify(slice.name)}`} className="cursor-pointer hover:bg-gray-100 p-2 rounded transition">
+        <Link href={`/slices/${slugify(slice.id)}`} className="cursor-pointer hover:bg-gray-100 p-2 rounded transition">
             <div className="flex flex-row mt-5">
                 <ReusableAvatar
                     imageAlt={slice.name}
-                    imageSource={slice.imageUrl}
+                    imageSource={slice.imageIpfsUrl}
                     size="md"
                     isRounded
                 />
@@ -29,7 +29,7 @@ export const BuildingSlice = ({ sliceId }: { sliceId: `0x${string}` }) => {
                     <div className="flex flex-row items-center">
                         <ClockIcon />
                         <span className="text-xs ml-2 text-slate-700">
-                            {moment(slice.timeToEnd).format('dddd, LT')}
+                            {moment(slice.endDate).format('dddd, LT')}
                         </span>
                     </div>
                 </div>

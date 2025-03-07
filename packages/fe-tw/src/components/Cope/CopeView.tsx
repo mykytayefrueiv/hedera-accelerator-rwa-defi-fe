@@ -8,13 +8,14 @@ import {
 import { fetchJsonFromIpfs } from "@/services/ipfsService";
 import { CopeData } from "@/types/cope";
 import { CopeModal } from "./CopeModal";
+import { useBuildingDetails } from "@/hooks/useBuildingDetails";
 
 interface CopeViewProps {
-  buildingAddress: string; 
-  isAdmin: boolean;
+  buildingAddress: string;
 }
 
-export function CopeView({ buildingAddress, isAdmin }: CopeViewProps) {
+export function CopeView({ buildingAddress }: CopeViewProps) {
+  const { isBuildingAdmin: isAdmin } = useBuildingDetails(buildingAddress as `0x${string}`);
   const [copeData, setCopeData] = useState<CopeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

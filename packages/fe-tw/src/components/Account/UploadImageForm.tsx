@@ -1,14 +1,16 @@
-import { uploadFileToPinata, uploadJsonToPinata } from "@/services/ipfsService";
-import { prepareIPFSfileURL } from "@/utils/helpers";
-import { pinata } from "@/utils/pinata";
+import { uploadFileToPinata } from "@/services/ipfsService";
 import { useField } from "formik";
 import { useState } from "react";
 import { FileInput, Loading } from "react-daisyui";
 import { toast } from "react-hot-toast";
 
-export function UploadImageForm() {
-	const [_, meta, helpers] = useField("buildingImageIpfsId");
-	const [, fileMeta, fileHelpers] = useField("buildingImageIpfsFile");
+type Props = {
+	fileHashName?: string,
+}
+
+export function UploadImageForm({ fileHashName = 'buildingImageIpfsFile' }: Props) {
+	const [_, meta, helpers] = useField(fileHashName);
+	const [, fileMeta, fileHelpers] = useField(fileHashName);
 	const [isUploading, setIsUploading] = useState(false);
 
 	const uploadImageToIpfs = async (fileToUpload: File) => {
@@ -42,12 +44,12 @@ export function UploadImageForm() {
 
 	return (
 		<>
-			<label className="label" htmlFor="buildingImageIpfsFile">
+			<label className="label" htmlFor={fileHashName}>
 				<span className="label-text">Or upload new image to IPFS</span>
 			</label>
 
 			<FileInput
-				name="buildingImageIpfsFile"
+				name={fileHashName}
 				color="primary"
 				className={"text-primary"}
 				onChange={(event) => {
@@ -56,7 +58,7 @@ export function UploadImageForm() {
 					}
 				}}
 			/>
-			<label className="label" htmlFor="buildingImageIpfsFile">
+			<label className="label" htmlFor={fileHashName}>
 				{fileMeta.error && (
 					<span className="label-text-alt text-red-700">{fileMeta.error}</span>
 				)}

@@ -1,8 +1,9 @@
-import { slices } from "@/consts/slices";
 import { featuredDevelopments } from "@/consts/featuredDevelopments";
+import { useSlicesData } from "@/hooks/useSlicesData";
 
 export function getExplorerData() {
-  // replace with fetch calls/contract queries
+  const { slices } = useSlicesData();
+  
   return {
     slices,
     featuredDevelopments

@@ -21,7 +21,7 @@ export function SlicesCarousel({ slices, selectedSlice, onSelectSlice }: SlicesC
   const handleDoubleClick = useCallback(
     (slice: SliceData) => {
       if (selectedSlice?.id === slice.id) {
-        window.location.href = `/slices/${slugify(slice.name)}`;
+        window.location.href = `/slices/${slugify(slice.id)}`;
       }
     },
     [selectedSlice],
@@ -42,7 +42,7 @@ export function SlicesCarousel({ slices, selectedSlice, onSelectSlice }: SlicesC
             <div className="avatar transition-transform duration-300 group-hover:scale-110">
               <div className="ring-gray-300 ring-offset-base-100 w-20 h-20 rounded-full ring ring-offset-2">
                 <img
-                  src={slice.imageUrl ?? "assets/dome.jpeg"}
+                  src={slice.imageIpfsUrl ?? "assets/dome.jpeg"}
                   alt={slice.name}
                   className="rounded-full object-cover"
                 />
