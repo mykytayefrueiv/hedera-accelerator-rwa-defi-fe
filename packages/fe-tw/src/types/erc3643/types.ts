@@ -184,5 +184,10 @@ export interface CopeData {
 	  nearbyRisks?: string;
 	  floodZone?: string;
 	};
-  }
+}
   
+export interface DeployedBuilding {
+	addr: EvmAddress;
+	nftId: number;
+	tokenURI: string;
+} 

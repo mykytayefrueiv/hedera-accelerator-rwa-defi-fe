@@ -1,6 +1,7 @@
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
 import { BUILDING_FACTORY_ADDRESS } from "@/services/contracts/addresses";
-import type { EvmAddress, TransactionExtended } from "@/types/common";
+import type { TransactionExtended } from "@/types/common";
+import type { DeployedBuilding } from "@/types/erc3643/types";
 import {
 	useReadContract,
 	useWatchTransactionReceipt,
@@ -12,12 +13,6 @@ import { useEffect, useState } from "react";
 import { Button, Link } from "react-daisyui";
 import toast from "react-hot-toast";
 import * as Yup from "yup";
-
-interface DeployedBuilding {
-	addr: EvmAddress;
-	nftId: number;
-	tokenURI: string;
-}
 
 export function DeployBuilding({
 	deployedMetadataIPFS,

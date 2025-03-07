@@ -19,21 +19,20 @@ export const BuildingBaseInfo = ({
       />
 
       <div className="flex flex-col mt-6 md:mt-0 md:ml-10">
-        <article className="prose">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{title}</h1>
-          <p className="text-sm text-slate-700 mt-2">
-            Purchased at: {moment(purchasedAt).format("YYYY-MM-DD")}
-          </p>
-        </article>
-
-        <article className="mt-4">
-          {description.split("\\").map((line) => (
-            <p className="mt-2 text-sm sm:text-base" key={line}>
-              {line}
+          <article className="prose">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{title}</h1>
+            <p className="text-sm text-slate-700 mt-2">
+              Purchased at: {moment(purchasedAt).format("YYYY-MM-DD")}
             </p>
-          ))}
-        </article>
-      </div>
+          </article>
+          {description && <article className="mt-4">
+            {description.split("\\").map((line) => (
+              <p className="mt-2 text-sm sm:text-base" key={line}>
+                {line}
+              </p>
+            ))}
+          </article>}
+        </div>
     </div>
   );
 };
