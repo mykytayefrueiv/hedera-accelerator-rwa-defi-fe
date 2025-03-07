@@ -7,9 +7,8 @@ import { UploadImageForm } from "@/components/Account/UploadImageForm";
 const initialValues = {
     name: '',
     description: '',
-    allocation: 0,
     endDate: '',
-    sliceImageIpfsHash: '',
+    sliceImageIpfsHashId: '',
     symbol: '',
 };
 
@@ -26,13 +25,22 @@ export const AddSliceForm = ({ submitCreateSlice, getSliceAllocationForm, isLoad
             initialValues={initialValues}
             onSubmit={submitCreateSlice}
         >
+             {({ setFieldValue }) => (
             <Form className="space-y-4">
                 <div>
                     <label className="block text-md font-semibold text-purple-400">Slice Name</label>
                     <Field
                         name="name"
                         className="input input-bordered w-full mt-2"
-                        placeholder="e.g. 1"
+                        placeholder="e.g. Corgi Condominium"
+                    />
+                </div>
+                <div>
+                    <label className="block text-md font-semibold text-purple-400">Slice Symbol</label>
+                    <Field
+                        name="symbol"
+                        className="input input-bordered w-full mt-2"
+                        placeholder="e.g. CORGI_S"
                     />
                 </div>
                 <div>
@@ -40,15 +48,7 @@ export const AddSliceForm = ({ submitCreateSlice, getSliceAllocationForm, isLoad
                     <Field
                         name="description"
                         className="input input-bordered w-full mt-2"
-                        placeholder="e.g. 1"
-                    />
-                </div>
-                <div>
-                    <label className="block text-md font-semibold text-purple-400">Slice Allocation (%)</label>
-                    <Field
-                        name="allocation"
-                        className="input input-bordered w-full mt-2"
-                        placeholder="e.g. 1"
+                        placeholder="e.g. Corgi Condominium Seria's"
                     />
                 </div>
                 <div>
@@ -56,25 +56,32 @@ export const AddSliceForm = ({ submitCreateSlice, getSliceAllocationForm, isLoad
                     <Field
                         name="endDate"
                         className="input input-bordered w-full mt-2"
-                        placeholder="e.g. 1"
+                        placeholder="e.g. 10.10.2025"
                         type="date"
                     />
                 </div>
                 <div>
-                    <label className="block text-md font-semibold text-purple-400" htmlFor="sliceImageIpfsHash">
+                    <label className="block text-md font-semibold text-purple-400" htmlFor="sliceImageIpfsHashId">
                         Slice Image IPFS Hash
                     </label>
-                    <ErrorMessage name="sliceImageIpfsHash">
+                    <ErrorMessage name="sliceImageIpfsHashId">
 						{(error) => (
 							<span className="label-text-alt text-red-700">{error}</span>
 					    )}
 				   </ErrorMessage>
 					<Field
-						name="sliceImageIpfsHash"
+						name="sliceImageIpfsHashId"
                         className="input input-bordered w-full mt-2"
-                        placeholder="e.g. /url"
+                        placeholder="e.g. 1223232323ccc2323"
                     />
-                    <UploadImageForm fileHashName="sliceImageIpfsHash" />
+                    <UploadImageForm
+                        fileHashName="sliceImageIpfsFile"
+                        fileHashId="sliceImageIpfsHashId"
+                        onFileUploaded={(file, cid) => {
+                            setFieldValue("sliceImageIpfsFile", file);
+                            setFieldValue("sliceImageIpfsHashId", cid);
+                        }}
+                    />
                 </div>
                 {children}
                 <div className="flex gap-5 mt-5">
@@ -99,6 +106,7 @@ export const AddSliceForm = ({ submitCreateSlice, getSliceAllocationForm, isLoad
                     </Button>
                 </div>
             </Form>
+            )}
         </Formik>
     );
 };

@@ -13,7 +13,7 @@ import { useBuildings } from "@/hooks/useBuildings";
 type Props = {
   buildingAddress: `0x${string}`;
   onGetDeployBuildingTokenView: () => void;
-  onGetDeployATokenFlow: () => void;
+  onGetDeployATokenFlow?: () => void;
 };
 
 const colourStyles = {
@@ -62,7 +62,7 @@ export function AddBuildingTokenLiquidityForm({ onGetDeployBuildingTokenView, on
 
     actions.resetForm();
 
-    onGetDeployATokenFlow();
+    onGetDeployATokenFlow?.();
   }
 
   const tokenSelectOptions = useMemo(() => [

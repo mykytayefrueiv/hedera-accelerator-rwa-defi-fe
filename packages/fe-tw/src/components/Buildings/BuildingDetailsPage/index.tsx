@@ -9,7 +9,7 @@ export const BuildingDetailPage = (props: BuildingData) => {
     <div >
       <BuildingBaseInfo {...props} />
       <BuildingDetailInfo {...props.info} />
-      {props.voteItems.length > 0 && <BuildingVotes votes={props.voteItems} />}
+      {props.votingItems.length > 0 && <BuildingVotes votes={props.votingItems} />}
       {props.partOfSlices.length > 0 && <BuildingSlices slices={props.partOfSlices} />}
     </div>
   );

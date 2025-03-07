@@ -2,6 +2,7 @@ import { Formik, Field, Form } from "formik"
 import React, { useState, useMemo, useCallback } from "react";
 import Select, { SingleValue } from "react-select";
 import { Button } from "react-daisyui";
+import { useRouter } from "next/navigation";
 import { useWriteContract, useWatchTransactionReceipt } from "@buidlerlabs/hashgraph-react-wallets";
 import { ContractId } from "@hashgraph/sdk";
 import { sliceAbi } from "@/services/contracts/abi/sliceAbi";
@@ -43,6 +44,7 @@ export const AddSliceAllocationForm = ({ handleBack }: Props) => {
     const [sliceAddress, setSliceAddress] = useState<`0x${string}`>();
     const { slices } = useSlicesData();
     const { autoCompounders } = useATokenVaultData();
+    const { push } = useRouter();
 
     const buildingAssetsOptions = useMemo(() =>
         autoCompounders.map(token => ({
@@ -71,6 +73,7 @@ export const AddSliceAllocationForm = ({ handleBack }: Props) => {
                 onSuccess: (transaction) => {
                     setIsLoading(false);
                     setTxResult(transaction.transaction_id);
+                    push(`/slices/${sliceAddress}`);
 
                     return transaction;
                 },

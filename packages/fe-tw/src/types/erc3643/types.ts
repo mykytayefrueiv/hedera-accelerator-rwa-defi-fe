@@ -131,10 +131,10 @@ export type CreateERC3643RequestBody = {
 
 export type CreateSliceRequestBody = {
 	name: string;
-	allocation: number;
 	description: string;
-	sliceImageIpfsHash: string;
+	sliceImageIpfsHashId: string;
 	symbol: string;
+	endDate?: string
 };
 
 export type QueryData<ArgType> = {
