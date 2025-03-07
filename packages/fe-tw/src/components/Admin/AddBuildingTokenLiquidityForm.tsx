@@ -13,6 +13,7 @@ import { useBuildings } from "@/hooks/useBuildings";
 type Props = {
   buildingAddress: `0x${string}`;
   onGetDeployBuildingTokenView: () => void;
+  onGetDeployATokenFlow: () => void;
 };
 
 const colourStyles = {
@@ -31,7 +32,7 @@ const colourStyles = {
   }),
 };
 
-export function AddBuildingTokenLiquidityForm({ onGetDeployBuildingTokenView, buildingAddress }: Props) {
+export function AddBuildingTokenLiquidityForm({ onGetDeployBuildingTokenView, onGetDeployATokenFlow, buildingAddress }: Props) {
   const { buildings } = useBuildings();
   const { isAddingLiquidity, txHash, txError, addLiquidity } = useBuildingLiquidity();
   const { deployedBuildingTokens } = useBuildingDetails(buildingAddress);
@@ -60,6 +61,8 @@ export function AddBuildingTokenLiquidityForm({ onGetDeployBuildingTokenView, bu
     });
 
     actions.resetForm();
+
+    onGetDeployATokenFlow();
   }
 
   const tokenSelectOptions = useMemo(() => [
@@ -185,15 +188,26 @@ export function AddBuildingTokenLiquidityForm({ onGetDeployBuildingTokenView, bu
               />
             </div>
 
-            <Button
-              className="pr-20 pl-20"
-              type="submit"
-              color="primary"
-              loading={isAddingLiquidity}
-              disabled={isAddingLiquidity}
-            >
-              {isAddingLiquidity ? 'Adding Liquidity...' : 'Add Liquidity'}
-            </Button>
+            <div className="flex gap-5 mt-5">
+              <Button
+                className="pr-20 pl-20"
+                type="submit"
+                color="primary"
+                loading={isAddingLiquidity}
+                disabled={isAddingLiquidity}
+              >
+                {isAddingLiquidity ? 'Adding Liquidity...' : 'Add Liquidity'}
+              </Button>
+              <Button
+                className="pr-20 pl-20"
+                type="button"
+                color="secondary"
+                disabled={isAddingLiquidity}
+                onClick={onGetDeployATokenFlow}
+              >
+                To Vault/Compounder Deploy
+              </Button>
+            </div>
           </Form>
         )}
       </Formik>

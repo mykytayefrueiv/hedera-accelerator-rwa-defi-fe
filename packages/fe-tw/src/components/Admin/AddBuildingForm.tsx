@@ -17,9 +17,10 @@ type Props = {
 };
 
 interface FormValues {
-  name: string;
-  location: string;
-  tokenSupply: number;
+	name: string;
+	location: string;
+	image: string;
+	tokenSupply: number;
 }
 
 export function AddBuildingForm({ onBuildingDeployed, onGetVaultStep }: Props) {
@@ -29,39 +30,51 @@ export function AddBuildingForm({ onBuildingDeployed, onGetVaultStep }: Props) {
 
   async function handleSubmit(values: FormValues, { resetForm }: any) {
     try {
-      setIsLoading(true);
-      const { name, location, tokenSupply } = values;
+			setIsLoading(true);
+			const { name, location, image, tokenSupply } = values;
 
-      const metadata = {
-        name,
-        location,
-        supply: tokenSupply,
-      };
+			const sanitizedBuildingName = name.replace(/\s+/g, "-").toLowerCase();
 
-      const ipfsHash = await uploadJsonToPinata(metadata);
-      const finalTokenURI = `ipfs://${ipfsHash}`;
+			const metadata = {
+				description: `Tokenized building at ${location}`,
+				image,
+				name,
+				address: location,
+				allocation: 0,
+				purchasedAt: Date.now(),
+				attributes: [
+					{ trait_type: "Location", value: location },
+					{ trait_type: "Initial Token Supply", value: tokenSupply.toString() },
+				],
+				copeIpfsHash: "",
+			};
 
-      const transactionOrHash = await writeContract({
-        contractId: ContractId.fromSolidityAddress(BUILDING_FACTORY_ADDRESS),
-        abi: buildingFactoryAbi,
-        functionName: "newBuilding",
-        args: [finalTokenURI],
-        metaArgs: {
-          gas: 800_000,
-        },
-      });
+			const ipfsHash = await uploadJsonToPinata(
+				metadata,
+				`Building-${sanitizedBuildingName}`,
+			);
+			const finalTokenURI = `ipfs://${ipfsHash}`;
 
-      if (transactionOrHash) {
-        onBuildingDeployed();
-        toast.success(`New building created! Tx: ${transactionOrHash}`);
-        resetForm();
-      }
-    } catch (error: any) {
-      console.error(error);
-      toast.error("Failed to create new building");
-    }
+			const transactionOrHash = await writeContract({
+				contractId: ContractId.fromSolidityAddress(BUILDING_FACTORY_ADDRESS),
+				abi: buildingFactoryAbi,
+				functionName: "newBuilding",
+				args: [finalTokenURI],
+				metaArgs: { gas: 1_000_000 },
+			});
 
-    setIsLoading(false);
+			if (transactionOrHash) {
+				onBuildingDeployed();
+				toast.success(`New building created! Tx: ${transactionOrHash}`);
+
+				resetForm();
+			}
+		} catch (error: any) {
+			console.error(error);
+			toast.error("Failed to create new building");
+		} finally {
+			setIsLoading(false);
+		}
   }
 
   return (
@@ -75,6 +88,7 @@ export function AddBuildingForm({ onBuildingDeployed, onGetVaultStep }: Props) {
           name: "",
           location: "",
           tokenSupply: 1000000,
+          image: "",
         }}
         onSubmit={handleSubmit}
       >

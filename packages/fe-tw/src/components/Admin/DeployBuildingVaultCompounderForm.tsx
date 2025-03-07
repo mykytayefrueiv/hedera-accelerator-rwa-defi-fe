@@ -7,6 +7,7 @@ import { Button } from "react-daisyui";
 import { useBuildings } from "@/hooks/useBuildings";
 import { BuildingDetailsView } from "@/components/FetchViews/BuildingDetailsView";
 import { useATokenVaultData } from "@/hooks/vault/useATokenVaultData";
+import { BackButton } from "../Buttons/BackButton";
 
 const colourStyles = {
     control: (styles: object) => ({ ...styles, paddingTop: 6, paddingBottom: 6, borderRadius: 8, backgroundColor: "#fff" }),
@@ -221,7 +222,11 @@ const DeployAutoCompounderForm = ({ handleDeploy }: { handleDeploy: (data: Deplo
     );
 };
 
-export const DeployBuildingVaultCompounderForm = () => {
+type Props = {
+    onGetBack: () => void;
+}
+
+export const DeployBuildingVaultCompounderForm = ({ onGetBack }: Props) => {
     const [txResults, setTxResults] = useState({
         autoCompounder: '',
         vault: '',
@@ -266,6 +271,9 @@ export const DeployBuildingVaultCompounderForm = () => {
 
     return (
         <div>
+            <BackButton onHandlePress={() => {
+                onGetBack();
+            }}  />
             {deployStep === 1 ?
                 <DeployVaultForm handleDeploy={onSubmitDeployStep} setDeployStep={(step) => {
                     setDeployStep(step);

@@ -82,6 +82,7 @@ export type BuildingData = {
 	allocation: number;
 	copeIpfsHash?: string;
 	address?: `0x${string}`;
+	cope?: CopeData;
 };
 
 export type BuildingNFTAttribute = {
@@ -98,8 +99,8 @@ export type BuildingNFTData = {
 	allocation: number;
 	purchasedAt: number;
 	attributes: BuildingNFTAttribute[];
-	copeIpfsHash: string;
-};
+	cope?: CopeData;
+}
 
 export type BuildingERCToken = {
 	tokenAddress: string;
@@ -205,3 +206,26 @@ export type SwapTokenSwapRequestBody = {
 	tokenB: string,
 	amount: bigint,
 };
+
+export interface CopeData {
+	construction: {
+	  materials?: string;
+	  yearBuilt?: string;
+	  roofType?: string;
+	  numFloors?: string;
+	};
+	occupancy: {
+	  type?: string;
+	  percentageOccupied?: string;
+	};
+	protection: {
+	  fire?: string;
+	  sprinklers?: string;
+	  security?: string;
+	};
+	exposure: {
+	  nearbyRisks?: string;
+	  floodZone?: string;
+	};
+  }
+  
