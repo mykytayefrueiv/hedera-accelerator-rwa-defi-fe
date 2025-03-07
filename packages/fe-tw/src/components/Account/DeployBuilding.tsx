@@ -1,22 +1,18 @@
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
 import { BUILDING_FACTORY_ADDRESS } from "@/services/contracts/addresses";
-import type { EvmAddress, TransactionExtended } from "@/types/common";
+import type { TransactionExtended } from "@/types/common";
+import type { DeployedBuilding } from "@/types/erc3643/types";
 import {
 	useReadContract,
 	useWatchTransactionReceipt,
 	useWriteContract,
 } from "@buidlerlabs/hashgraph-react-wallets";
+import { ContractId } from "@hashgraph/sdk";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { Button, Link } from "react-daisyui";
 import toast from "react-hot-toast";
 import * as Yup from "yup";
-
-interface DeployedBuilding {
-	addr: EvmAddress;
-	nftId: number;
-	tokenURI: string;
-}
 
 export function DeployBuilding({
 	deployedMetadataIPFS,
@@ -123,7 +119,7 @@ export function DeployBuilding({
 	const deployNewBuilding = async () => {
 		try {
 			const transactionIdOrHash = await writeContract({
-				contractId: BUILDING_FACTORY_ADDRESS,
+				contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
 				abi: buildingFactoryAbi,
 				functionName: "newBuilding",
 				metaArgs: { gas: 1_200_000 },

@@ -15,6 +15,12 @@ const buildingFinancialMock = {
   treasury: 6000,
 };
 
+export const readBuildingsList = () => readContract({
+  address: BUILDING_FACTORY_ADDRESS,
+  abi: buildingFactoryAbi,
+  functionName: "getBuildingList",
+});
+
 /**
  * Reads building details from SC.
  * @param address Building address
