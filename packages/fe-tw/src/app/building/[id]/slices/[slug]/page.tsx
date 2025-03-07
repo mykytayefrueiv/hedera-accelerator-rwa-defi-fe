@@ -4,40 +4,40 @@ import { notFound } from "next/navigation";
 import { slugify } from "@/utils/slugify";
 import { SliceDetailPage } from "@/components/Slices/SliceDetailPage";
 import { useSlicesData } from "@/hooks/useSlicesData";
-import { SliceData } from "@/types/erc3643/types";
-import { use, Usable } from "react";
+import type { SliceData } from "@/types/erc3643/types";
+import { use, type Usable } from "react";
 
 type Props = {
-  params: Promise<{ id: string; slug: string }>;
+	params: Promise<{ id: string; slug: string }>;
 };
 
 export default function Page({ params }: Props) {
-  const { slug, id: buildingId } = use<{ slug: string, id: string }>(params as unknown as Usable<{ slug: string, id: string }>);
-  const { slices } = useSlicesData();
-  
-  const sliceData = slices.find(
-    (slice) => slugify(slice.id) === slugify(slug)
-  );
+	const { slug, id: buildingId } = use<{ slug: string; id: string }>(
+		params as unknown as Usable<{ slug: string; id: string }>,
+	);
+	const { slices } = useSlicesData();
 
-  if (!sliceData && slices?.length > 0) {
-    notFound();
-  }
+	const sliceData = slices.find((slice) => slugify(slice.id) === slugify(slug));
 
-  const sliceValuation = 0
-  const tokenPrice = 0
-  const userBalance = 0
+	if (!sliceData && slices?.length > 0) {
+		notFound();
+	}
 
-  return (
-    <SliceDetailPage
-      sliceData={{
-        ...sliceData as SliceData,
-        sliceValuation,
-        tokenPrice,
-        tokenBalance: userBalance,
-      }}
-      tokensWithBuilding={[]}
-      isInBuildingContext={true}
-      buildingId={buildingId}
-    />
-  );
+	const sliceValuation = 0;
+	const tokenPrice = 0;
+	const userBalance = 0;
+
+	return (
+		<SliceDetailPage
+			sliceData={{
+				...(sliceData as SliceData),
+				sliceValuation,
+				tokenPrice,
+				tokenBalance: userBalance,
+			}}
+			tokensWithBuilding={[]}
+			isInBuildingContext={true}
+			buildingId={buildingId}
+		/>
+	);
 }

@@ -1,69 +1,81 @@
-import { uploadFileToPinata } from "@/services/ipfsService";
-import { useField } from "formik";
-import { useState } from "react";
-import { FileInput, Loading } from "react-daisyui";
-import { toast } from "react-hot-toast";
+"use client";
 
-type Props = {
-	fileHashName?: string,
+import { uploadFileToPinata } from "@/services/ipfsService";
+import { toast } from "react-hot-toast";
+import { FileInput, Loading } from "react-daisyui";
+import React, { useState } from "react";
+import { useField } from "formik";
+
+interface UploadImageFormProps {
+  /**
+   * Optional callback if parent wants the file + IPFS hash for additional logic.
+   * If not provided, we only set the Formik field value.
+   */
+	onFileUploaded?: (file: File, ipfsHash: string) => void;
+	fileHashIpfsName?: string;
+	fileHashIpfsId?: string;
 }
 
-export function UploadImageForm({ fileHashName = 'buildingImageIpfsFile' }: Props) {
-	const [_, meta, helpers] = useField(fileHashName);
-	const [, fileMeta, fileHelpers] = useField(fileHashName);
-	const [isUploading, setIsUploading] = useState(false);
+/**
+ * This component:
+ * - Ties into Formik fields "buildingImageIpfsId" & "buildingImageIpfsFile"
+ * - Allows selecting a file, then uploads it to Pinata
+ * - On success, sets "buildingImageIpfsId" to the returned IPFS hash
+ * - If `onFileUploaded` is provided, also calls it with file + hash
+ */
+export function UploadImageForm({ onFileUploaded, fileHashIpfsId = "buildingImageIpfsId", fileHashIpfsName = "buildingImageIpfsFile"}: UploadImageFormProps) {
+  // Ties into Formik fields
+  const [_, meta, helpers] = useField(fileHashIpfsId);
+  const [, fileMeta, fileHelpers] = useField(fileHashIpfsName);
 
-	const uploadImageToIpfs = async (fileToUpload: File) => {
-		setIsUploading(true);
+  const [isUploading, setIsUploading] = useState(false);
 
-		try {
-			//@TODO switch to upload via server call
-			// const keyImageRequest = await fetch("/api/pinataKey");
-			// const keyImageData = await keyImageRequest.json();
-			// const imageUploadResult = await pinata.upload
-			// 	.file(fileToUpload)
-			// 	.key(keyImageData.JWT);
-			//
-			// const ipfsURL = prepareIPFSfileURL(imageUploadResult.IpfsHash);
+  async function uploadImageToIpfs(fileToUpload: File) {
+    setIsUploading(true);
+    try {
+      // Upload to Pinata
+      const ipfsHash = await uploadFileToPinata(fileToUpload, `image-${fileToUpload.name}`);
 
-			//TEMPORARY upload via frontend call
-			const ipfsHash = await uploadFileToPinata(
-				fileToUpload,
-				`image-${fileToUpload.name}`,
-			);
+      // Set "buildingImageIpfsId" in Formik
+      helpers.setValue(ipfsHash);
 
-			await helpers.setValue(ipfsHash);
+      // Optionally call parent's callback
+      if (onFileUploaded) {
+        onFileUploaded(fileToUpload, ipfsHash);
+      }
 
-			setIsUploading(false);
-		} catch (e) {
-			toast.error("Image file upload to IPFS failed");
-			fileHelpers.setError("Image file upload to IPFS failed");
-			setIsUploading(false);
-		}
-	};
+      setIsUploading(false);
+    } catch (e) {
+      console.error(e);
+      toast.error("Image file upload to IPFS failed");
+      fileHelpers.setError("Image file upload to IPFS failed");
+      setIsUploading(false);
+    }
+  }
 
-	return (
-		<>
-			<label className="label" htmlFor={fileHashName}>
-				<span className="label-text">Or upload new image to IPFS</span>
-			</label>
+  return (
+    <>
+      <label className="label" htmlFor={fileHashIpfsName}>
+        <span className="label-text">Or upload new image to IPFS</span>
+      </label>
 
-			<FileInput
-				name={fileHashName}
-				color="primary"
-				className={"text-primary"}
-				onChange={(event) => {
-					if (event.currentTarget.files) {
-						uploadImageToIpfs(event.currentTarget.files[0]);
-					}
-				}}
-			/>
-			<label className="label" htmlFor={fileHashName}>
-				{fileMeta.error && (
-					<span className="label-text-alt text-red-700">{fileMeta.error}</span>
-				)}
-			</label>
-			{isUploading && <Loading />}
-		</>
-	);
+      <FileInput
+        name={fileHashIpfsName}
+        color="primary"
+        className="text-primary"
+        onChange={(event) => {
+          if (event.currentTarget.files && event.currentTarget.files.length > 0) {
+            uploadImageToIpfs(event.currentTarget.files[0]);
+          }
+        }}
+      />
+      <label className="label" htmlFor={fileHashIpfsName}>
+        {fileMeta.error && (
+          <span className="label-text-alt text-red-700">{fileMeta.error}</span>
+        )}
+      </label>
+
+      {isUploading && <Loading />}
+    </>
+  );
 }

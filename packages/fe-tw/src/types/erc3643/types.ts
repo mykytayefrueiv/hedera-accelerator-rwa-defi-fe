@@ -35,6 +35,13 @@ export type SliceData = {
 	estimatedPrice: number;
 };
 
+export type SliceAllocation = {
+	buildingToken: `0x${string}`;
+	aToken: `0x${string}`;
+	idealAllocation: number;
+	actualAllocation: number;
+};
+
 export type BuildingSliceCategoryData = {
 	id: number;
 	name: string;
@@ -44,9 +51,9 @@ export type BuildingSliceCategoryData = {
 };
 
 export type BuildingToken = {
-	tokenAddress: `0x${string}`,
-	buildingAddress: `0x${string}`,
-	items?: BuildingSliceData[],
+	tokenAddress: `0x${string}`;
+	buildingAddress: `0x${string}`;
+	items?: BuildingSliceData[];
 };
 
 type BulidingYield = {
@@ -67,6 +74,7 @@ export type BuildingInfo = {
 		type: string;
 		location: string;
 		locationType: string;
+		state?: string;
 	};
 };
 
@@ -82,12 +90,13 @@ export type BuildingData = {
 	allocation: number;
 	copeIpfsHash?: string;
 	address?: `0x${string}`;
+	cope?: CopeData;
 };
 
 export type BuildingNFTAttribute = {
-	display_type: string,
-	trait_type: string,
-	value: string
+	display_type: string;
+	trait_type: string;
+	value: string;
 };
 
 export type BuildingNFTData = {
@@ -98,8 +107,8 @@ export type BuildingNFTData = {
 	allocation: number;
 	purchasedAt: number;
 	attributes: BuildingNFTAttribute[];
-	copeIpfsHash: string;
-};
+	cope?: CopeData;
+}
 
 export type BuildingERCToken = {
 	tokenAddress: string;
@@ -163,45 +172,68 @@ export type AddAllocationRequest = {
 };
 
 export type SwapTradeProfit = {
-	dailyProfitInUSD: number,
-	weeklyProfitInUSD: number,
+	dailyProfitInUSD: number;
+	weeklyProfitInUSD: number;
 };
 
 export type SwapUniswapTokensRequestBody = {
-	path: string[],
-	amountIn: bigint,
-	amountOut: bigint,
-	deadline?: number,
+	path: string[];
+	amountIn: bigint;
+	amountOut: bigint;
+	deadline?: number;
 };
 
 export type SwapTradeItem = {
-	tokenA: string,
-	tokenB: string,
-	tokenAAmount: string,
-	tokenBAmount: string,
-	id?: string,
+	tokenA: string;
+	tokenB: string;
+	tokenAAmount: string;
+	tokenBAmount: string;
+	id?: string;
 };
 
 export type SwapLiquidityPair = {
-	tokenA: `0x${string}`,
-	tokenB: `0x${string}`,
+	tokenA: `0x${string}`;
+	tokenB: `0x${string}`;
 };
 
 export type SwapTokenPriceRequestBody = {
-	isSell: boolean,
-	token: `0x${string}`,
-	amount: bigint,
-	thresholdIntervalInSeconds: number,
+	isSell: boolean;
+	token: `0x${string}`;
+	amount: bigint;
+	thresholdIntervalInSeconds: number;
 };
 
 export type SwapTokenAddLiquidityRequestBody = {
-	tokenA: string,
-	tokenB?: string,
-	amount: bigint,
+	tokenA: string;
+	tokenB?: string;
+	amount: bigint;
 };
 
 export type SwapTokenSwapRequestBody = {
-	tokenA: string,
-	tokenB: string,
-	amount: bigint,
+	tokenA: string;
+	tokenB: string;
+	amount: bigint;
 };
+
+export interface CopeData {
+	construction: {
+	  materials?: string;
+	  yearBuilt?: string;
+	  roofType?: string;
+	  numFloors?: string;
+	};
+	occupancy: {
+	  type?: string;
+	  percentageOccupied?: string;
+	};
+	protection: {
+	  fire?: string;
+	  sprinklers?: string;
+	  security?: string;
+	};
+	exposure: {
+	  nearbyRisks?: string;
+	  floodZone?: string;
+	};
+  }
+  

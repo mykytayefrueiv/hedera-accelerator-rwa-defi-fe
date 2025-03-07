@@ -3,70 +3,82 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+	--background: #ffffff;
+	--foreground: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+	:root {
+		--background: #0a0a0a;
+		--foreground: #ededed;
+	}
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+	color: var(--foreground);
+	background: var(--background);
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 @keyframes slow-bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-10px);
+	}
 }
 
 .slow-bounce {
-  animation: slow-bounce 2.5s infinite ease-in-out;
+	animation: slow-bounce 2.5s infinite ease-in-out;
 }
 
-h1, h2, h3, h4, h5, h6, p, label, svg {
-  @apply text-black; 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+label,
+svg {
+	@apply text-black;
 }
 
-input.input, select.select, textarea.textarea {
-  color: black !important;
+input.input,
+select.select,
+textarea.textarea {
+	color: black !important;
 }
 
 thead th {
-  color: black; 
-  font-weight: bold;
+	color: black;
+	font-weight: bold;
 }
 
 table {
-  border-collapse: collapse; 
+	border-collapse: collapse;
 }
 
-th, td {
-  color: black;
-  border: 1px solid #ccc;
-  padding: 8px; 
-  text-align: left;
+th,
+td {
+	color: black;
+	border: 1px solid #ccc;
+	padding: 8px;
+	text-align: left;
 }
 
 button.btn-primary {
-  background-color: #8839E1;
-  color: #ffffff !important;
-  font-weight: bold;
+	background-color: #8839e1;
+	color: #ffffff !important;
+	font-weight: bold;
 }
 
 button.btn-primary:hover {
-  background-color: #6a2dbd; 
+	background-color: #6a2dbd;
 }
 
 button.btn {
-  border-radius: 50px; 
+	border-radius: 50px;
 }
