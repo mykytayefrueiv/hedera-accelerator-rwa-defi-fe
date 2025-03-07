@@ -6,7 +6,7 @@ import { BUILDING_FACTORY_ADDRESS } from "@/services/contracts/addresses";
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
 import { BuildingData, BuildingNFTAttribute, BuildingNFTData } from "@/types/erc3643/types";
 import { buildingFinancialMock } from "@/consts/buildings";
-import { watchContractEvent } from "@/services/contracts/watchContractEvent";
+import { readBuildingsList } from "@/services/buildingService";
 import { readContract } from "@/services/contracts/readContract";
 import { fetchJsonFromIpfs } from "@/services/ipfsService";
 import { prepareStorageIPFSfileURL } from "@/utils/helpers";
@@ -68,7 +68,11 @@ export const fetchBuildingNFTsMetadata = async (buildingsAddresses: `0x${string}
             .filter(address => !buildings.find(build => build.address === address))
             .map((address) => readBuildingDetails(address))
     );
-    const buildingNFTsData = await Promise.all(buildingAddressesProxiesData.map(proxy => fetchJsonFromIpfs(proxy[0][2])));
+    const buildingNFTsData = await Promise.all(
+        buildingAddressesProxiesData
+            .filter(proxy => !!proxy[0][2])
+            .map(proxy => fetchJsonFromIpfs(proxy[0][2]))
+    );
 
     return { buildingAddressesProxiesData, buildingNFTsData };
 };
@@ -85,13 +89,13 @@ const readBuildingDetails = (address: `0x${string}`) => readContract({
 });
 
 export function useBuildings() {
-    const [buildingsAddresses, setBuildingAddresses] = useState<`0x${string}`[]>([]);
+    const [buildingsList, setBuildingsList] = useState<`0x${string}`[][]>([]);
     const [buildings, setBuildings] = useState<BuildingData[]>([]);
-    const [newBuildingLogs, setNewBuildingLogs] = useState<{ args: `0x${string}`[] }[]>([]);
 
     const fetchBuildingNFTs = async () => {
-        const { buildingNFTsData, buildingAddressesProxiesData } = await fetchBuildingNFTsMetadata(buildingsAddresses, buildings);
-
+        const { buildingNFTsData, buildingAddressesProxiesData } = await fetchBuildingNFTsMetadata(
+            buildingsList.map(item => item[0]), buildings);
+        
         setBuildings(convertBuildingNFTsData(buildingNFTsData.map((data, id) => ({
             ...data,
             address: buildingAddressesProxiesData[id][0][0],
@@ -99,24 +103,17 @@ export function useBuildings() {
         }))));
     };
 
-    watchContractEvent({
-        address: BUILDING_FACTORY_ADDRESS,
-        abi: buildingFactoryAbi,
-        eventName: 'NewBuilding',
-        onLogs: (data) => {
-            setNewBuildingLogs(prev => !prev.length ? data as unknown as { args: `0x${string}`[] }[] : prev);
-        },
-    });
+    useEffect(() => {
+        readBuildingsList().then(data => {
+            setBuildingsList(data.slice(-1)[0])
+        });
+    }, []);
 
     useEffect(() => {
-        if (buildingsAddresses?.length) {
+        if (buildingsList?.length) {
             fetchBuildingNFTs();
         }
-    }, [buildingsAddresses?.length]);
-
-    useEffect(() => {
-        setBuildingAddresses(newBuildingLogs.map(log => log.args[0]));
-    }, [newBuildingLogs?.length]);
+    }, [buildingsList?.length]);
 
     return { buildings };
 }
