@@ -15,6 +15,8 @@ import {
 	HashpackConnector,
 	MetamaskConnector,
 } from "@buidlerlabs/hashgraph-react-wallets/connectors";
+import { DeployBuildingVaultCompounderForm } from "./DeployBuildingVaultCompounderForm";
+import { BuildingManagementViewBreadcrumbs } from "../Page/BuildingManagementViewBreadcrumbs";
 
 export function BuildingManagementView() {
 	const { isConnected: isConnectedHashpack } =
@@ -38,6 +40,7 @@ export function BuildingManagementView() {
 						setBasicData(data);
 						setCurrentSetupStep(2);
 					}}
+					setDeployStep={setCurrentSetupStep}
 				/>
 			);
 		}
@@ -94,8 +97,15 @@ export function BuildingManagementView() {
 					onGetDeployBuildingTokenView={() => {
 						setCurrentSetupStep(4);
 					}}
+					onGetDeployATokenView={() => {
+						setCurrentSetupStep(6);
+					}}
 				/>
 			);
+		}
+
+		if (currentSetupStep === 6) {
+			return <DeployBuildingVaultCompounderForm />;
 		}
 	}, [
 		currentSetupStep,
@@ -106,6 +116,15 @@ export function BuildingManagementView() {
 
 	return (
 		<div className="p-6 max-w-7xl mx-auto space-y-6">
+			<BuildingManagementViewBreadcrumbs
+				onGetDeployAToken={() => {
+					setCurrentSetupStep(6)
+				}}
+				onGetDeployBuilding={() => {
+					setCurrentSetupStep(1)
+				}}
+				activeStepOn={currentSetupStep}
+			/>
 			<AdminInfoPanel />
 			<div className="flex flex-col md:flex-row gap-6">
 				{isConnectedHashpack || isConnectedMetamask ? (
