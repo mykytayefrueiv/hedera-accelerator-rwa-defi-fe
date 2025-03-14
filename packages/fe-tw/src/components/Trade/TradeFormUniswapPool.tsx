@@ -2,12 +2,12 @@
 
 import React, { useState, useMemo } from "react";
 import { toast } from "react-hot-toast";
-import { ethers } from "ethers";
 import Select from "react-select";
 import { useUniswapTradeSwaps } from "@/hooks/swaps/useUniswapTradeSwaps";
 import { colourStyles } from "@/consts/theme";
 import { oneHourTimePeriod } from "@/consts/trade";
 import { USDC_ADDRESS } from "@/services/contracts/addresses";
+import { getTokenDecimals } from "@/services/erc20Service";
 
 type Props = {
     buildingTokens: `0x${string}`[];
@@ -18,7 +18,7 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
     const [txResult, setTxResult] = useState<string>();
     const [txError, setTxError] = useState<string>();
     const [tradeFormData, setTradeFormData] = useState<{
-        amount?: number,
+        amount?: string,
         tokenA?: `0x${string}`,
         tokenB?: `0x${string}`,
         autoRevertsAfter: number,
@@ -29,10 +29,18 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
         autoRevertsAfter: oneHourTimePeriod,
     });
 
-    const buildingTokensOptions = useMemo(() => buildingTokens.map(token => ({
+    const buildingTokensOptions = useMemo(() => [...buildingTokens.map(token => ({
         value: token,
         label: token,
-    })), []);
+    })),
+    // todo: update PAIR below to `USDC`, need to clarify with @BrunoCampos
+    {
+        value: '0xc46Ef6d2ca039Dde0B7448b40B24cf7234A19BEC' as `0x${string}`,
+        label: 'HELLO',
+    }, {
+        value: '0x63A24Fb57De0D1Be65558c1dCaD332Eb356c6d11' as `0x${string}`,
+        label: 'DUBAI',
+    }], []);
 
     const handleSwapSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,21 +50,27 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
         const tokenA = tradeFormData.tokenA;
 
         try {
-            const amountB = await getAmountsOut(amountA!, [tokenA!, tokenB!]);
-            console.log('amountB', amountB)
+            const tokenADecimals = await getTokenDecimals(tokenA!);
+            // const tokenBDecimals = await getTokenDecimals(tokenB!);
+            const outputAmounts = await getAmountsOut(
+                BigInt(
+                    Math.floor(parseFloat(amountA!) * 10 ** tokenADecimals)
+                ),
+                [tokenA!, tokenB!]
+            );
 
-            if (!amountA || !amountB || !tokenA || !tokenB) {
+            if (!outputAmounts?.length || !tokenA || !tokenB) {
                 toast.error('All fields in trade form are required');
             } else {
                 try {
                     const transaction_id = await handleSwap({
-                        amountIn: ethers.parseEther(amountA.toString()),
-                        amountOut: ethers.parseEther(amountB.toString()),
+                        amountIn: outputAmounts[0],
+                        amountOut: outputAmounts[1],
                         path: [tokenA, tokenB],
                         deadline: Date.now() + (tradeFormData.autoRevertsAfter ?? oneHourTimePeriod),
                     });
                     setTradeFormData({
-                        amount: 0,
+                        amount: '',
                         tokenA: undefined,
                         tokenB: undefined,
                         autoRevertsAfter: oneHourTimePeriod,
@@ -65,12 +79,12 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                     toast.success(`Successfully trade ${amountA} tokens for ${tokenB}!`);
                     setTxResult(transaction_id);
                 } catch (err) {
-                    toast.error(`Failed to sell tokens: ${(err as { message: string })?.message}`);
-                    setTxError((err as unknown as { message: string }).message);
+                    toast.error('Failed to swap tokens');
+                    setTxError('Failed to swap tokens');
                 }
             }
         } catch (err) {
-            // todo
+            console.log('Error (swap)', err)
         }
     };
 
@@ -109,11 +123,6 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                         Select token B
                     </label>
                     <Select
-                        value={{
-                            value: USDC_ADDRESS as `0x${string}`,
-                            label: 'USDC',
-                        }}
-                        isDisabled
                         styles={colourStyles}
                         onChange={(value) => {
                             setTradeFormData(prev => ({
@@ -126,18 +135,17 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                 </div>
                 <div className="mt-5">
                     <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="amount">
-                        Amount of tokens to exchange
+                        Amount of tokens to swap
                     </label>
                     <input
                         id="amount"
-                        type="number"
                         value={tradeFormData.amount}
                         onChange={(e) => setTradeFormData((prev) => ({
                             ...prev,
-                            amount: !e.target.value ? 0 : parseFloat(e.target.value),
+                            amount: e.target.value,
                         }))}
                         className="input input-bordered w-full text-sm"
-                        placeholder="e.g. 10"
+                        placeholder="e.g. 0.00001"
                         required
                     />
                 </div>
@@ -163,12 +171,12 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                     Swap tokens
                 </button>
             </form>
-            {txResult && <div className="flex">
+            {txResult && <div className="flex mt-5">
                 <p className="text-sm font-bold text-purple-600">
                     Deployed Tx Hash: {txResult}
                 </p>
             </div>}
-            {txError && <div className="flex">
+            {txError && <div className="flex mt-5">
                 <p className="text-sm font-bold text-purple-600">
                     Deployed Tx Error: {txError}
                 </p>

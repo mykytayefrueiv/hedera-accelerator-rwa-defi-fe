@@ -6,7 +6,7 @@ import { QueryData } from "@/types/erc3643/types";
 import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 import { useMemo, useState, useEffect } from "react";
 
-export function useBuildingDetails(buildingAddress: `0x${string}`) {
+export function useBuildingDetails(buildingAddress?: `0x${string}`) {
     const [buildingOwner, setBuildingOwner] = useState<`0x${string}`>();
     const [deployedBuildingTokens, setDeployedBuildingTokens] = useState<{ tokenAddress: `0x${string}`, buildingAddress: `0x${string}` }[]>([]);
     const [newTokenForBuildingLogs, setNewTokenForBuildingLogs] = useState<{ args: `0x${string}`[] }[]>([]);
@@ -38,10 +38,12 @@ export function useBuildingDetails(buildingAddress: `0x${string}`) {
     }, [buildingAddress]);
 
     useEffect(() => {
-        setDeployedBuildingTokens(newTokenForBuildingLogs.map(log => ({
-            tokenAddress: log.args[1],
-            buildingAddress: log.args[0],
-        })).filter((log) => log.buildingAddress === buildingAddress));
+        if (buildingAddress) {
+            setDeployedBuildingTokens(newTokenForBuildingLogs.map(log => ({
+                tokenAddress: log.args[1],
+                buildingAddress: log.args[0],
+            })).filter((log) => log.buildingAddress === buildingAddress));
+        }
     }, [newTokenForBuildingLogs?.length, buildingAddress]);
 
     const isBuildingAdmin = useMemo(() => {

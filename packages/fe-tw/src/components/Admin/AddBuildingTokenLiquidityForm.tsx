@@ -13,7 +13,7 @@ import { colourStyles } from "@/consts/theme";
 import { USDC_ADDRESS } from "@/services/contracts/addresses";
 
 type Props = {
-  buildingAddress: `0x${string}`;
+  buildingAddress?: `0x${string}`;
   onGetDeployBuildingTokenView: () => void;
 };
 
@@ -48,10 +48,14 @@ export function AddBuildingTokenLiquidityForm({ onGetDeployBuildingTokenView, bu
     actions.resetForm();
   }
 
-  const tokenSelectOptions = useMemo(() => deployedBuildingTokens.map(token => ({
-    value: token.tokenAddress,
-    label: token.tokenAddress,
-  })), [deployedBuildingTokens]);
+  const tokenSelectOptions = useMemo(() =>
+    [...deployedBuildingTokens.map(token => ({
+      value: token.tokenAddress,
+      label: token.tokenAddress,
+    })), {
+      value: USDC_ADDRESS,
+      label: 'USDC',
+    }], [deployedBuildingTokens]);
 
   const buildingSelectOptions = useMemo(() => {
     return buildings.map(building => ({

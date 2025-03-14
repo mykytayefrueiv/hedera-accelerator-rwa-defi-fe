@@ -109,7 +109,7 @@ export default function TradeFormOneSidedExchange({ buildingTokens }: Props) {
                         styles={colourStyles}
                     />
                 </div>
-                <div>
+                <div className="mt-5">
                     <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="tokenBSelect">
                         Select token B
                     </label>
@@ -128,7 +128,7 @@ export default function TradeFormOneSidedExchange({ buildingTokens }: Props) {
                         placeholder="Token B"
                     />
                 </div>
-                <div>
+                <div className="mt-5">
                     <label className="text-gray-500 text-md block mb-1 font-semibold" htmlFor="amount">
                         Amount of tokens to sell
                     </label>

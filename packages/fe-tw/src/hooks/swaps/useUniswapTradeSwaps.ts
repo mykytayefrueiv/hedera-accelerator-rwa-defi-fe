@@ -10,13 +10,13 @@ export const useUniswapTradeSwaps = () => {
     const { readContract } = useReadContract()
     const { data: evmAddress } = useEvmAddress();
 
-    const getAmountsOut = async (amount: number, tokens: `0x${string}`[]) => {
-        return await readContract({
+    const getAmountsOut = (amount: bigint, tokens: `0x${string}`[]): Promise<bigint[]> => {
+        return readContract({
             address: UNISWAP_ROUTER_ADDRESS,
             abi: uniswapRouterAbi,
             functionName: "getAmountsOut",
-            args: [BigInt(Math.floor(amount * 10 ** 18)), tokens],
-        });
+            args: [amount, tokens],
+        }) as Promise<bigint[]>;
     };
 
     const handleSwap = async (payload: SwapUniswapTokensRequestBody): Promise<string> => {
