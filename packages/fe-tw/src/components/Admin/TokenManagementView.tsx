@@ -11,17 +11,19 @@ export function TokenManagementView() {
   const renderSetupStepView = useMemo(() => {
     if (currentSetupStep === 1) {
       return (
-        <DeployBuildingERC3643TokenForm onGetLiquidityView={(address) => {
-          setCurrentSetupStep(2);
-          setSelectedBuildingAddress(address);
-        }} />
+        <DeployBuildingERC3643TokenForm
+          onGetLiquidityView={(address) => {
+            setCurrentSetupStep(2);
+            setSelectedBuildingAddress(address);
+          }}
+        />
       )
     } else if (currentSetupStep === 2) {
       return (
         <AddBuildingTokenLiquidityForm
           buildingAddress={selectedBuildingAddress}
           onGetDeployBuildingTokenView={() => {
-            setCurrentSetupStep(2);
+            setCurrentSetupStep(1);
           }}
         />
       )
