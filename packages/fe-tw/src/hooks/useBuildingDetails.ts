@@ -30,7 +30,6 @@ export function useBuildingDetails(buildingAddress?: `0x${string}`) {
                 abi: buildingFactoryAbi,
                 eventName: "NewERC3643Token",
                 onLogs: (data) => {
-                    console.log('NewERC3643Token', data)
                     setNewTokenForBuildingLogs(prev => !prev.length ? data as unknown as { args: `0x${string}`[] }[] : prev);
                 },
             });

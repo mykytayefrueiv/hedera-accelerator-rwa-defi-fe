@@ -15,6 +15,12 @@ const buildingFinancialMock = {
   treasury: 6000,
 };
 
+export const readBuildingsList = () => readContract({
+  address: BUILDING_FACTORY_ADDRESS,
+  abi: buildingFactoryAbi,
+  functionName: "getBuildingList",
+});
+
 /**
  * Reads building details from SC.
  * @param address Building address
@@ -56,7 +62,6 @@ export const convertBuildingNFTsData = (buildingNFTsData: BuildingNFTData[]): Bu
         title: data.name,
         description: data.description,
         imageUrl: prepareStorageIPFSfileURL(data.image?.replace('ipfs://', '')),
-        copeIpfsHash: data.copeIpfsHash,
         voteItems: [],
         partOfSlices: [],
         allocation: data.allocation,
