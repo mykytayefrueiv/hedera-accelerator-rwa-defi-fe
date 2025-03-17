@@ -14,7 +14,7 @@ type Props = {
 };
 
 export default function TradeFormUniswapPool({ buildingTokens }: Props) {
-    const { handleSwap, getAmountsOut } = useUniswapTradeSwaps();
+    const { handleSwap, getAmountsOut, giveAllowance } = useUniswapTradeSwaps();
     const [txResult, setTxResult] = useState<string>();
     const [txError, setTxError] = useState<string>();
     const [tradeFormData, setTradeFormData] = useState<{
@@ -63,6 +63,9 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                 toast.error('All fields in trade form are required');
             } else {
                 try {
+                    await giveAllowance(tokenA, outputAmounts[0]);
+                    await giveAllowance(tokenB, outputAmounts[1]);
+                    
                     const transaction_id = await handleSwap({
                         amountIn: outputAmounts[0],
                         amountOut: outputAmounts[1],

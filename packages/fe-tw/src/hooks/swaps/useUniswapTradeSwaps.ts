@@ -1,3 +1,4 @@
+import { tokenAbi } from "@/services/contracts/abi/tokenAbi";
 import { uniswapRouterAbi } from "@/services/contracts/abi/uniswapRouterAbi";
 import { UNISWAP_ROUTER_ADDRESS } from "@/services/contracts/addresses";
 import { SwapUniswapTokensRequestBody } from "@/types/erc3643/types";
@@ -18,6 +19,32 @@ export const useUniswapTradeSwaps = () => {
             args: [amount, tokens],
         }) as Promise<bigint[]>;
     };
+
+    const giveAllowance = async (token: string, amount: bigint) => {
+        return new Promise((res, rej) => {
+            writeContract({
+                contractId: ContractId.fromEvmAddress(0, 0, token),
+                abi: tokenAbi,
+                functionName: "approve",
+                args: [UNISWAP_ROUTER_ADDRESS, amount],
+            }).then(tx => {
+                watch(tx as string, {
+                    onSuccess: (transaction) => {
+                        res(transaction.transaction_id)
+
+                        return transaction;
+                    },
+                    onError: (transaction, err) => {
+                        rej(err)
+
+                        return transaction;
+                    },
+                })
+            }).catch(err => {
+                rej(err);
+            });
+        });
+    }
 
     const handleSwap = async (payload: SwapUniswapTokensRequestBody): Promise<string> => {
         return new Promise((res, rej) => {
@@ -45,5 +72,5 @@ export const useUniswapTradeSwaps = () => {
         });
     };
 
-    return { handleSwap, getAmountsOut };
+    return { handleSwap, getAmountsOut, giveAllowance };
 };
