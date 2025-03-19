@@ -1,6 +1,6 @@
 "use client";
 
-import { BuildingDetailPage } from "@/components/Buildings/BuildingDetailsPage";;
+import { BuildingDetailPage } from "@/components/Buildings/BuildingDetailsPage";
 import { LoadingView } from "@/components/LoadingView/LoadingView";
 import { useBuildings } from "@/hooks/useBuildings";
 import React, { use, Usable } from "react";

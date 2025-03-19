@@ -1,9 +1,9 @@
 import {
 	UNISWAP_ROUTER_ADDRESS,
 	USDC_ADDRESS,
+	SLICE_FACTORY_ADDRESS,
 } from "@/services/contracts/addresses";
 import { sliceFactoryAbi } from "@/services/contracts/abi/sliceFactoryAbi";
-import { SLICE_FACTORY_ADDRESS } from "@/services/contracts/addresses";
 import type { CreateSliceRequestBody } from "@/types/erc3643/types";
 import {
 	useWriteContract,

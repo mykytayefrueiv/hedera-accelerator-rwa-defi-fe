@@ -1,4 +1,3 @@
-import { BackButton } from "@/components/Buttons/BackButton";
 import { useBuildingAdmin } from "@/hooks/useBuildingAdmin";
 import { useBuildingDetails } from "@/hooks/useBuildingDetails";
 import { useBuildings } from "@/hooks/useBuildings";
@@ -11,7 +10,7 @@ import * as Yup from "yup";
 import * as React from "react";
 
 type Props = {
-	onGetLiquidityView: (address: `0x${string}`) => void;
+	onGetLiquidityView: (buildingAddress: `0x${string}`, buildingTokenAddress: `0x${string}`) => void;
 	onGetDeployBuildingView?: () => void;
 };
 
@@ -43,10 +42,7 @@ const colourStyles = {
 	}),
 };
 
-export const DeployBuildingERC3643TokenForm = ({
-	onGetLiquidityView,
-	onGetDeployBuildingView,
-}: Props) => {
+export const DeployBuildingERC3643TokenForm = ({ onGetLiquidityView }: Props) => {
 	const [selectedBuildingAddress, setSelectedBuildingAddress] =
 		useState<`0x${string}`>();
 	const [txError, setTxError] = useState<string>();
@@ -205,6 +201,15 @@ export const DeployBuildingERC3643TokenForm = ({
 							</p>
 						</div>
 					)}
+					<Button
+						onClick={() =>
+						    onGetLiquidityView(selectedBuildingAddress as `0x${string}`, deployedBuildingTokens[0].tokenAddress)
+                        }
+						className="pr-10 pl-10" color="secondary" type="button"
+						disabled={deployedBuildingTokens.length === 0 || !selectedBuildingAddress}
+					>
+						Treasury and Governance
+					</Button>
 				</Form>
 			</Formik>
 		</div>

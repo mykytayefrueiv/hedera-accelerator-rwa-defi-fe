@@ -17,6 +17,7 @@ import {
 } from "@buidlerlabs/hashgraph-react-wallets/connectors";
 import { DeployBuildingVaultCompounderForm } from "./DeployBuildingVaultCompounderForm";
 import { BuildingManagementViewBreadcrumbs } from "../Page/BuildingManagementViewBreadcrumbs";
+import { DeployTreasuryAndGovernanceForm } from "./DeployTreasuryAndGovernanceForm";
 
 export function BuildingManagementView() {
 	const { isConnected: isConnectedHashpack } =
@@ -26,7 +27,7 @@ export function BuildingManagementView() {
 		useWallet(MetamaskConnector) || {};
 
 	const [currentSetupStep, setCurrentSetupStep] = useState(1);
-
+	const [deployedBuildingToken, setDeployedBuildingToken] = useState<`0x${string}`>()
 	const [basicData, setBasicData] = useState<NewBuildingFormProps | null>(null);
 	const [deployedMetadataIPFS, setDeployedMetadataIPFS] = useState("");
 	const [selectedBuildingAddress, setSelectedBuildingAddress] =
@@ -75,9 +76,10 @@ export function BuildingManagementView() {
 		if (currentSetupStep === 4) {
 			return (
 				<DeployBuildingERC3643TokenForm
-					onGetLiquidityView={(buildingAddress) => {
+					onGetLiquidityView={(buildingAddress, buildingTokenAddress) => {
 						setCurrentSetupStep(5);
 						setSelectedBuildingAddress(buildingAddress);
+						setDeployedBuildingToken(buildingTokenAddress)
 					}}
 					onGetDeployBuildingView={() => {
 						setCurrentSetupStep(3);
@@ -86,8 +88,17 @@ export function BuildingManagementView() {
 			);
 		}
 
-		// Step 5: Add Liquidity
 		if (currentSetupStep === 5) {
+			return (
+				<DeployTreasuryAndGovernanceForm
+					buildingAddress={selectedBuildingAddress}
+					buildingTokenAddress={deployedBuildingToken}
+				/>
+			);
+		}
+
+		// Step 5: Add Liquidity
+		if (currentSetupStep === 6) {
 			return (
 				<AddBuildingTokenLiquidityForm
 					buildingAddress={
@@ -104,7 +115,7 @@ export function BuildingManagementView() {
 			);
 		}
 
-		if (currentSetupStep === 6) {
+		if (currentSetupStep === 7) {
 			return <DeployBuildingVaultCompounderForm />;
 		}
 	}, [
