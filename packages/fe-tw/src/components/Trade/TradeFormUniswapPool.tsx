@@ -29,18 +29,10 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
         autoRevertsAfter: oneHourTimePeriod,
     });
 
-    const buildingTokensOptions = useMemo(() => [...buildingTokens.map(token => ({
-        value: token,
-        label: token,
-    })),
-    // todo: update PAIR below to `USDC`, need to clarify with @BrunoCampos
-    {
-        value: '0xc46Ef6d2ca039Dde0B7448b40B24cf7234A19BEC' as `0x${string}`,
-        label: 'HELLO',
-    }, {
-        value: '0x63A24Fb57De0D1Be65558c1dCaD332Eb356c6d11' as `0x${string}`,
-        label: 'DUBAI',
-    }], []);
+    const buildingTokensOptions = useMemo(() => buildingTokens.map(tok => ({
+        label: tok, // todo: get token name and use instead of address here
+        value: tok,
+    })), [buildingTokens]);
 
     const handleSwapSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,13 +43,20 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
 
         try {
             const tokenADecimals = await getTokenDecimals(tokenA!);
-            // const tokenBDecimals = await getTokenDecimals(tokenB!);
-            const outputAmounts = await getAmountsOut(
-                BigInt(
-                    Math.floor(parseFloat(amountA!) * 10 ** tokenADecimals)
-                ),
-                [tokenA!, tokenB!]
-            );
+            let outputAmounts: bigint[] = [];
+
+            try {
+                outputAmounts = await getAmountsOut(
+                    BigInt(
+                        Math.floor(parseFloat(amountA!) * 10 ** tokenADecimals)
+                    ),
+                    [tokenA!, tokenB!]
+                );
+            } catch (err) {
+                toast.error('Failed to swap tokens - no such liquidity pair exists, or not enough tokens to swap');
+                setTxError('Failed to swap tokens - no such liquidity pair exists, or not enough tokens to swap');
+                return;
+            }
 
             if (!outputAmounts?.length || !tokenA || !tokenB) {
                 toast.error('All fields in trade form are required');
@@ -87,7 +86,8 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                 }
             }
         } catch (err) {
-            console.log('Error (swap)', err)
+            toast.error('Failed to swap tokens');
+            setTxError('Failed to swap tokens');
         }
     };
 
@@ -127,13 +127,15 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                     </label>
                     <Select
                         styles={colourStyles}
-                        onChange={(value) => {
-                            setTradeFormData(prev => ({
-                                ...prev,
-                                tokenB: value?.value as `0x${string}`,
-                            }))
+                        options={[{
+                            value: USDC_ADDRESS,
+                            label: 'USDC',
+                        }]}
+                        value={{
+                            value: USDC_ADDRESS,
+                            label: 'USDC',
                         }}
-                        options={buildingTokensOptions}
+                        isDisabled
                     />
                 </div>
                 <div className="mt-5">
@@ -147,7 +149,7 @@ export default function TradeFormUniswapPool({ buildingTokens }: Props) {
                             ...prev,
                             amount: e.target.value,
                         }))}
-                        className="input input-bordered w-full text-sm"
+                        className="input input-bordered w-full text-md"
                         placeholder="e.g. 0.00001"
                         required
                     />

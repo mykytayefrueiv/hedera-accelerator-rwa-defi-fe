@@ -10,8 +10,6 @@ export const BuildingDetailPage = (props: BuildingData) => {
 		props?.address as `0x${string}`,
 	);
 
-	console.log("deployedBuildingTokens", deployedBuildingTokens);
-
 	return (
 		<div>
 			<BuildingBaseInfo {...props} />

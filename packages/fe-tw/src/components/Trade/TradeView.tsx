@@ -35,20 +35,17 @@ const TradeFormTypeTabs = ({ swapTypeForm, onSwapTabChange }: TradeFormTypeTabsP
   );
 };
 
-// todo: replace with real data and logic
-const isUniswapPage = false;
-const buildingTokensMock: `0x${string}`[] = ['0xD42E127BDA83cC0761f87A4c0E4CF834Fd2E6085', '0xF36e7F2cCEb7FF5B95796786817523082C700f18'];
 const tradeProfitDataMock = {
   dailyProfitInUSD: 100,
   weeklyProfitInUSD: 1000,
 };
 
 export default function TradeView({ building }: Props) {
-  const { oneSidedExchangeSwapsHistory, uniswapExchangeHistory } = useSwapsHistory();
   const [swapTypeForm, setSwapTypeForm] = useState<SwapType>('uniswap');
   const { deployedBuildingTokens } = useBuildingDetails(building.address as `0x${string}`);
   const buildingTokens = deployedBuildingTokens.map(token => token.tokenAddress);
-
+  const { oneSidedExchangeSwapsHistory, uniswapExchangeHistory } = useSwapsHistory(buildingTokens);
+  
   return (
     <div className="mt-8 flex flex-col gap-8">
       <TradeFormTypeTabs swapTypeForm={swapTypeForm} onSwapTabChange={(swapType) => setSwapTypeForm(swapType)} />
