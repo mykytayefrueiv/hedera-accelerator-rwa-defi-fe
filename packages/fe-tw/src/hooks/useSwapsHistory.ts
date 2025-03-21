@@ -4,7 +4,7 @@ import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 import { SwapTradeItem } from "@/types/erc3643/types";
 import { DEFAULT_TOKEN_DECIMALS, useEvmAddress, useReadContract } from "@buidlerlabs/hashgraph-react-wallets";
 import { ethers } from "ethers";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { uniswapFactoryAbi } from "@/services/contracts/abi/uniswapFactoryAbi";
 import { uniswapPairAbi } from "@/services/contracts/abi/uniswapPairAbi";
 import { Log } from "@/types/queries";
@@ -53,14 +53,21 @@ export const useSwapsHistory = (buildingTokens?: `0x${string}`[]) => {
         });
     };
 
-    useEffect(() => {
+    const doReadPairs = useCallback(async () => {
         if (buildingTokens?.[0]) {
-            // In order to have a pair liquidity pool needs to be created for token <-> USDC.
-            readPairAddress(USDC_ADDRESS, buildingTokens?.[0]).then(address => {
-                setUniswapPairAddresses(prev => [...prev, address]);
-            });
+            try {
+                const pairAddress = await readPairAddress(USDC_ADDRESS, buildingTokens?.[0]);
+
+                setUniswapPairAddresses(prev => [...prev, pairAddress]);
+            } catch (err) {
+                // 
+            }
         }
-    }, [buildingTokens?.[0]]);
+    }, []);
+
+    useEffect(() => {
+        doReadPairs();
+    }, [doReadPairs]);
     
     useEffect(() => {
         if (uniswapPairAddresses[0]) {

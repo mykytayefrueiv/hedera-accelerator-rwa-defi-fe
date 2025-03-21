@@ -182,6 +182,13 @@ export type SwapUniswapTokensRequestBody = {
 	deadline?: number;
 };
 
+export type TradeFormPayload = {
+    amount?: string,
+    tokenA?: `0x${string}`,
+    tokenB?: `0x${string}`,
+    autoRevertsAfter: number
+};
+
 export type SwapTradeItem = {
 	tokenA: string;
 	tokenB: string;

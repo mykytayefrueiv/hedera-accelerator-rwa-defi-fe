@@ -42,7 +42,7 @@ const tradeProfitDataMock = {
 
 export default function TradeView({ building }: Props) {
   const [swapTypeForm, setSwapTypeForm] = useState<SwapType>('uniswap');
-  const { deployedBuildingTokens } = useBuildingDetails(building.address as `0x${string}`);
+  const { deployedBuildingTokens, tokenNames } = useBuildingDetails(building.address as `0x${string}`);
   const buildingTokens = deployedBuildingTokens.map(token => token.tokenAddress);
   const { oneSidedExchangeSwapsHistory, uniswapExchangeHistory } = useSwapsHistory(buildingTokens);
   
@@ -50,7 +50,10 @@ export default function TradeView({ building }: Props) {
     <div className="mt-8 flex flex-col gap-8">
       <TradeFormTypeTabs swapTypeForm={swapTypeForm} onSwapTabChange={(swapType) => setSwapTypeForm(swapType)} />
       <div className="mt-8 flex flex-wrap flex-row gap-8 w-full">
-      {swapTypeForm === 'uniswap' ? <TradeFormUniswapPool buildingTokens={buildingTokens} /> : <TradeFormOneSidedExchange buildingTokens={buildingTokens} />}
+        {swapTypeForm === 'uniswap' ? <TradeFormUniswapPool buildingTokenOptions={buildingTokens.map(tok => ({
+          tokenName: tokenNames[tok],
+          tokenAddress: tok,
+        }))} /> : <TradeFormOneSidedExchange buildingTokens={buildingTokens} />}
       <TradePortfolio tradeHistory={swapTypeForm === 'uniswap' ? uniswapExchangeHistory : oneSidedExchangeSwapsHistory} tradeProfitData={tradeProfitDataMock} />
       </div>
     </div>
