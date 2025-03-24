@@ -2,7 +2,6 @@
 
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as React from "react";
-import { Button } from "react-daisyui";
 import * as Yup from "yup";
 
 import { UploadImageForm } from "@/components/Account/UploadImageForm";
@@ -85,7 +84,7 @@ export function DeployBuildingBasicMetadata({
               <Field
                 name="buildingTitle"
                 type="text"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. My Building"
               />
               <ErrorMessage
@@ -123,7 +122,7 @@ export function DeployBuildingBasicMetadata({
               <Field
                 name="buildingPurchaseDate"
                 type="text"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. 2021-12-31"
               />
             </div>
@@ -139,7 +138,7 @@ export function DeployBuildingBasicMetadata({
               <Field
                 name="buildingImageIpfsId"
                 type="text"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="QmXYZ..."
               />
             </div>
@@ -166,7 +165,7 @@ export function DeployBuildingBasicMetadata({
               <Field
                 name="buildingConstructedYear"
                 type="text"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. 1990"
               />
             </div>
@@ -182,7 +181,7 @@ export function DeployBuildingBasicMetadata({
               <Field
                 name="buildingType"
                 type="text"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. Residential"
               />
             </div>
@@ -198,7 +197,7 @@ export function DeployBuildingBasicMetadata({
               <Field
                 name="buildingLocation"
                 type="text"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. New York City"
               />
             </div>
@@ -214,7 +213,7 @@ export function DeployBuildingBasicMetadata({
               <Field
                 name="buildingLocationType"
                 type="text"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. Urban"
               />
             </div>
@@ -230,29 +229,17 @@ export function DeployBuildingBasicMetadata({
               <Field
                 name="buildingTokenSupply"
                 type="number"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="1000000"
               />
             </div>
-            <div className="flex gap-5 mt-5">
-              <Button
-                className="mt-6"
-                type="button"
-                color="secondary"
-                onClick={() => {
-                  setDeployStep(6);
-                }}
-              >
-                Deploy A Token
-              </Button>
-              <Button
-                type="submit"
-                color="primary"
-                loading={isSubmitting}
-                className="mt-6"
-              >
-                Next
-              </Button>
+            <div className="flex gap-5 mt-10">
+                <button className='btn btn-accent' type="button" onClick={() => {setDeployStep(6);}}>
+                    Deploy A Token
+                </button>
+                <button className='btn btn-primary' type="submit">
+                    {isSubmitting ? <span className='loading loading-spinner' /> : 'Next'}
+                </button>
             </div>
           </Form>
         )}

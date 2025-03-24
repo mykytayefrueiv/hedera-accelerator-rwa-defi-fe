@@ -3,7 +3,6 @@
 import { pinata } from "@/utils/pinata";
 import { Field, Form, Formik } from "formik";
 import * as React from "react";
-import { Button } from "react-daisyui";
 import { toast } from "react-hot-toast";
 import * as Yup from "yup";
 
@@ -182,7 +181,7 @@ export function DeployBuildingCopeMetadata({
               </label>
               <Field
                 name="copeConstructionMaterials"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. Concrete"
               />
             </div>
@@ -196,7 +195,7 @@ export function DeployBuildingCopeMetadata({
               </label>
               <Field
                 name="copeConstructionYearBuilt"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. 2010"
               />
             </div>
@@ -210,7 +209,7 @@ export function DeployBuildingCopeMetadata({
               </label>
               <Field
                 name="copeConstructionRoofType"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. Flat"
               />
             </div>
@@ -224,7 +223,7 @@ export function DeployBuildingCopeMetadata({
               </label>
               <Field
                 name="copeConstructionNumFloors"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. 8"
               />
             </div>
@@ -239,7 +238,7 @@ export function DeployBuildingCopeMetadata({
               </label>
               <Field
                 name="copeOccupancyType"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. Residential"
               />
             </div>
@@ -253,7 +252,7 @@ export function DeployBuildingCopeMetadata({
               </label>
               <Field
                 name="copeOccupancyPercentage"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. 85"
               />
             </div>
@@ -268,7 +267,7 @@ export function DeployBuildingCopeMetadata({
               </label>
               <Field
                 name="copeProtectionFire"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. Fire station 2 miles away"
               />
             </div>
@@ -282,7 +281,7 @@ export function DeployBuildingCopeMetadata({
               </label>
               <Field
                 name="copeProtectionSprinklers"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. Wet pipe system"
               />
             </div>
@@ -296,7 +295,7 @@ export function DeployBuildingCopeMetadata({
               </label>
               <Field
                 name="copeProtectionSecurity"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. 24/7 doorman"
               />
             </div>
@@ -311,7 +310,7 @@ export function DeployBuildingCopeMetadata({
               </label>
               <Field
                 name="copeExposureNearbyRisks"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. Adjacent gas station"
               />
             </div>
@@ -325,19 +324,17 @@ export function DeployBuildingCopeMetadata({
               </label>
               <Field
                 name="copeExposureFloodZone"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. Zone X"
               />
             </div>
 
-            <Button
-              type="submit"
-              color="primary"
-              className="mt-8"
-              loading={isUploading}
-            >
-              {isUploading ? "Saving..." : "Submit COPE & Pin"}
-            </Button>
+            <button className="btn btn-primary mt-8" type="submit">
+              {isUploading
+                  ? <span className="loading loading-spinner" />
+                  : "Submit COPE & Pin"
+              }
+            </button>
           </Form>
         )}
       </Formik>

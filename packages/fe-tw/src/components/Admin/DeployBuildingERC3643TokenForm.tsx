@@ -6,7 +6,6 @@ import type { CreateERC3643RequestBody } from "@/types/erc3643/types";
 import { Field, Form, Formik } from "formik";
 import { useState } from "react";
 import * as React from "react";
-import { Button } from "react-daisyui";
 import Select from "react-select";
 import * as Yup from "yup";
 
@@ -131,7 +130,7 @@ export const DeployBuildingERC3643TokenForm = ({
             <Field
               name="tokenName"
               type="text"
-              className="input input-bordered w-full mt-2"
+              className="input w-full mt-2"
               placeholder="E.g: 0x"
             />
           </div>
@@ -145,7 +144,7 @@ export const DeployBuildingERC3643TokenForm = ({
             <Field
               name="tokenSymbol"
               type="text"
-              className="input input-bordered w-full mt-2"
+              className="input w-full mt-2"
               placeholder="E.g: TOK"
             />
           </div>
@@ -159,19 +158,15 @@ export const DeployBuildingERC3643TokenForm = ({
             <Field
               name="tokenDecimals"
               type="number"
-              className="input input-bordered w-full mt-2"
+              className="input w-full mt-2"
               placeholder="E.g: TOK"
             />
           </div>
           <div className="flex gap-5 mt-5">
-            <Button
-              className="pr-10 pl-10"
-              type="submit"
-              color="primary"
-              loading={loading}
-            >
-              Deploy Token
-            </Button>
+            <button className="btn btn-primary pr-10 pl-10" type="submit">
+              {loading ? <span className="loading loading-spinner"/>: "Deploy Token"}
+            </button>
+
             {/*<Button*/}
             {/*	className="pr-10 pl-10"*/}
             {/*	type="button"*/}

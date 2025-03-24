@@ -6,7 +6,6 @@ import { useBuildingLiquidity } from "@/hooks/useBuildingLiquidity";
 import { useBuildings } from "@/hooks/useBuildings";
 import { Field, Form, Formik } from "formik";
 import React, { useMemo } from "react";
-import { Button } from "react-daisyui";
 import { toast } from "react-hot-toast";
 import Select, { type SingleValue } from "react-select";
 
@@ -208,7 +207,7 @@ export function AddBuildingTokenLiquidityForm({
               </label>
               <Field
                 name="tokenAAmount"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. 100"
               />
             </div>
@@ -253,31 +252,33 @@ export function AddBuildingTokenLiquidityForm({
               </label>
               <Field
                 name="tokenBAmount"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. 1"
               />
             </div>
 
             <div className="flex gap-5 mt-5">
-              <Button
-                className="pr-20 pl-20"
-                type="submit"
-                color="primary"
-                loading={isAddingLiquidity}
-                disabled={isAddingLiquidity}
-              >
-                {isAddingLiquidity ? "Adding Liquidity..." : "Add Liquidity"}
-              </Button>
-              <Button
-                className="pr-20 pl-20"
-                type="button"
-                color="secondary"
-                onClick={() => {
-                  onGetDeployATokenView();
-                }}
-              >
-                To Vault/Compounder Deploy
-              </Button>
+                <button
+                    className="btn btn-primary pr-20 pl-20"
+                    type="submit"
+                    disabled={isAddingLiquidity}
+                >
+                    {isAddingLiquidity ? (
+                        <>
+                            <span className="loading loading-spinner" />
+                            Adding Liquidity...
+                        </>
+                    ) : (
+                        "Add Liquidity"
+                    )}
+                </button>
+                <button
+                    className="btn pr-20 pl-20"
+                    type="button"
+                    onClick={() => onGetDeployATokenView()}
+                >
+                    To Vault/Compounder Deploy
+                </button>
             </div>
           </Form>
         )}

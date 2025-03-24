@@ -2,7 +2,6 @@ import { UploadImageForm } from "@/components/Account/UploadImageForm";
 import type { CreateSliceRequestBody } from "@/types/erc3643/types";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import type React from "react";
-import { Button } from "react-daisyui";
 
 const initialValues = {
   name: "",
@@ -39,7 +38,7 @@ export const AddSliceForm = ({
               </label>
               <Field
                 name="name"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. 1"
               />
             </div>
@@ -52,7 +51,7 @@ export const AddSliceForm = ({
               </label>
               <Field
                 name="description"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. 1"
               />
             </div>
@@ -65,7 +64,7 @@ export const AddSliceForm = ({
               </label>
               <Field
                 name="endDate"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. 1"
                 type="date"
               />
@@ -84,7 +83,7 @@ export const AddSliceForm = ({
               </ErrorMessage>
               <Field
                 name="sliceImageIpfsHash"
-                className="input input-bordered w-full mt-2"
+                className="input w-full mt-2"
                 placeholder="e.g. /url"
               />
               <UploadImageForm
@@ -98,24 +97,12 @@ export const AddSliceForm = ({
             </div>
             {children}
             <div className="flex gap-5 mt-5">
-              <Button
-                className="pr-20 pl-20"
-                type="submit"
-                color="primary"
-                loading={isLoading}
-                disabled={isLoading}
-              >
-                {isLoading ? "In Progress..." : "Submit"}
-              </Button>
-              <Button
-                className="pr-10 pl-10"
-                type="button"
-                color="neutral"
-                onClick={getSliceAllocationForm}
-                disabled={isLoading}
-              >
-                Add Allocation
-              </Button>
+              <button className="btn btn-primary pr-20 pl-20" type="submit">
+                {isLoading ? <><span className="loading loading-spinner" />&nbsp;In Progress...</> : "Submit"}
+              </button>
+              <button className="btn pr-20 pl-20" type="button" onClick={getSliceAllocationForm}>
+                {isLoading ? <><span className="loading loading-spinner" />&nbsp;In Progress...</> : "Add Allocation"}
+              </button>
             </div>
           </Form>
         );

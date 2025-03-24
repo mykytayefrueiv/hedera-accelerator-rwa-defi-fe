@@ -3,11 +3,10 @@
 import { pinata } from "@/utils/pinata";
 import { useField } from "formik";
 import React, { useState } from "react";
-import { FileInput, Loading } from "react-daisyui";
 import { toast } from "react-hot-toast";
 
 interface UploadImageFormProps {
-  /**
+  /**g
    * Optional callback if parent wants the file + IPFS hash for additional logic.
    * If not provided, we only set the Formik field value.
    */
@@ -66,31 +65,31 @@ export function UploadImageForm({
   }
 
   return (
-    <>
+    <div className='flex flex-col gap-1'>
       <label className="label" htmlFor={fileHashIpfsName}>
         <span className="label-text">Or upload new image to IPFS</span>
       </label>
 
-      <FileInput
-        name={fileHashIpfsName}
-        color="primary"
-        className="text-primary"
+      <input name={fileHashIpfsName}
+        className="file-input file-input-primary text-primary"
+        type="file"
         onChange={(event) => {
           if (
-            event.currentTarget.files &&
-            event.currentTarget.files.length > 0
+              event.currentTarget.files &&
+              event.currentTarget.files.length > 0
           ) {
-            uploadImageToIpfs(event.currentTarget.files[0]);
+              uploadImageToIpfs(event.currentTarget.files[0]);
           }
-        }}
+      }}
       />
+
       <label className="label" htmlFor={fileHashIpfsName}>
         {fileMeta.error && (
           <span className="label-text-alt text-red-700">{fileMeta.error}</span>
         )}
       </label>
 
-      {isUploading && <Loading className="text-primary" />}
-    </>
+      {isUploading && <span className="loading loading-spinner text-primary" />}
+    </div>
   );
 }

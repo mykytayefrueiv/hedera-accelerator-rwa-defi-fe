@@ -5,7 +5,6 @@ import { useBuildings } from "@/hooks/useBuildings";
 import { pinata } from "@/utils/pinata";
 import { Field, Form, Formik } from "formik";
 import React, { useState } from "react";
-import { Button } from "react-daisyui";
 import { toast } from "react-hot-toast";
 import Select from "react-select";
 import * as Yup from "yup";
@@ -176,7 +175,7 @@ export function AuditManagementForm({ onBack, onDone }: Props) {
             <Field
               name="insuranceProvider"
               type="text"
-              className="input input-bordered w-full mt-2"
+              className="input w-full mt-2"
               placeholder="e.g. MyInsurance Inc."
             />
             {errors.insuranceProvider && touched.insuranceProvider && (
@@ -196,7 +195,7 @@ export function AuditManagementForm({ onBack, onDone }: Props) {
             <Field
               name="coverageAmount"
               type="text"
-              className="input input-bordered w-full mt-2"
+              className="input w-full mt-2"
               placeholder="e.g. 1,000,000 USDC"
             />
             {errors.coverageAmount && touched.coverageAmount && (
@@ -216,7 +215,7 @@ export function AuditManagementForm({ onBack, onDone }: Props) {
             <Field
               name="coverageStart"
               type="date"
-              className="input input-bordered w-full mt-2"
+              className="input w-full mt-2"
             />
             {errors.coverageStart && touched.coverageStart && (
               <div className="text-red-600 text-sm mt-1">
@@ -235,7 +234,7 @@ export function AuditManagementForm({ onBack, onDone }: Props) {
             <Field
               name="coverageEnd"
               type="date"
-              className="input input-bordered w-full mt-2"
+              className="input w-full mt-2"
             />
             {errors.coverageEnd && touched.coverageEnd && (
               <div className="text-red-600 text-sm mt-1">
@@ -261,15 +260,10 @@ export function AuditManagementForm({ onBack, onDone }: Props) {
           </div>
 
           <div className="flex gap-5 mt-5">
-            <Button
-              className="pr-10 pl-10"
-              type="submit"
-              color="primary"
-              loading={loading}
-              disabled={loading}
-            >
+            <button type="submit" className="btn btn-primary pr-10 pl-10">
+              {loading && <span className="loading loading-spinner" />}
               Create Audit Record
-            </Button>
+            </button>
           </div>
 
           {txError && (
