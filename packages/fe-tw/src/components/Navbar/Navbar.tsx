@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
-import { WalletConnectModalRW } from "@/components/Wallets/WalletConnectModalRW";
 import { NavbarUserActionsMenu } from "@/components/Navbar/NavbarUserActionsMenu";
+import { WalletConnectModalRW } from "@/components/Wallets/WalletConnectModalRW";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 const SITE_LINKS = [
   { title: "FAQ", url: "/faq" },
@@ -17,7 +17,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const detailsEl = explorerDetailsRef.current;
-      if (detailsEl && detailsEl.hasAttribute("open")) {
+      if (detailsEl?.hasAttribute("open")) {
         if (!detailsEl.contains(event.target as Node)) {
           detailsEl.removeAttribute("open");
         }
@@ -45,10 +45,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           {/* Hamburger Menu (mobile) */}
           <div className="lg:hidden">
             <button
+              type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="btn btn-square btn-ghost"
               aria-label="Toggle menu"
             >
+              {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -75,7 +77,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 "
               >
                 Explorer
-
+                {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
                 <svg
                   className="ml-1 w-4 h-4 text-gray-600 group-hover:text-gray-800"
                   fill="currentColor"

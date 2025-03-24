@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 interface ProfitGraphProps {
   profitDataDaily: any[];
@@ -19,7 +27,13 @@ export default function ProfitGraph({
   const [view, setView] = useState<"D" | "W" | "M" | "Y">("D");
 
   const profitData =
-    view === "D" ? profitDataDaily : view === "W" ? profitDataWeekly : view === "M" ? profitDataMonthly : profitDataYearly;
+    view === "D"
+      ? profitDataDaily
+      : view === "W"
+        ? profitDataWeekly
+        : view === "M"
+          ? profitDataMonthly
+          : profitDataYearly;
 
   return (
     <div className="flex-1 bg-white rounded-lg p-6 border border-gray-300 relative">
@@ -29,10 +43,13 @@ export default function ProfitGraph({
       <div className="absolute top-6 right-6 flex gap-2">
         {["D", "W", "M", "Y"].map((label) => (
           <button
+            type="button"
             key={label}
             onClick={() => setView(label as "D" | "W" | "M" | "Y")}
             className={`px-4 py-1 rounded-full font-semibold ${
-              view === label ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-600"
+              view === label
+                ? "bg-purple-600 text-white"
+                : "bg-gray-200 text-gray-600"
             }`}
           >
             {label}
@@ -46,7 +63,12 @@ export default function ProfitGraph({
           <XAxis dataKey="time" />
           <YAxis />
           <Tooltip />
-          <Line type="monotone" dataKey="profit" stroke="#7B61FF" strokeWidth={2} />
+          <Line
+            type="monotone"
+            dataKey="profit"
+            stroke="#7B61FF"
+            strokeWidth={2}
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>

@@ -10,11 +10,13 @@ import { uniswapPairAbi } from "@/services/contracts/abi/uniswapPairAbi";
 import { Log } from "@/types/queries";
 
 const filterSwapHistoryItems = (swapItems: Log[], trader: `0x${string}`) => {
-    return swapItems.filter(item => item.args[0] === trader).map(item => ({
-        tokenA: item.args[1],
-        tokenB: item.args[2],
-        tokenAAmount: ethers.formatUnits(item.args[3], DEFAULT_TOKEN_DECIMALS),
-        tokenBAmount: ethers.formatUnits(item.args[4], DEFAULT_TOKEN_DECIMALS),
+  return swapItems
+    .filter((item) => item.args[0] === trader)
+    .map((item) => ({
+      tokenA: item.args[1],
+      tokenB: item.args[2],
+      tokenAAmount: ethers.formatUnits(item.args[3], DEFAULT_TOKEN_DECIMALS),
+      tokenBAmount: ethers.formatUnits(item.args[4], DEFAULT_TOKEN_DECIMALS),
     }));
 };
 
@@ -25,7 +27,7 @@ export const useSwapsHistory = (buildingTokens?: `0x${string}`[]) => {
     const [logs, setLogs] = useState<Log[]>([]);
     const { readContract } = useReadContract();
 
-    const { data: evmAddress } = useEvmAddress();
+  const { data: evmAddress } = useEvmAddress();
 
     const readPairAddress = (tokenA: `0x${string}`, tokenB: `0x${string}`): Promise<`0x${string}`> => {
         return readContract({
@@ -85,20 +87,20 @@ export const useSwapsHistory = (buildingTokens?: `0x${string}`[]) => {
         }
     }, [logs.length]);
 
-    useEffect(() => {
-        const unlisten = watchContractEvent({
-            address: ONE_SIDED_EXCHANGE_ADDRESS as `0x${string}`,
-            abi: useOneSidedExchangeFactoryAbi,
-            eventName: "SwapSuccess",
-            onLogs: (data) => {
-                setLogs(data as unknown as Log[]);
-            },
-        });
+  useEffect(() => {
+    const unlisten = watchContractEvent({
+      address: ONE_SIDED_EXCHANGE_ADDRESS as `0x${string}`,
+      abi: useOneSidedExchangeFactoryAbi,
+      eventName: "SwapSuccess",
+      onLogs: (data) => {
+        setLogs(data as unknown as Log[]);
+      },
+    });
 
-        setTimeout(() => {
-            unlisten();
-        }, 10000);
-    }, []);
+    setTimeout(() => {
+      unlisten();
+    }, 10000);
+  }, []);
 
     return { oneSidedExchangeSwapsHistory, uniswapExchangeHistory };
 };

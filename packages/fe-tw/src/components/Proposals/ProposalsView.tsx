@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import moment from "moment";
-import { ProposalType } from "@/types/props";
 import { activeProposals } from "@/consts/proposals";
-import { ProposalsList } from "./ProposalsList";
-import { CreateProposalForm } from "./CreateProposalForm";
+import { ProposalType } from "@/types/props";
+import { getCurrentDate, getFutureDate } from "@/utils/date";
 import { sortProposals } from "@/utils/sorting";
-import { getFutureDate, getCurrentDate } from "@/utils/date";
+import moment from "moment";
+import { useMemo, useState } from "react";
+import { CreateProposalForm } from "./CreateProposalForm";
+import { ProposalsList } from "./ProposalsList";
 
 export function ProposalsView() {
   const [selectedTab, setSelectedTab] = useState<"active" | "past">("active");
@@ -17,26 +17,26 @@ export function ProposalsView() {
   const allActiveProposals = useMemo(
     () =>
       activeProposals.filter(
-        (p) => now.isBefore(moment(p.expiry)) && now.isAfter(moment(p.started))
+        (p) => now.isBefore(moment(p.expiry)) && now.isAfter(moment(p.started)),
       ),
-    [now]
+    [now],
   );
   const allPastProposals = useMemo(
     () => activeProposals.filter((p) => now.isAfter(moment(p.expiry))),
-    [now]
+    [now],
   );
 
-  const [sortOption, setSortOption] = useState<"votes" | "alphabetical" | "endingSoon">(
-    "votes"
-  );
+  const [sortOption, setSortOption] = useState<
+    "votes" | "alphabetical" | "endingSoon"
+  >("votes");
 
   const displayedActiveProposals = useMemo(
     () => sortProposals(allActiveProposals, sortOption),
-    [allActiveProposals, sortOption]
+    [allActiveProposals, sortOption],
   );
   const displayedPastProposals = useMemo(
     () => sortProposals(allPastProposals, sortOption),
-    [allPastProposals, sortOption]
+    [allPastProposals, sortOption],
   );
 
   const handleCreateProposal = (newProposal: {
@@ -106,15 +106,19 @@ export function ProposalsView() {
       {/* Tabs titles*/}
       <div className="flex space-x-8 mb-4">
         <button
-          className={`text-2l ${selectedTab === "active" ? "font-bold text-black" : "text-gray-400"
-            }`}
+          type="button"
+          className={`text-2l ${
+            selectedTab === "active" ? "font-bold text-black" : "text-gray-400"
+          }`}
           onClick={() => setSelectedTab("active")}
         >
           Active Proposals
         </button>
         <button
-          className={`text-2l ${selectedTab === "past" ? "font-bold text-black" : "text-gray-400"
-            }`}
+          type="button"
+          className={`text-2l ${
+            selectedTab === "past" ? "font-bold text-black" : "text-gray-400"
+          }`}
           onClick={() => setSelectedTab("past")}
         >
           Past Proposals
@@ -142,7 +146,11 @@ export function ProposalsView() {
           </select>
         </div>
 
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => setShowModal(true)}
+        >
           Create New Proposal
         </button>
       </div>
@@ -165,6 +173,7 @@ export function ProposalsView() {
         <div className="modal modal-open">
           <div className="modal-box relative max-w-lg">
             <button
+              type="button"
               className="btn btn-sm btn-circle absolute right-2 top-2"
               onClick={() => setShowModal(false)}
             >

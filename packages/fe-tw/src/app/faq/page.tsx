@@ -113,12 +113,15 @@ Join our community or visit our GitHub for hands-on examples and updates.
     },
   ];
 
-return (
+  return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
-      <h1 className="text-3xl font-bold text-center">Frequently Asked Questions</h1>
+      <h1 className="text-3xl font-bold text-center">
+        Frequently Asked Questions
+      </h1>
 
       <div className="space-y-4">
         {faqs.map((faq) => (
+          // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
           <div
             key={faq.question}
             className="
@@ -143,9 +146,7 @@ return (
             </div>
 
             {expanded === faq.question && (
-              <p className="mt-2 text-gray-700 w-full block">
-                {faq.answer}
-              </p>
+              <p className="mt-2 text-gray-700 w-full block">{faq.answer}</p>
             )}
           </div>
         ))}
@@ -153,7 +154,10 @@ return (
 
       <div className="text-center mt-6">
         <Link href="/explorer">
-          <button className="bg-purple-700 text-white px-4 py-2 rounded-full hover:bg-purple-900 transition">
+          <button
+            className="bg-purple-700 text-white px-4 py-2 rounded-full hover:bg-purple-900 transition"
+            type="button"
+          >
             Back to Explorer
           </button>
         </Link>
