@@ -59,14 +59,14 @@ export default function TradePortfolio({
             </div>
           </div>
         </div>
-        {tradeHistory?.length && (
+        {tradeHistory?.length > 0 && (
           <>
             <h1 className="text-2xl font-bold mb-4 mt-6">Trade History</h1>
             <div
               className="flex flex-col gap-2"
               style={{ overflowY: "scroll", maxHeight: "50em" }}
             >
-              {tradeHistory.map((tradeItem, id) => (
+              {tradeHistory.map((tradeItem) => (
                 <TradePortfolioItem key={tradeItem.id} {...tradeItem} />
               ))}
             </div>

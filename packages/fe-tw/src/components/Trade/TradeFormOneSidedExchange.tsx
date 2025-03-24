@@ -139,7 +139,7 @@ export default function TradeFormOneSidedExchange({ buildingTokens }: Props) {
                             ...prev,
                             amount: e.target.value,
                         }))}
-                        className="input input-bordered w-full text-sm"
+                        className="input input-bordered w-full input-lg"
                         placeholder="e.g. 10"
                         required
                     />

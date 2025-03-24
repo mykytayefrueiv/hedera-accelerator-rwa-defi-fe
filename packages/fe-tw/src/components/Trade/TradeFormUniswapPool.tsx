@@ -148,7 +148,7 @@ export default function TradeFormUniswapPool({ buildingTokenOptions }: Props) {
                                         onChange={(e) => {
                                             setFieldValue('amount', e.target.value)
                                         }}
-                                        className="input input-bordered w-full text-md"
+                                        className="input input-bordered w-full input-lg"
                                         placeholder="e.g. 0.00001"
                                         required
                                     />
