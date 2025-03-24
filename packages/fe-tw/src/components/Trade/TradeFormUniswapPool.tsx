@@ -10,6 +10,7 @@ import { colourStyles } from "@/consts/theme";
 import { oneHourTimePeriod } from "@/consts/trade";
 import { USDC_ADDRESS } from "@/services/contracts/addresses";
 import { getTokenDecimals } from "@/services/erc20Service";
+import { tryCatch } from "@/services/tryCatch";
 import { TradeFormPayload } from "@/types/erc3643/types";
 
 type Props = {
@@ -33,53 +34,48 @@ export default function TradeFormUniswapPool({ buildingTokenOptions }: Props) {
         value: tok.tokenAddress,
     })), [buildingTokenOptions]);
 
-    const handleSwapSubmit = async (values: TradeFormPayload) => {
+    const handleSwapSubmit = async (values: TradeFormPayload, resetForm: () => void) => {
         const amountA = values.amount;
         const tokenB = values.tokenB;
         const tokenA = values.tokenA;
 
-        try {
-            const tokenADecimals = await getTokenDecimals(tokenA!);
-            let outputAmounts: bigint[] = [];
+        if (!tokenA || !tokenB || !amountA) {
+            toast.error('All fields in trade form are required');
+        } else {
+            const { data: tokenADecimals, error: tokenADecimalsError } = await tryCatch(getTokenDecimals(tokenA!));
 
-            try {
-                outputAmounts = await getAmountsOut(
-                    BigInt(
-                        Math.floor(parseFloat(amountA!) * 10 ** tokenADecimals)
-                    ),
-                    [tokenA!, tokenB!]
-                );
-            } catch (err) {
-                toast.error('Failed to swap tokens - no such liquidity pair exists, or not enough tokens to swap');
-                setTxError('Failed to swap tokens - no such liquidity pair exists, or not enough tokens to swap');
+            if (tokenADecimalsError) {
+                toast.error('Failed to swap tokens - falied calculate decimals');
+                setTxError('Failed to swap tokens - falied calculate decimals');
                 return;
             }
 
-            if (!outputAmounts?.length || !tokenA || !tokenB) {
-                toast.error('All fields in trade form are required');
-            } else {
-                try {
-                    await giveAllowance(tokenA, outputAmounts[0]);
-                    await giveAllowance(tokenB, outputAmounts[1]);
-                    
-                    const transaction_id = await handleSwap({
-                        amountIn: outputAmounts[0],
-                        amountOut: outputAmounts[1],
-                        path: [tokenA, tokenB],
-                        deadline: Date.now() + (values.autoRevertsAfter ?? oneHourTimePeriod),
-                    });
-                    // reset form
-    
-                    toast.success(`Successfully trade ${amountA} tokens for ${tokenB}!`);
-                    setTxResult(transaction_id);
-                } catch (err) {
-                    toast.error('Failed to swap tokens');
-                    setTxError('Failed to swap tokens');
-                }
+            const { data: outputAmounts, error: outputAmountsError } = await tryCatch(
+                getAmountsOut(BigInt(
+                    Math.floor(parseFloat(amountA!) * 10 ** tokenADecimals)
+                ), [tokenA!, tokenB!])
+            );
+
+            if (outputAmountsError) {
+                toast.error('Failed to swap tokens - falied calculate output amounts');
+                setTxError('Failed to swap tokens - falied calculate output amounts');
+                return;
             }
-        } catch (err) {
-            toast.error('Failed to swap tokens');
-            setTxError('Failed to swap tokens');
+
+            resetForm();
+
+            await giveAllowance(tokenA, outputAmounts[0]);
+            await giveAllowance(tokenB, outputAmounts[1]);
+            
+            const transaction_id = await handleSwap({
+                amountIn: outputAmounts[0],
+                amountOut: outputAmounts[1],
+                path: [tokenA, tokenB],
+                deadline: Date.now() + (values.autoRevertsAfter ?? oneHourTimePeriod),
+            });
+
+            toast.success(`Successfully trade ${amountA} tokens of token ${tokenA} for ${tokenB}!`);
+            setTxResult(transaction_id);
         }
     };
 
@@ -91,9 +87,9 @@ export default function TradeFormUniswapPool({ buildingTokenOptions }: Props) {
     return (
         <div className="flex-1 flex-col gap-4 w-6/12">
             <Formik
-                onSubmit={(values, { setSubmitting }) => {
+                onSubmit={(values, { setSubmitting, resetForm }) => {
                     setSubmitting(false);
-                    handleSwapSubmit(values);
+                    handleSwapSubmit(values, resetForm);
                 }}
                 initialValues={initialValues}
                 validationSchema={Yup.object({
@@ -122,6 +118,7 @@ export default function TradeFormUniswapPool({ buildingTokenOptions }: Props) {
                                             setFieldValue('tokenA', value?.value)
                                         }}
                                         options={buildingTokensOptions}
+                                        value={buildingTokensOptions.find(tok => tok.value === values.tokenA)}
                                     />
                                 </div>
                                 <div className="mt-5">
