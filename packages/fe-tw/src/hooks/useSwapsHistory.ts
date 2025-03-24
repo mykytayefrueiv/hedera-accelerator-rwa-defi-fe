@@ -1,8 +1,16 @@
 import { useOneSidedExchangeFactoryAbi } from "@/services/contracts/abi/oneSidedExchangeFactoryAbi";
-import { ONE_SIDED_EXCHANGE_ADDRESS, UNISWAP_FACTORY_ADDRESS, USDC_ADDRESS } from "@/services/contracts/addresses";
+import {
+  ONE_SIDED_EXCHANGE_ADDRESS,
+  UNISWAP_FACTORY_ADDRESS,
+  USDC_ADDRESS,
+} from "@/services/contracts/addresses";
 import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 import { SwapTradeItem } from "@/types/erc3643/types";
-import { DEFAULT_TOKEN_DECIMALS, useEvmAddress, useReadContract } from "@buidlerlabs/hashgraph-react-wallets";
+import {
+  DEFAULT_TOKEN_DECIMALS,
+  useEvmAddress,
+  useReadContract,
+} from "@buidlerlabs/hashgraph-react-wallets";
 import { ethers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
 import { uniswapFactoryAbi } from "@/services/contracts/abi/uniswapFactoryAbi";
@@ -22,80 +30,97 @@ const filterSwapHistoryItems = (swapItems: Log[], trader: `0x${string}`) => {
 };
 
 export const useSwapsHistory = (buildingTokens?: `0x${string}`[]) => {
-    const [oneSidedExchangeSwapsHistory, setOneSidedExchangeSwapsHistory] = useState<SwapTradeItem[]>([]);
-    const [uniswapExchangeHistory, setUniswapExchangeHistory] = useState<SwapTradeItem[]>([]);
-    const [uniswapPairAddresses, setUniswapPairAddresses] = useState<`0x${string}`[]>([]);
-    const [logs, setLogs] = useState<Log[]>([]);
-    const { readContract } = useReadContract();
+  const [oneSidedExchangeSwapsHistory, setOneSidedExchangeSwapsHistory] =
+    useState<SwapTradeItem[]>([]);
+  const [uniswapExchangeHistory, setUniswapExchangeHistory] = useState<
+    SwapTradeItem[]
+  >([]);
+  const [uniswapPairAddresses, setUniswapPairAddresses] = useState<
+    `0x${string}`[]
+  >([]);
+  const [logs, setLogs] = useState<Log[]>([]);
+  const { readContract } = useReadContract();
 
-    const { data: evmAddress } = useEvmAddress();
+  const { data: evmAddress } = useEvmAddress();
 
-    const readPairAddress = (tokenA: `0x${string}`, tokenB: `0x${string}`): Promise<`0x${string}`> => {
-        return readContract({
-            address: UNISWAP_FACTORY_ADDRESS,
-            abi: uniswapFactoryAbi,
-            functionName: "getPair",
-            args: [tokenA, tokenB],
-        }) as Promise<`0x${string}`>;
-    };
+  const readPairAddress = (
+    tokenA: `0x${string}`,
+    tokenB: `0x${string}`,
+  ): Promise<`0x${string}`> => {
+    return readContract({
+      address: UNISWAP_FACTORY_ADDRESS,
+      abi: uniswapFactoryAbi,
+      functionName: "getPair",
+      args: [tokenA, tokenB],
+    }) as Promise<`0x${string}`>;
+  };
 
-    const watchPairSwaps = (pairAddress: `0x${string}`) => {
-        watchContractEvent({
-            address: pairAddress,
-            abi: uniswapPairAbi,
-            eventName: "Swap",
-            onLogs: (data) => {
-                setUniswapExchangeHistory(data.map((log: any) => ({
-                    tokenA: log.args[0],
-	                tokenB: log.args[5],
-                    tokenAAmount: ethers.formatEther(log.args[2]).toString(),
-                    tokenBAmount: ethers.formatEther(log.args[3]).toString(),
-                    id: '',
-                })))
-            },
-        });
-    };
+  const watchPairSwaps = (pairAddress: `0x${string}`) => {
+    watchContractEvent({
+      address: pairAddress,
+      abi: uniswapPairAbi,
+      eventName: "Swap",
+      onLogs: (data) => {
+        setUniswapExchangeHistory(
+          data.map((log: any) => ({
+            tokenA: log.args[0],
+            tokenB: log.args[5],
+            tokenAAmount: ethers.formatEther(log.args[2]).toString(),
+            tokenBAmount: ethers.formatEther(log.args[3]).toString(),
+            id: "",
+          })),
+        );
+      },
+    });
+  };
 
-    const doReadPairs = useCallback(async () => {
-        if (buildingTokens?.[0]) {
-            const { data, error } = await tryCatch(readPairAddress(USDC_ADDRESS, buildingTokens?.[0] as `0x${string}`));
+  const doReadPairs = useCallback(async () => {
+    if (buildingTokens?.[0]) {
+      const { data, error } = await tryCatch(
+        readPairAddress(USDC_ADDRESS, buildingTokens?.[0] as `0x${string}`),
+      );
 
-            if (!error) {
-                setUniswapPairAddresses(prev => [...prev, data]);
-            }
-        }
-    }, [buildingTokens?.length]);
+      if (!error) {
+        setUniswapPairAddresses((prev) => [...prev, data]);
+      }
+    }
+  }, [buildingTokens?.length]);
 
-    useEffect(() => {
-        doReadPairs();
-    }, [doReadPairs]);
-    
-    useEffect(() => {
-        if (uniswapPairAddresses[0]) {
-            const nonZeroAddresses = uniswapPairAddresses.filter(pairAddress => pairAddress !== ethers.ZeroAddress);
+  useEffect(() => {
+    doReadPairs();
+  }, [doReadPairs]);
 
-            if (nonZeroAddresses[0]) {
-                watchPairSwaps(nonZeroAddresses[0]);
-            }
-        }
-    }, [uniswapPairAddresses]);
+  useEffect(() => {
+    if (uniswapPairAddresses[0]) {
+      const nonZeroAddresses = uniswapPairAddresses.filter(
+        (pairAddress) => pairAddress !== ethers.ZeroAddress,
+      );
 
-    useEffect(() => {
-        if (logs.length) {
-            setOneSidedExchangeSwapsHistory(prev => [...prev, ...filterSwapHistoryItems(logs, evmAddress)]);
-        }
-    }, [logs.length]);
+      if (nonZeroAddresses[0]) {
+        watchPairSwaps(nonZeroAddresses[0]);
+      }
+    }
+  }, [uniswapPairAddresses]);
 
-    useEffect(() => {
-        watchContractEvent({
-            address: ONE_SIDED_EXCHANGE_ADDRESS as `0x${string}`,
-            abi: useOneSidedExchangeFactoryAbi,
-            eventName: "SwapSuccess",
-            onLogs: (data) => {
-                setLogs(data as unknown as Log[]);
-            },
-        });
-    }, []);
-    
-    return { oneSidedExchangeSwapsHistory, uniswapExchangeHistory };
+  useEffect(() => {
+    if (logs.length) {
+      setOneSidedExchangeSwapsHistory((prev) => [
+        ...prev,
+        ...filterSwapHistoryItems(logs, evmAddress),
+      ]);
+    }
+  }, [logs.length]);
+
+  useEffect(() => {
+    watchContractEvent({
+      address: ONE_SIDED_EXCHANGE_ADDRESS as `0x${string}`,
+      abi: useOneSidedExchangeFactoryAbi,
+      eventName: "SwapSuccess",
+      onLogs: (data) => {
+        setLogs(data as unknown as Log[]);
+      },
+    });
+  }, []);
+
+  return { oneSidedExchangeSwapsHistory, uniswapExchangeHistory };
 };

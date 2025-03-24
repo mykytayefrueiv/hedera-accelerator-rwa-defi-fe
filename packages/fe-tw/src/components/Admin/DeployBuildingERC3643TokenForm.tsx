@@ -164,7 +164,11 @@ export const DeployBuildingERC3643TokenForm = ({
           </div>
           <div className="flex gap-5 mt-5">
             <button className="btn btn-primary pr-10 pl-10" type="submit">
-              {loading ? <span className="loading loading-spinner"/>: "Deploy Token"}
+              {loading ? (
+                <span className="loading loading-spinner" />
+              ) : (
+                "Deploy Token"
+              )}
             </button>
 
             {/*<Button*/}

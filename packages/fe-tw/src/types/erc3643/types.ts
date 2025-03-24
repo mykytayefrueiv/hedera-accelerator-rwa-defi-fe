@@ -183,10 +183,10 @@ export type SwapUniswapTokensRequestBody = {
 };
 
 export type TradeFormPayload = {
-    amount?: string,
-    tokenA?: `0x${string}`,
-    tokenB?: `0x${string}`,
-    autoRevertsAfter: number
+  amount?: string;
+  tokenA?: `0x${string}`;
+  tokenB?: `0x${string}`;
+  autoRevertsAfter: number;
 };
 
 export type SwapTradeItem = {

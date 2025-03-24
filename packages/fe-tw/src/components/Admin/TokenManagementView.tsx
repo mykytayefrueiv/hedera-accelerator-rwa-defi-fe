@@ -18,7 +18,7 @@ export function TokenManagementView() {
             setSelectedBuildingAddress(address);
           }}
         />
-      )
+      );
     } else if (currentSetupStep === 2) {
       return (
         <AddBuildingTokenLiquidityForm
