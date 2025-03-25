@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import moment from "moment";
-import { useTreasuryData } from "@/hooks/useTreasuryData";
 import { usePaymentsData } from "@/hooks/usePaymentsData";
+import { useTreasuryData } from "@/hooks/useTreasuryData";
+import moment from "moment";
+import { useState } from "react";
 import { PaymentForm } from "./PaymentForm";
 
 type PaymentsViewProps = {
@@ -12,13 +12,14 @@ type PaymentsViewProps = {
 
 export function PaymentsView({ buildingId }: PaymentsViewProps) {
   const { data } = useTreasuryData();
-  const { payments, isLoading, isError, addPayment } = usePaymentsData(buildingId);
+  const { payments, isLoading, isError, addPayment } =
+    usePaymentsData(buildingId);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   async function handlePaymentCompleted(
     amount: number,
     revenueType: string,
-    notes: string
+    notes: string,
   ) {
     try {
       await addPayment({ amount, revenueType, notes });
@@ -52,8 +53,12 @@ export function PaymentsView({ buildingId }: PaymentsViewProps) {
       <div className="bg-white rounded-lg p-4">
         <h2 className="text-2xl font-bold mb-4">Payment History</h2>
 
-        {isLoading && <p className="text-base text-gray-500">Loading payments...</p>}
-        {isError && <p className="text-base text-red-500">Error fetching payments!</p>}
+        {isLoading && (
+          <p className="text-base text-gray-500">Loading payments...</p>
+        )}
+        {isError && (
+          <p className="text-base text-red-500">Error fetching payments!</p>
+        )}
 
         {!isLoading && !isError && payments && payments.length === 0 ? (
           <p className="text-base text-gray-500">No payments recorded yet.</p>
@@ -90,7 +95,10 @@ export function PaymentsView({ buildingId }: PaymentsViewProps) {
                       </span>
                     </td>
                     <td className="p-3 text-blue-500 rounded-r-lg">
-                      <button className="flex items-center gap-2 hover:underline">
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 hover:underline"
+                      >
                         Details
                       </button>
                     </td>
@@ -104,6 +112,7 @@ export function PaymentsView({ buildingId }: PaymentsViewProps) {
 
       <div className="flex justify-end">
         <button
+          type="button"
           onClick={() => setShowPaymentModal(true)}
           className="btn btn-primary text-white text-base font-normal"
         >
@@ -129,12 +138,17 @@ function PaymentModal({
 }: {
   buildingId: string;
   onClose: () => void;
-  onPaymentCompleted: (amount: number, revenueType: string, notes: string) => Promise<void>;
+  onPaymentCompleted: (
+    amount: number,
+    revenueType: string,
+    notes: string,
+  ) => Promise<void>;
 }) {
   return (
     <div className="modal modal-open">
       <div className="modal-box relative max-w-md">
         <button
+          type="button"
           className="btn btn-sm btn-circle absolute right-2 top-2"
           onClick={onClose}
         >
@@ -142,10 +156,7 @@ function PaymentModal({
         </button>
         <h3 className="font-bold text-2xl mb-4">Add Payment</h3>
 
-        <PaymentForm
-          buildingId={buildingId}
-          onCompleted={onPaymentCompleted}
-        />
+        <PaymentForm buildingId={buildingId} onCompleted={onPaymentCompleted} />
       </div>
     </div>
   );

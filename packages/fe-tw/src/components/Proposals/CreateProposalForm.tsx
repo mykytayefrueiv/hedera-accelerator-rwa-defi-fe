@@ -1,10 +1,12 @@
 "use client";
 
+import { useCreateProposals } from "@/hooks/useCreateProposals";
+import { ProposalType } from "@/types/props";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { ProposalType } from "@/types/props";
 
-type CreateProposalFormProps = {
+type Props = {
+  buildingAddress: `0x${string}`,
   onSubmit: (newProposal: {
     title: string;
     description: string;
@@ -16,7 +18,9 @@ type CreateProposalFormProps = {
   }) => void;
 };
 
-export function CreateProposalForm({ onSubmit }: CreateProposalFormProps) {
+export function CreateProposalForm({ onSubmit, buildingAddress }: Props) {
+  const { createPaymentProposal, createTextProposal } = useCreateProposals(buildingAddress);
+  
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -47,7 +51,7 @@ export function CreateProposalForm({ onSubmit }: CreateProposalFormProps) {
       <div className="mb-4">
         <input
           type="text"
-          className="input input-bordered w-full mb-2"
+          className="input w-full mb-2"
           placeholder="Proposal Title"
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -81,24 +85,22 @@ export function CreateProposalForm({ onSubmit }: CreateProposalFormProps) {
           <>
             <input
               type="number"
-              className="input input-bordered w-full mb-2"
+              className="input w-full mb-2"
               placeholder="Payment Amount"
               value={formData.amount || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  amount: parseFloat(e.target.value) || undefined,
+                  amount: Number.parseFloat(e.target.value) || undefined,
                 })
               }
             />
             <input
               type="text"
-              className="input input-bordered w-full mb-2"
+              className="input w-full mb-2"
               placeholder="Recipient"
               value={formData.to}
-              onChange={(e) =>
-                setFormData({ ...formData, to: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, to: e.target.value })}
             />
           </>
         )}
@@ -106,37 +108,37 @@ export function CreateProposalForm({ onSubmit }: CreateProposalFormProps) {
           <>
             <input
               type="number"
-              className="input input-bordered w-full mb-2"
+              className="input w-full mb-2"
               placeholder="Payment Amount"
               value={formData.amount || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  amount: parseFloat(e.target.value) || undefined,
+                  amount: Number.parseFloat(e.target.value) || undefined,
                 })
               }
             />
             <input
               type="number"
-              className="input input-bordered w-full mb-2"
+              className="input w-full mb-2"
               placeholder="Frequency (days)"
               value={formData.frequency || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  frequency: parseInt(e.target.value) || undefined,
+                  frequency: Number.parseInt(e.target.value) || undefined,
                 })
               }
             />
             <input
               type="number"
-              className="input input-bordered w-full mb-2"
+              className="input w-full mb-2"
               placeholder="Number of Payments"
               value={formData.numPayments || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  numPayments: parseInt(e.target.value) || undefined,
+                  numPayments: Number.parseInt(e.target.value) || undefined,
                 })
               }
             />
@@ -144,6 +146,7 @@ export function CreateProposalForm({ onSubmit }: CreateProposalFormProps) {
         )}
       </div>
       <button
+        type="button"
         className="btn btn-primary w-full"
         onClick={handleSubmit}
         disabled={!formData.title || !formData.description}

@@ -11,7 +11,9 @@ const ADMIN_LINKS = [
   { title: "Audit Management", href: "/admin/auditmanagement" },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -34,7 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
       </aside>
 
-      <main className="flex-1 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 mx-auto max-w-screen-lg sm:max-w-screen-xl">
+      <main className="flex-1 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 mx-auto max-w-(--breakpoint-lg) sm:max-w-(--breakpoint-xl)">
         {children}
       </main>
     </div>

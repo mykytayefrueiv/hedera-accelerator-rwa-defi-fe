@@ -10,39 +10,39 @@ export const buildingFactoryAbi = [
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "NotInitializing",
-    "type": "error"
+    inputs: [],
+    name: "NotInitializing",
+    type: "error",
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "version",
-        "type": "uint64"
-      }
+        indexed: false,
+        internalType: "uint64",
+        name: "version",
+        type: "uint64",
+      },
     ],
-    "name": "Initialized",
-    "type": "event"
+    name: "Initialized",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "addr",
-        "type": "address"
-      }
+        indexed: false,
+        internalType: "address",
+        name: "addr",
+        type: "address",
+      },
     ],
-    "name": "NewAuditRegistry",
-    "type": "event"
+    name: "NewAuditRegistry",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
         "indexed": false,
         "internalType": "address",
@@ -56,12 +56,12 @@ export const buildingFactoryAbi = [
         "type": "address"
       }
     ],
-    "name": "NewBuilding",
-    "type": "event"
+    name: "NewBuilding",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
         "indexed": false,
         "internalType": "address",
@@ -81,12 +81,12 @@ export const buildingFactoryAbi = [
         "type": "address"
       }
     ],
-    "name": "NewERC3643Token",
-    "type": "event"
+    name: "NewERC3643Token",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
         "indexed": false,
         "internalType": "address",
@@ -135,36 +135,36 @@ export const buildingFactoryAbi = [
     "type": "event"
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "buildingAddress",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "buildingAddress",
+        type: "address",
+      },
     ],
-    "name": "getBuildingDetails",
-    "outputs": [
+    name: "getBuildingDetails",
+    outputs: [
       {
-        "components": [
+        components: [
           {
-            "internalType": "address",
-            "name": "addr",
-            "type": "address"
+            internalType: "address",
+            name: "addr",
+            type: "address",
           },
           {
-            "internalType": "uint256",
-            "name": "nftId",
-            "type": "uint256"
+            internalType: "uint256",
+            name: "nftId",
+            type: "uint256",
           },
           {
-            "internalType": "string",
-            "name": "tokenURI",
-            "type": "string"
+            internalType: "string",
+            name: "tokenURI",
+            type: "string",
           },
           {
-            "internalType": "address",
-            "name": "identity",
-            "type": "address"
+            internalType: "address",
+            name: "identity",
+            type: "address",
           },
           {
             "internalType": "address",
@@ -187,34 +187,34 @@ export const buildingFactoryAbi = [
         "type": "tuple"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "getBuildingList",
-    "outputs": [
+    inputs: [],
+    name: "getBuildingList",
+    outputs: [
       {
-        "components": [
+        components: [
           {
-            "internalType": "address",
-            "name": "addr",
-            "type": "address"
+            internalType: "address",
+            name: "addr",
+            type: "address",
           },
           {
-            "internalType": "uint256",
-            "name": "nftId",
-            "type": "uint256"
+            internalType: "uint256",
+            name: "nftId",
+            type: "uint256",
           },
           {
-            "internalType": "string",
-            "name": "tokenURI",
-            "type": "string"
+            internalType: "string",
+            name: "tokenURI",
+            type: "string",
           },
           {
-            "internalType": "address",
-            "name": "identity",
-            "type": "address"
+            internalType: "address",
+            name: "identity",
+            type: "address",
           },
           {
             "internalType": "address",
@@ -237,25 +237,25 @@ export const buildingFactoryAbi = [
         "type": "tuple[]"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "_nft",
-        "type": "address"
+        internalType: "address",
+        name: "_nft",
+        type: "address",
       },
       {
-        "internalType": "address",
-        "name": "_uniswapRouter",
-        "type": "address"
+        internalType: "address",
+        name: "_uniswapRouter",
+        type: "address",
       },
       {
-        "internalType": "address",
-        "name": "_uniswapFactory",
-        "type": "address"
+        internalType: "address",
+        name: "_uniswapFactory",
+        type: "address",
       },
       {
         "internalType": "address",
@@ -293,51 +293,51 @@ export const buildingFactoryAbi = [
         "type": "address"
       }
     ],
-    "name": "initialize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "tokenURI",
-        "type": "string"
-      }
+        internalType: "string",
+        name: "tokenURI",
+        type: "string",
+      },
     ],
-    "name": "newBuilding",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "newBuilding",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
         "internalType": "address",
         "name": "building",
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
+        internalType: "string",
+        name: "name",
+        type: "string",
       },
       {
-        "internalType": "string",
-        "name": "symbol",
-        "type": "string"
+        internalType: "string",
+        name: "symbol",
+        type: "string",
       },
       {
-        "internalType": "uint8",
-        "name": "decimals",
-        "type": "uint8"
-      }
+        internalType: "uint8",
+        name: "decimals",
+        type: "uint8",
+      },
     ],
-    "name": "newERC3643Token",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "newERC3643Token",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     "inputs": [
@@ -368,7 +368,7 @@ export const buildingFactoryAbi = [
     "type": "function"
   },
   {
-    "inputs": [
+    inputs: [
       {
         "internalType": "address",
         "name": "building",

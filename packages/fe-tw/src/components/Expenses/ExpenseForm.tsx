@@ -1,9 +1,9 @@
 "use client";
 
+import type { ExpenseMethod, ExpenseType } from "@/consts/treasury";
+import { useTreasuryData } from "@/hooks/useTreasuryData";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { useTreasuryData } from "@/hooks/useTreasuryData";
-import { ExpenseType, ExpenseMethod } from "@/consts/treasury";
 
 type ExpenseFormProps = {
   buildingId: string;
@@ -34,8 +34,8 @@ export function ExpenseForm({ buildingId, onCompleted }: ExpenseFormProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const amt = parseFloat(amount);
-    if (isNaN(amt) || amt <= 0) {
+    const amt = Number.parseFloat(amount);
+    if (Number.isNaN(amt) || amt <= 0) {
       toast.error("Invalid expense amount");
       return;
     }
@@ -54,9 +54,9 @@ export function ExpenseForm({ buildingId, onCompleted }: ExpenseFormProps) {
         amount: amt,
         expenseType,
         method,
-        period: period ? parseFloat(period) : undefined,
+        period: period ? Number.parseFloat(period) : undefined,
         endDate: endDate ? new Date(endDate) : undefined,
-        percentage: percentage ? parseFloat(percentage) : undefined,
+        percentage: percentage ? Number.parseFloat(percentage) : undefined,
         notes,
       });
     }
@@ -86,7 +86,7 @@ export function ExpenseForm({ buildingId, onCompleted }: ExpenseFormProps) {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="input input-bordered w-full"
+          className="input w-full"
           placeholder="e.g. Office Supplies"
           required
         />
@@ -103,7 +103,7 @@ export function ExpenseForm({ buildingId, onCompleted }: ExpenseFormProps) {
           min="0"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="input input-bordered w-full"
+          className="input w-full"
           placeholder="Enter amount in USDC"
           required
         />
@@ -136,7 +136,7 @@ export function ExpenseForm({ buildingId, onCompleted }: ExpenseFormProps) {
               min="1"
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
-              className="input input-bordered w-full"
+              className="input w-full"
               placeholder="e.g. 30"
               required
             />
@@ -151,7 +151,7 @@ export function ExpenseForm({ buildingId, onCompleted }: ExpenseFormProps) {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="input input-bordered w-full"
+              className="input w-full"
               required
             />
           </div>
@@ -185,7 +185,7 @@ export function ExpenseForm({ buildingId, onCompleted }: ExpenseFormProps) {
             min="0"
             value={percentage}
             onChange={(e) => setPercentage(e.target.value)}
-            className="input input-bordered w-full"
+            className="input w-full"
             placeholder="e.g. 10"
             required
           />
@@ -206,7 +206,6 @@ export function ExpenseForm({ buildingId, onCompleted }: ExpenseFormProps) {
           style={{ resize: "vertical", maxHeight: "120px" }}
         />
       </div>
-
 
       <button
         type="submit"

@@ -1,6 +1,6 @@
 "use client";
 
-import { BuildingData } from "@/types/erc3643/types";
+import type { BuildingData } from "@/types/erc3643/types";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -16,19 +16,19 @@ export function BuildingsCarousel({ title, buildings }: Props) {
 
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? totalPages - 1 : prevIndex - 1
+      prevIndex === 0 ? totalPages - 1 : prevIndex - 1,
     );
   };
 
   const goToNext = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === totalPages - 1 ? 0 : prevIndex + 1
+      prevIndex === totalPages - 1 ? 0 : prevIndex + 1,
     );
   };
 
   const visibleBuildings = buildings.slice(
     currentIndex * itemsPerPage,
-    currentIndex * itemsPerPage + itemsPerPage
+    currentIndex * itemsPerPage + itemsPerPage,
   );
 
   return (
@@ -37,6 +37,7 @@ export function BuildingsCarousel({ title, buildings }: Props) {
       <div className="relative">
         {/* Previous Button */}
         <button
+          type="button"
           onClick={goToPrevious}
           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 btn btn-circle bg-gray-200 bg-opacity-70 text-gray-500 hover:bg-gray-300 hover:text-gray-600 transition-all"
         >
@@ -72,6 +73,7 @@ export function BuildingsCarousel({ title, buildings }: Props) {
 
         {/* Next Button */}
         <button
+          type="button"
           onClick={goToNext}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-10 btn btn-circle bg-gray-200 bg-opacity-70 text-gray-500 hover:bg-gray-300 hover:text-gray-600 transition-all"
         >

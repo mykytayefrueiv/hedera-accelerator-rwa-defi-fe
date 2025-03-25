@@ -1,6 +1,6 @@
 import type { BuildingData } from "@/types/erc3643/types";
-import { BuildingDetailInfo } from "./BuildingDetailInfo";
 import { BuildingBaseInfo } from "./BuildingBaseInfo";
+import { BuildingDetailInfo } from "./BuildingDetailInfo";
 import { BuildingSlices } from "./BuildingSlices";
 import { BuildingVotes } from "./BuildingVotes";
 import { useBuildingDetails } from "@/hooks/useBuildingDetails";
@@ -10,8 +10,6 @@ export const BuildingDetailPage = (props: BuildingData) => {
 	const { deployedBuildingTokens } = useBuildingDetails(
 		props?.address as `0x${string}`,
 	);
-
-	console.log(deployedBuildingTokens)
 
 	return (
 		<div>

@@ -21,7 +21,7 @@ export default function VotingPower({
           aspects of the building's tokenized ecosystem.
         </p>
 
-        <div className="stats shadow text-xs grid grid-cols-3 gap-4">
+        <div className="stats shadow-sm text-xs grid grid-cols-3 gap-4">
           <div className="stat">
             <div className="stat-title whitespace-normal text-center">
               Your Voting Power
@@ -48,7 +48,9 @@ export default function VotingPower({
       </div>
 
       <div className="mt-4">
-        <button className="btn btn-primary w-full">Delegate Voting Power</button>
+        <button type="button" className="btn btn-primary w-full">
+          Delegate Voting Power
+        </button>
       </div>
     </div>
   );
