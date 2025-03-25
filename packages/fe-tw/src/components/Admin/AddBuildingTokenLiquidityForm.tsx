@@ -3,7 +3,6 @@
 import React, { useMemo } from "react";
 import { toast } from "react-hot-toast";
 import Select, { SingleValue } from "react-select";
-import { Button } from "react-daisyui";
 import { Formik, Form, Field } from "formik";
 import { BackButton } from "@/components/Buttons/BackButton";
 import { useBuildingLiquidity } from "@/hooks/useBuildingLiquidity";
@@ -15,10 +14,12 @@ import { USDC_ADDRESS } from "@/services/contracts/addresses";
 type Props = {
   buildingAddress?: `0x${string}`;
   onGetDeployBuildingTokenView: () => void;
+  onGetDeployATokenView?: () => void;
 };
 
 export function AddBuildingTokenLiquidityForm({
   onGetDeployBuildingTokenView,
+  onGetDeployATokenView,
   buildingAddress,
 }: Props) {
   const { buildings } = useBuildings();
@@ -117,26 +118,21 @@ export function AddBuildingTokenLiquidityForm({
             {!buildingAddress && (
               <div>
                 <label className="block text-md font-semibold text-purple-400">
-                  Select Building
+                  Select Building Address
                 </label>
                 <Select
                   styles={colourStyles}
                   className="mt-2"
-                  placeholder="Choose a Building"
+                  placeholder="Building Address"
                   options={buildingSelectOptions}
                   onChange={(
                     option: SingleValue<{ value: string; label: string }>,
                   ) => {
                     setFieldValue("buildingAddress", option?.value || "");
                   }}
-                  // Show the one selected building
-                  value={{
-                    value: values.buildingAddress,
-                    label:
-                      buildingSelectOptions.find(
-                        (opt) => opt.value === values.buildingAddress,
-                      )?.label ?? values.buildingAddress,
-                  }}
+                  value={buildingSelectOptions.find(
+                    (opt) => opt.value === values.buildingAddress,
+                  )}
                 />
               </div>
             )}
@@ -215,7 +211,7 @@ export function AddBuildingTokenLiquidityForm({
 
             <div className="flex gap-5 mt-5">
               <button
-                className="btn btn-primary pr-20 pl-20"
+                className="btn btn-primary"
                 type="submit"
                 disabled={isAddingLiquidity}
               >
@@ -228,6 +224,13 @@ export function AddBuildingTokenLiquidityForm({
                   "Add Liquidity"
                 )}
               </button>
+              {!!onGetDeployATokenView && <button
+                className="btn btn-primary"
+                type="button"
+                onClick={() => onGetDeployATokenView()}
+              >
+                Deploy Vault and Compounder
+              </button>}
             </div>
           </Form>
         )}

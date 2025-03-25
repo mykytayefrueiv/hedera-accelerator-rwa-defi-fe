@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 export function TokenManagementView() {
   const [currentSetupStep, setCurrentSetupStep] = useState(1);
   const [selectedBuildingAddress, setSelectedBuildingAddress] =
-    useState<`0x${string}`>("0x");
+    useState<`0x${string}`>();
 
   const renderSetupStepView = useMemo(() => {
     if (currentSetupStep === 1) {

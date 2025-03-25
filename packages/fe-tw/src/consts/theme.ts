@@ -2,8 +2,8 @@ export const colourStyles = {
   control: (styles: object) => ({
     ...styles,
     backgroundColor: "#fff",
-    paddingTop: 4,
-    paddingBottom: 4,
+    paddingTop: 1,
+    paddingBottom: 1,
   }),
   option: (styles: any) => {
     return {
