@@ -61,16 +61,14 @@ export function useBuildingDetails(buildingAddress?: `0x${string}`) {
       abi: buildingFactoryAbi,
       eventName: "NewERC3643Token",
       onLogs: (data) => {
-        setNewTokenForBuildingLogs((prev) =>
-          !prev.length
-            ? (data as unknown as { args: `0x${string}`[] }[])
-            : prev,
-        );
+        setNewTokenForBuildingLogs((data as unknown as { args: `0x${string}`[] }[]))
       },
     });
   }, []);
 
   useEffect(() => {
+    console.log('tokens (00)', newTokenForBuildingLogs)
+
     setDeployedBuildingTokens(
       newTokenForBuildingLogs
         .map((log) => ({

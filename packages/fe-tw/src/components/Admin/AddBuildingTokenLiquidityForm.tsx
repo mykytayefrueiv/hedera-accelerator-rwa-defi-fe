@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import Select, { SingleValue } from "react-select";
 import { Formik, Form, Field } from "formik";
@@ -25,7 +25,10 @@ export function AddBuildingTokenLiquidityForm({
   const { buildings } = useBuildings();
   const { isAddingLiquidity, txHash, txError, addLiquidity } =
     useBuildingLiquidity();
-  const { deployedBuildingTokens } = useBuildingDetails(buildingAddress);
+  const [selectedBuildingAddress, setSelectedBuildingAddress] = useState<`0x${string}`>();
+  const address = buildingAddress || selectedBuildingAddress;
+  const { deployedBuildingTokens } = useBuildingDetails(address);
+  console.log('deployedBuildingTokens', deployedBuildingTokens);
 
   async function handleSubmit(
     values: {
@@ -44,7 +47,7 @@ export function AddBuildingTokenLiquidityForm({
       tokenAAmount,
       tokenBAmount,
     } = values;
-    const buildingAddressOneOf = buildingAddress || buildingAddressValue;
+    const buildingAddressOneOf = address || buildingAddressValue;
 
     if (
       !buildingAddressOneOf ||
@@ -74,10 +77,6 @@ export function AddBuildingTokenLiquidityForm({
         value: token.tokenAddress,
         label: token.tokenAddress,
       })),
-      {
-        value: USDC_ADDRESS,
-        label: "USDC",
-      },
     ],
     [deployedBuildingTokens],
   );
@@ -128,7 +127,8 @@ export function AddBuildingTokenLiquidityForm({
                   onChange={(
                     option: SingleValue<{ value: string; label: string }>,
                   ) => {
-                    setFieldValue("buildingAddress", option?.value || "");
+                    setFieldValue("buildingAddress", option?.value as `0x${string}`);
+                    setSelectedBuildingAddress(option?.value as `0x${string}`);
                   }}
                   value={buildingSelectOptions.find(
                     (opt) => opt.value === values.buildingAddress,
@@ -185,7 +185,12 @@ export function AddBuildingTokenLiquidityForm({
                 styles={colourStyles}
                 className="mt-2"
                 placeholder="Pick Token B"
-                options={tokenSelectOptions}
+                options={[
+                  {
+                    value: USDC_ADDRESS,
+                    label: "USDC",
+                  }
+                ]}
                 onChange={(
                   option: SingleValue<{ value: string; label: string }>,
                 ) => {
@@ -205,7 +210,7 @@ export function AddBuildingTokenLiquidityForm({
               <Field
                 name="tokenBAmount"
                 className="input input-bordered w-full mt-2"
-                placeholder="e.g. 1"
+                placeholder="e.g. 100"
               />
             </div>
 
@@ -237,15 +242,17 @@ export function AddBuildingTokenLiquidityForm({
       </Formik>
 
       {txHash && (
-        <div className="mt-4 text-sm text-gray-700">
-          Liquidity Tx Hash: <span className="font-bold">{txHash}</span>
+        <div className="mt-4">
+          <span className="text-xs text-purple-600">
+            Add Liquidity Success, Tx Hash: {txHash}
+          </span>
         </div>
       )}
       {txError && (
-        <div className="flex mt-5">
-          <p className="text-sm font-bold text-purple-600">
-            Deployed Tx Error: {txError}
-          </p>
+        <div className="mt-4" style={{ maxWidth: 200 }}>
+          <span className="text-xs text-purple-600">
+            Add Liquidity Tx Error: {txError}
+          </span>
         </div>
       )}
     </div>
