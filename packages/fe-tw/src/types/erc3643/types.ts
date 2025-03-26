@@ -182,6 +182,11 @@ export type SwapUniswapTokensRequestBody = {
   deadline?: number;
 };
 
+export type MintRequestPayload = {
+  token: string;
+  amount: string;
+};
+
 export type TradeFormPayload = {
   amount?: string;
   tokenA?: `0x${string}`;

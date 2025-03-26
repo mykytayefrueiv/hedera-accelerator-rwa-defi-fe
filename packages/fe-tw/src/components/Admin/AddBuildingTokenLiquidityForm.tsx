@@ -13,7 +13,7 @@ import { USDC_ADDRESS } from "@/services/contracts/addresses";
 
 type Props = {
   buildingAddress?: `0x${string}`;
-  onGetDeployBuildingTokenView: () => void;
+  onGetDeployBuildingTokenView?: () => void;
   onGetDeployATokenView?: () => void;
 };
 
@@ -90,11 +90,11 @@ export function AddBuildingTokenLiquidityForm({
 
   return (
     <div className="bg-white rounded-lg p-8 border border-gray-300">
-      <BackButton
+      {!!onGetDeployBuildingTokenView && <BackButton
         onHandlePress={() => {
           onGetDeployBuildingTokenView();
         }}
-      />
+      />}
 
       <h3 className="text-xl font-semibold mt-5 mb-5">
         Add Liquidity for Building Tokens
