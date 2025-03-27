@@ -1,5 +1,6 @@
 "use client";
 
+import { ethers } from "ethers";
 import React, { useState, useMemo } from "react";
 import { toast } from "react-hot-toast";
 import Select from "react-select";
@@ -28,6 +29,10 @@ export default function TradeFormUniswapPool({ buildingTokenOptions }: Props) {
   const { handleSwap, getAmountsOut, giveAllowance } = useUniswapTradeSwaps();
   const [txResult, setTxResult] = useState<string>();
   const [txError, setTxError] = useState<string>();
+  const [swapTokensAmountOutput, setSwapTokensAmountOutput] = useState<{
+    amountA: bigint,
+    amountB: bigint,
+  }>();
 
   const buildingTokensOptions = useMemo(
     () =>
@@ -42,6 +47,10 @@ export default function TradeFormUniswapPool({ buildingTokenOptions }: Props) {
     values: TradeFormPayload,
     resetForm: () => void,
   ) => {
+    setTxError(undefined);
+    setTxResult(undefined);
+    setSwapTokensAmountOutput(undefined);
+
     const amountA = values.amount;
     const tokenB = values.tokenB;
     const tokenA = values.tokenA;
@@ -60,7 +69,7 @@ export default function TradeFormUniswapPool({ buildingTokenOptions }: Props) {
 
       const { data: outputAmounts, error: outputAmountsError } = await tryCatch(
         getAmountsOut(
-          BigInt(Math.floor(parseFloat(amountA!) * 10 ** tokenADecimals)),
+          BigInt(Math.floor(parseFloat(amountA) * 10 ** tokenADecimals)),
           [tokenA!, tokenB!],
         ),
       );
@@ -69,24 +78,40 @@ export default function TradeFormUniswapPool({ buildingTokenOptions }: Props) {
         toast.error("Failed to swap tokens - falied calculate output amounts");
         setTxError("Failed to swap tokens - falied calculate output amounts");
         return;
+      } else if (outputAmounts) {
+        if (!outputAmounts[1]) {
+          toast.error("Failed to swap tokens - tokens input amount must be adjusted");
+          setTxError("Failed to swap tokens - tokens input amount must be adjusted");
+          return;
+        }
+
+        setSwapTokensAmountOutput({
+          amountA: outputAmounts[0],
+          amountB: outputAmounts[1],
+        });
       }
 
-      resetForm();
-
-      await giveAllowance(tokenA, outputAmounts[0]);
-      await giveAllowance(tokenB, outputAmounts[1]);
-
-      const transaction_id = await handleSwap({
-        amountIn: outputAmounts[0],
-        amountOut: outputAmounts[1],
-        path: [tokenA, tokenB],
-        deadline: Date.now() + (values.autoRevertsAfter ?? oneHourTimePeriod),
-      });
-
-      toast.success(
-        `Successfully trade ${amountA} tokens of token ${tokenA} for ${tokenB}!`,
-      );
-      setTxResult(transaction_id);
+      try {
+        await giveAllowance(tokenA, outputAmounts[0]);
+        await giveAllowance(tokenB, outputAmounts[1]);
+  
+        const transaction_id = await handleSwap({
+          amountIn: outputAmounts[0],
+          amountOut: outputAmounts[1],
+          path: [tokenA, tokenB],
+          deadline: Date.now() + (values.autoRevertsAfter ?? oneHourTimePeriod),
+        });
+  
+        toast.success(
+          `Successfully trade ${amountA} tokens of token ${tokenA} for ${tokenB}!`,
+        );
+        setTxResult(transaction_id);
+      } catch (err) {
+        toast.error(`Error swapping tokens ${err?.toString()}`);
+        setTxError((err as { args: string[] }).args[0]);
+      } finally {
+        resetForm();
+      }
     }
   };
 
@@ -204,6 +229,14 @@ export default function TradeFormUniswapPool({ buildingTokenOptions }: Props) {
           </Form>
         )}
       </Formik>
+
+      {!!swapTokensAmountOutput && (
+        <div className="flex flex-col gap-1 mt-5">
+          <span className="text-sm text-purple-600">Tokens A amount out: {ethers.formatUnits(swapTokensAmountOutput.amountA)}</span>
+          <span className="text-sm text-purple-600">Tokens B amount out: {ethers.formatUnits(swapTokensAmountOutput.amountB, 6)}</span>
+        </div>
+      )}
+
       {txResult && (
         <div className="flex mt-5">
           <p className="text-sm font-bold text-purple-600">
@@ -211,6 +244,7 @@ export default function TradeFormUniswapPool({ buildingTokenOptions }: Props) {
           </p>
         </div>
       )}
+
       {txError && (
         <div className="flex mt-5">
           <p className="text-sm font-bold text-purple-600">
