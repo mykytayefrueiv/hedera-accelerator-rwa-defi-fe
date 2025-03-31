@@ -8,7 +8,6 @@ import { toast } from "react-hot-toast";
 import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
 import { BUILDING_FACTORY_ADDRESS } from "@/services/contracts/addresses";
-import { buildingAbi } from "@/services/contracts/abi/buildingAbi";
 import { GovernancePayload, TreasuryPayload } from "@/types/erc3643/types";
 
 export const useGovernanceAndTreasuryDeployment = (buildingAddress?: `0x${string}`, buildingTokenAddress?: `0x${string}`) => {
@@ -20,11 +19,9 @@ export const useGovernanceAndTreasuryDeployment = (buildingAddress?: `0x${string
     useEffect(() => {
         watchContractEvent({
             address: BUILDING_FACTORY_ADDRESS as `0x${string}`,
-            abi: buildingAbi,
+            abi: buildingFactoryAbi,
             eventName: 'NewGovernance',
             onLogs: (data) => {
-                console.log('NewGovernance', data);
-
                 const buildingGovernance: any = data.find((log: any) => log.args[1] === buildingAddress);
 
                 if (buildingGovernance) {
@@ -35,11 +32,9 @@ export const useGovernanceAndTreasuryDeployment = (buildingAddress?: `0x${string
 
         watchContractEvent({
             address: BUILDING_FACTORY_ADDRESS as `0x${string}`,
-            abi: buildingAbi,
+            abi: buildingFactoryAbi,
             eventName: 'NewTreasury',
             onLogs: (data) => {
-                console.log('NewTreasury', data);
-
                 const buildingTreasury: any = data.find((log: any) => log.args[1] === buildingAddress);
 
                 if (buildingTreasury) {

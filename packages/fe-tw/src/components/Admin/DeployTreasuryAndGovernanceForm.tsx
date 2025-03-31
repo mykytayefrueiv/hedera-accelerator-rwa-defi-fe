@@ -25,7 +25,7 @@ export const DeployTreasuryAndGovernanceForm = ({ buildingAddress, buildingToken
     
     const { deployBuildingGovernance, deployBuildingTreasury, treasuryAddress, governanceAddress } =
         useGovernanceAndTreasuryDeployment(buildingAddress, buildingTokenAddress);
-    
+
     const handleDeployBuildingTreasury = async (values: TreasuryPayload) => {
         try {
             const tx = await deployBuildingTreasury(values);
@@ -48,10 +48,10 @@ export const DeployTreasuryAndGovernanceForm = ({ buildingAddress, buildingToken
     };
 
     useEffect(() => {
-        if (!!treasuryAddress && buildingTokenAddress) {
+        if (!!buildingTokenAddress && !!treasuryAddress) {
             setFormIndex(1);
         }
-    }, [treasuryAddress, buildingTokenAddress]);
+    }, [treasuryAddress, governanceAddress, buildingTokenAddress]);
 
     return (
             <div className="mt-10 bg-white p-6 border rounded-lg">
@@ -59,13 +59,8 @@ export const DeployTreasuryAndGovernanceForm = ({ buildingAddress, buildingToken
                     {formIndex === 0 ? 'Deploy Treasury' : 'Deploy Governance'}
                 </h3>
                 {!buildingTokenAddress && (
-                    <div className="mt-5 mb-5 bg-red-200 p-5">
+                    <div className="bg-red-200 p-5 mt-5 mb-5">
                         <p className="text-sm">In order to deploy treasury and governance deploy building ERC3643 token first.</p>
-                    </div>
-                )}
-                {formIndex === 1 && governanceAddress && (
-                    <div className="mt-5 mb-5 bg-red-200 p-5">
-                        <p className="text-sm">Governance already deployed to address {governanceAddress}.</p>
                     </div>
                 )}
                 {formIndex === 0 ? (
@@ -111,7 +106,7 @@ export const DeployTreasuryAndGovernanceForm = ({ buildingAddress, buildingToken
                             </Form>
                         )}
                     </Formik>
-                ): (
+                ): !governanceAddress && (
                     <Formik
                         initialValues={initialValuesGovernance}
                         validationSchema={Yup.object({
@@ -143,10 +138,16 @@ export const DeployTreasuryAndGovernanceForm = ({ buildingAddress, buildingToken
                     </Formik>    
                 )}
                 {treasuryAddress && <div className="mt-5">
-                    <p className="text-sm text-orange-900">Treasury address: {treasuryAddress}</p>
+                   <p className="text-sm text-orange-900">
+                        Treasury address: 
+                        <span className="font-bold">{treasuryAddress}</span>
+                    </p>
                 </div>}
                 {governanceAddress && <div className="mt-5">
-                    <p className="text-sm text-orange-900">Governance address: {governanceAddress}</p>
+                    <p className="text-sm text-orange-900">
+                        Governance address: 
+                        <span className="font-bold">{governanceAddress}</span>
+                    </p>
                 </div>}
                 {txSuccess && (
                     <div className="mt-5 text-sm text-gray-700">
