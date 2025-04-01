@@ -9,8 +9,10 @@ import Select from "react-select";
 import * as Yup from "yup";
 
 type Props = {
-  onGetLiquidityView: (address: `0x${string}`) => void;
-  onGetDeployBuildingView?: () => void;
+  buildingAddress?: `0x${string}`;
+  onGetNextStep: () => void;
+  onGetPrevStep?: () => void;
+  setSelectedBuildingAddress: (buildingAddress: `0x${string}`) => void;
 };
 
 const initialValues = {
@@ -42,21 +44,20 @@ const colourStyles = {
 };
 
 export const DeployBuildingERC3643TokenForm = ({
-  onGetLiquidityView,
-  onGetDeployBuildingView,
+  onGetNextStep,
+  setSelectedBuildingAddress,
+  buildingAddress,
 }: Props) => {
-  const [selectedBuildingAddress, setSelectedBuildingAddress] =
-    useState<`0x${string}`>();
   const [txError, setTxError] = useState<string>();
   const [txResult, setTxResult] = useState<string>();
   const [loading, setLoading] = useState(false);
 
   const { buildings } = useBuildings();
   const { deployedBuildingTokens } = useBuildingDetails(
-    selectedBuildingAddress as `0x${string}`,
+    buildingAddress as `0x${string}`,
   );
   const { createBuildingERC3643Token } = useBuildingAdmin(
-    selectedBuildingAddress as `0x${string}`,
+    buildingAddress as `0x${string}`,
   );
 
   const handleSubmit = async (values: CreateERC3643RequestBody) => {
@@ -64,7 +65,12 @@ export const DeployBuildingERC3643TokenForm = ({
 
     try {
       const tx = await createBuildingERC3643Token(values);
+
       setTxResult(tx);
+
+      setTimeout(() => {
+        onGetNextStep();
+      }, 10000);
     } catch (err) {
       setTxError("Deploy of building token failed!");
     }
@@ -164,6 +170,14 @@ export const DeployBuildingERC3643TokenForm = ({
           <div className="flex gap-5 mt-5">
             <button className="btn btn-primary pr-10 pl-10" type="submit">
               {loading ? <span className="loading loading-spinner"/>: "Deploy Token"}
+            </button>
+            <button
+              className="btn btn-primary pr-10 pl-10"
+              type="button"
+              onClick={() => onGetNextStep()}
+              disabled={!deployedBuildingTokens?.[0]?.tokenAddress}
+            >
+              Deploy Treasury & Governance
             </button>
 
             {/*<Button*/}

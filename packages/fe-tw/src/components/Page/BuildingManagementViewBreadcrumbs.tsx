@@ -6,6 +6,7 @@ type Props = {
   onGetDeployBuilding: () => void;
   onGetDeployAToken: () => void;
   onGetDeployGovernance: () => void;
+  onGetDeployERC3643Token: () => void;
   activeStepOn: number;
 };
 
@@ -13,6 +14,7 @@ export const BuildingManagementViewBreadcrumbs = ({
   onGetDeployAToken,
   onGetDeployBuilding,
   onGetDeployGovernance,
+  onGetDeployERC3643Token,
   activeStepOn,
 }: Props) => {
   const activeTextStyle = "flex items-center text-purple-800 hover:underline";
@@ -29,15 +31,21 @@ export const BuildingManagementViewBreadcrumbs = ({
           </p>
         </li>
         {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+        <li onClick={onGetDeployERC3643Token}>
+          <p className={activeStepOn === 6 ? activeTextStyle : textStyle}>
+            <span>Deploy ERC3643 Token</span>
+          </p>
+        </li>
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+        <li onClick={onGetDeployGovernance}>
+          <p className={activeStepOn === 6 ? activeTextStyle : textStyle}>
+            <span>Deploy Governance & Treasury</span>
+          </p>
+        </li>
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
         <li onClick={onGetDeployAToken}>
           <p className={activeStepOn === 6 ? activeTextStyle : textStyle}>
             <span>Deploy A Token</span>
-          </p>
-        </li>
-         {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
-         <li onClick={onGetDeployGovernance}>
-          <p className={activeStepOn === 6 ? activeTextStyle : textStyle}>
-            <span>Deploy Governance & Treasury</span>
           </p>
         </li>
       </ul>

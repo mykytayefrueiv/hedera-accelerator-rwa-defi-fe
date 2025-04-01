@@ -10,9 +10,9 @@ import { toast } from "react-hot-toast";
 import Select, { type SingleValue } from "react-select";
 
 type Props = {
-  buildingAddress: `0x${string}`;
-  onGetDeployBuildingTokenView: () => void;
-  onGetDeployATokenView: () => void;
+  buildingAddress?: `0x${string}`;
+  onGetPrevStep: () => void;
+  onGetNextStep: () => void;
 };
 
 const colourStyles = {
@@ -38,8 +38,8 @@ const colourStyles = {
 };
 
 export function AddBuildingTokenLiquidityForm({
-  onGetDeployBuildingTokenView,
-  onGetDeployATokenView,
+  onGetPrevStep,
+  onGetNextStep,
   buildingAddress,
 }: Props) {
   const { buildings } = useBuildings();
@@ -87,7 +87,7 @@ export function AddBuildingTokenLiquidityForm({
 
     actions.resetForm();
 
-    onGetDeployATokenView();
+    onGetNextStep();
   }
 
   const tokenSelectOptions = useMemo(
@@ -115,7 +115,7 @@ export function AddBuildingTokenLiquidityForm({
     <div className="bg-white rounded-lg p-8 border border-gray-300">
       <BackButton
         onHandlePress={() => {
-          onGetDeployBuildingTokenView();
+          onGetPrevStep();
         }}
       />
 
@@ -275,9 +275,9 @@ export function AddBuildingTokenLiquidityForm({
                 <button
                     className="btn pr-20 pl-20"
                     type="button"
-                    onClick={() => onGetDeployATokenView()}
+                    onClick={() => onGetNextStep()}
                 >
-                    To Vault/Compounder Deploy
+                  Deploy Vault/Compounder
                 </button>
             </div>
           </Form>

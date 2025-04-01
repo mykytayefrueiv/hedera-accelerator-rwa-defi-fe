@@ -4,7 +4,6 @@ import { BuildingDetailInfo } from "./BuildingDetailInfo";
 import { BuildingSlices } from "./BuildingSlices";
 import { BuildingVotes } from "./BuildingVotes";
 import { useBuildingDetails } from "@/hooks/useBuildingDetails";
-import { DeployTreasuryAndGovernanceForm } from "@/components/Admin/DeployTreasuryAndGovernanceForm";
 
 export const BuildingDetailPage = (props: BuildingData) => {
 	const { deployedBuildingTokens } = useBuildingDetails(
@@ -21,10 +20,6 @@ export const BuildingDetailPage = (props: BuildingData) => {
 			{props.partOfSlices?.length > 0 && (
 				<BuildingSlices slices={props.partOfSlices} />
 			)}
-			<DeployTreasuryAndGovernanceForm
-				buildingAddress={props.address}
-				buildingTokenAddress={deployedBuildingTokens[0]?.tokenAddress}
-			/>
 		</div>
 	);
 };

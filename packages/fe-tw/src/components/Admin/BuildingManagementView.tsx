@@ -78,29 +78,25 @@ export function BuildingManagementView() {
     if (currentSetupStep === 4) {
       return (
         <DeployBuildingERC3643TokenForm
-          onGetLiquidityView={(buildingAddress) => {
+          onGetNextStep={() => {
             setCurrentSetupStep(5);
-            setSelectedBuildingAddress(buildingAddress);
           }}
-          onGetDeployBuildingView={() => {
+          onGetPrevStep={() => {
             setCurrentSetupStep(3);
           }}
+          setSelectedBuildingAddress={(address) => {
+            setSelectedBuildingAddress(address);
+          }}
+          buildingAddress={selectedBuildingAddress}
         />
       );
     }
 
-    // Step 5: Add Liquidity
     if (currentSetupStep === 5) {
       return (
-        <AddBuildingTokenLiquidityForm
-          buildingAddress={
-            selectedBuildingAddress ||
-            "0x0000000000000000000000000000000000000001"
-          }
-          onGetDeployBuildingTokenView={() => {
-            setCurrentSetupStep(4);
-          }}
-          onGetDeployATokenView={() => {
+        <DeployTreasuryAndGovernanceForm
+          buildingAddress={selectedBuildingAddress}
+          onGetNextStep={() => {
             setCurrentSetupStep(6);
           }}
         />
@@ -108,14 +104,21 @@ export function BuildingManagementView() {
     }
 
     if (currentSetupStep === 6) {
-      return <DeployBuildingVaultCompounderForm />;
+      return (
+        <AddBuildingTokenLiquidityForm
+          buildingAddress={selectedBuildingAddress}
+          onGetPrevStep={() => {
+            setCurrentSetupStep(5);
+          }}
+          onGetNextStep={() => {
+            setCurrentSetupStep(7);
+          }}
+        />
+      );
     }
 
     if (currentSetupStep === 7) {
-      return <DeployTreasuryAndGovernanceForm
-        buildingAddress={selectedBuildingAddress}
-        buildingTokenAddress={deployedBuildingTokens[0]?.tokenAddress}
-      />;
+      return <DeployBuildingVaultCompounderForm />;
     }
   }, [
     currentSetupStep,
@@ -133,8 +136,11 @@ export function BuildingManagementView() {
         onGetDeployBuilding={() => {
           setCurrentSetupStep(1);
         }}
+        onGetDeployERC3643Token={() => {
+          setCurrentSetupStep(4);
+        }}
         onGetDeployGovernance={() => {
-          setCurrentSetupStep(7)
+          setCurrentSetupStep(7);
         }}
         activeStepOn={currentSetupStep}
       />

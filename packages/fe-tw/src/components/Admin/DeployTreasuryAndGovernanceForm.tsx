@@ -3,10 +3,12 @@ import { GovernancePayload, TreasuryPayload } from "@/types/erc3643/types";
 import { Formik, Field, Form } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
+import toast from "react-hot-toast";
+import { useBuildingDetails } from "@/hooks/useBuildingDetails";
 
 type Props = {
     buildingAddress?: `0x${string}`,
-    buildingTokenAddress?: `0x${string}`,
+    onGetNextStep: () => void,
 }
 
 const initialValuesGovernance = {
@@ -18,32 +20,49 @@ const initialValuesTreasury = {
     npercentage: '',
 };
 
-export const DeployTreasuryAndGovernanceForm = ({ buildingAddress, buildingTokenAddress }: Props) => {
-    const [txError, setTxError] = useState<string>();
-    const [txSuccess, setTxSuccess] = useState<string>();
+export const DeployTreasuryAndGovernanceForm = ({ buildingAddress, onGetNextStep }: Props) => {
     const [formIndex, setFormIndex] = useState<number>(0);
-    
+    const { deployedBuildingTokens } = useBuildingDetails(buildingAddress);
+    const buildingTokenAddress = deployedBuildingTokens?.[0]?.tokenAddress;
+
     const { deployBuildingGovernance, deployBuildingTreasury, treasuryAddress, governanceAddress } =
         useGovernanceAndTreasuryDeployment(buildingAddress, buildingTokenAddress);
 
     const handleDeployBuildingTreasury = async (values: TreasuryPayload) => {
         try {
             const tx = await deployBuildingTreasury(values);
+            toast.success(tx, {
+                icon: "✅",
+                style: { maxWidth: "unset" },
+                duration: 10000,
+            });
 
-            setTxSuccess(tx);
             setFormIndex(1);
         } catch (err) {
-            setTxError((err as { message: string })?.message);
+            toast.error((err as { message: string })?.message, {
+                icon: "❌",
+                style: { maxWidth: "unset" },
+            });
         }
     };
 
     const handleDeployBuildingGovernance = async (values: GovernancePayload) => {
         try {
             const tx = await deployBuildingGovernance(values);
+            toast.success(tx, {
+                icon: "✅",
+                style: { maxWidth: "unset" },
+                duration: 10000,
+            });
 
-            setTxSuccess(tx);
+            setTimeout(() => {
+                onGetNextStep();
+            }, 10000);
         } catch (err) {
-            setTxError((err as { message: string })?.message);
+            toast.error((err as { message: string })?.message, {
+                icon: "❌",
+                style: { maxWidth: "unset" },
+            });
         }
     };
 
@@ -54,8 +73,8 @@ export const DeployTreasuryAndGovernanceForm = ({ buildingAddress, buildingToken
     }, [treasuryAddress, governanceAddress, buildingTokenAddress]);
 
     return (
-            <div className="mt-10 bg-white p-6 border rounded-lg">
-                <h3 className="text-xl font-semibold mb-4">
+            <div className="mt-10 bg-white p-8 border rounded-lg">
+                <h3 className="text-xl font-semibold mb-5">
                     {formIndex === 0 ? 'Deploy Treasury' : 'Deploy Governance'}
                 </h3>
                 {!buildingTokenAddress && (
@@ -126,39 +145,48 @@ export const DeployTreasuryAndGovernanceForm = ({ buildingAddress, buildingToken
                                         placeholder="E.g: MyGov"
                                     />
                                 </div>
-                                <button
-                                    className="btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg bg-purple-600 text-white rounded-full hover:bg-purple-700"
-                                    type="submit"
-                                    disabled={!isValid}
-                                >
-                                    Deploy
-                                </button>
+                                <div className="flex gap-5 mt-5">
+                                    <button
+                                        className="btn btn-primary bg-purple-600 text-white rounded-full"
+                                        type="submit"
+                                        disabled={!isValid}
+                                    >
+                                        Deploy
+                                    </button>
+                                    <button
+                                        className="btn btn-primary bg-purple-600 text-white rounded-full"
+                                        type="button"
+                                        onClick={() => onGetNextStep()}
+                                    >
+                                        Add Liquidity
+                                    </button>
+                                </div>
                             </Form>
                         )}
                     </Formik>    
                 )}
-                {treasuryAddress && <div className="mt-5">
-                   <p className="text-sm text-orange-900">
-                        Treasury address: 
-                        <span className="font-bold">{treasuryAddress}</span>
-                    </p>
+                {treasuryAddress && <div className="mt-2 text-sm text-purple-700" onClick={() => {
+                    navigator.clipboard.writeText(treasuryAddress);
+                    
+                    toast.success("Address copied!", {
+                        icon: "✅",
+                        style: { maxWidth: "unset" },
+                        duration: 5000,
+                    });
+                }}>
+                    Treasury Address: <span className="font-bold cursor-pointer">{treasuryAddress}</span>
                 </div>}
-                {governanceAddress && <div className="mt-5">
-                    <p className="text-sm text-orange-900">
-                        Governance address: 
-                        <span className="font-bold">{governanceAddress}</span>
-                    </p>
+                {governanceAddress && <div className="mt-2 text-sm text-purple-700"  onClick={() => {
+                    navigator.clipboard.writeText(governanceAddress);
+                    
+                    toast.success("Address copied!", {
+                        icon: "✅",
+                        style: { maxWidth: "unset" },
+                        duration: 5000,
+                    });
+                }}>
+                    Governance Address: <span className="font-bold cursor-pointer">{governanceAddress}</span>
                 </div>}
-                {txSuccess && (
-                    <div className="mt-5 text-sm text-gray-700">
-                        Tx Hash: <span className="font-bold">{txSuccess}</span>
-                    </div>
-                )}
-                {txError && (
-                    <div className="mt-5 text-sm text-gray-700">
-                        Tx Error: <span className="font-bold">{txError}</span>
-                    </div>
-                )}
             </div>
     );
 };
