@@ -7,6 +7,7 @@ type Props = {
   onGetDeployAToken: () => void;
   onGetDeployGovernance: () => void;
   onGetDeployERC3643Token: () => void;
+  onGetAddLiquidity: () => void,
   activeStepOn: number;
 };
 
@@ -15,6 +16,7 @@ export const BuildingManagementViewBreadcrumbs = ({
   onGetDeployBuilding,
   onGetDeployGovernance,
   onGetDeployERC3643Token,
+  onGetAddLiquidity,
   activeStepOn,
 }: Props) => {
   const activeTextStyle = "flex items-center text-purple-800 hover:underline";
@@ -46,6 +48,11 @@ export const BuildingManagementViewBreadcrumbs = ({
         <li onClick={onGetDeployAToken}>
           <p className={activeStepOn === 6 ? activeTextStyle : textStyle}>
             <span>Deploy A Token</span>
+          </p>
+        </li>
+        <li onClick={onGetAddLiquidity}>
+          <p className={activeStepOn === 6 ? activeTextStyle : textStyle}>
+            <span>Add Liquidity</span>
           </p>
         </li>
       </ul>

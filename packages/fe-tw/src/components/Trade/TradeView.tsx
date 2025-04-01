@@ -1,44 +1,75 @@
 "use client";
 
-import TradeFormOneSidedExchange from "@/components/Trade/TradeFormOneSidedExchange";
 import TradeFormUniswapPool from "@/components/Trade/TradeFormUniswapPool";
 import TradePortfolio from "@/components/Trade/TradePortfolio";
 import { useSwapsHistory } from "@/hooks/useSwapsHistory";
+import { useBuildingDetails } from "@/hooks/useBuildingDetails";
 import type { BuildingData } from "@/types/erc3643/types";
+import { useState } from "react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 type Props = {
   building: BuildingData;
 };
 
-// todo: replace with real data and logic
-const isUniswapPage = false;
-const buildingTokensMock: `0x${string}`[] = [
-  "0xD42E127BDA83cC0761f87A4c0E4CF834Fd2E6085",
-  "0xF36e7F2cCEb7FF5B95796786817523082C700f18",
-];
 const tradeProfitDataMock = {
   dailyProfitInUSD: 100,
   weeklyProfitInUSD: 1000,
 };
 
+export type SwapType = 'uniswap' | 'oneSided';
+
+// TODO's
+// 1. Bring back TradeFormOneSidedExchange form
+// 2. Update tx results as links
 export default function TradeView({ building }: Props) {
-  const { oneSidedExchangeSwapsHistory } = useSwapsHistory();
+  const [currentTab, setCurrentTab] = useState<SwapType>('uniswap');
+  const { deployedBuildingTokens, tokenNames, tokenDecimals } = useBuildingDetails(
+    building.address as `0x${string}`,
+  );
+  const buildingTokens = deployedBuildingTokens.map(
+    (token) => token.tokenAddress,
+  );
+  const { oneSidedExchangeSwapsHistory, uniswapExchangeHistory } =
+    useSwapsHistory(buildingTokens, tokenDecimals);
 
   return (
-    <>
-      <div className="mt-8 flex flex-wrap flex-row gap-8 w-full">
-        {isUniswapPage ? (
+    <div className="mt-8 flex flex-row gap-8">
+      <Tabs className="w-full" value={currentTab}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="uniswap" onClick={() => {
+            setCurrentTab('uniswap');
+          }}>Uniswap</TabsTrigger>
+          <TabsTrigger value="oneSided" onClick={() => {
+            setCurrentTab('oneSided');
+          }}>One Sided Exchange</TabsTrigger>
+        </TabsList>
+        <TabsContent value="uniswap">
           <TradeFormUniswapPool
-            buildingAddress={building.address as `0x${string}`}
+            buildingTokenOptions={buildingTokens.map((tok) => ({
+              tokenName: tokenNames[tok],
+              tokenAddress: tok,
+            }))}
           />
-        ) : (
-          <TradeFormOneSidedExchange buildingTokens={buildingTokensMock} />
-        )}
-        <TradePortfolio
-          tradeHistory={oneSidedExchangeSwapsHistory}
-          tradeProfitData={tradeProfitDataMock}
-        />
-      </div>
-    </>
+        </TabsContent>
+        <TabsContent value="oneSided">
+          <p>This view is in progress</p>
+          {/** <TradeFormOneSidedExchange buildingTokens={buildingTokens} /> **/}
+        </TabsContent>
+      </Tabs>
+      <TradePortfolio
+               tradeHistory={
+                 currentTab === "uniswap"
+                   ? uniswapExchangeHistory
+                   : oneSidedExchangeSwapsHistory
+               }
+               tradeProfitData={tradeProfitDataMock}
+      />
+    </div>
   );
 }
