@@ -1,10 +1,13 @@
 import { useGovernanceAndTreasuryDeployment } from "@/hooks/useGovernanceAndTreasuryDeployment";
 import { GovernancePayload, TreasuryPayload } from "@/types/erc3643/types";
-import { Formik, Field, Form } from "formik";
+import { Button } from "@/components/ui/button";
+import { useBuildingDetails } from "@/hooks/useBuildingDetails";
+import { Formik, Form } from "formik";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
-import { useBuildingDetails } from "@/hooks/useBuildingDetails";
 
 type Props = {
     buildingAddress?: `0x${string}`,
@@ -91,37 +94,34 @@ export const DeployTreasuryAndGovernanceForm = ({ buildingAddress, onGetNextStep
                         })}
                         onSubmit={handleDeployBuildingTreasury}
                     >
-                        {({ isValid }) => (
+                        {({ isValid, getFieldProps }) => (
                             <Form className="space-y-4">
                                 <div>
-                                    <label className="block text-md font-semibold text-purple-400">
+                                    <Label htmlFor="reserve" className="text-gray-500 text-md block mb-1 font-semibold">
                                         Reserve
-                                    </label>
-                                    <Field
-                                        name="reserve"
+                                    </Label>
+                                    <Input
                                         type="text"
-                                        className="input input-bordered w-full mt-2"
                                         placeholder="E.g: 10"
+                                        {...getFieldProps('reserve')}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-md font-semibold text-purple-400">
-                                        NPercentage
-                                    </label>
-                                    <Field
-                                        name="npercentage"
+                                    <Label htmlFor="npercentage" className="text-gray-500 text-md block mb-1 font-semibold">
+                                       NPercentage
+                                    </Label>
+                                    <Input
                                         type="text"
-                                        className="input input-bordered w-full mt-2"
                                         placeholder="E.g: 10"
+                                        {...getFieldProps('npercentage')}
                                     />
                                 </div>
-                                <button
-                                    className="btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg bg-purple-600 text-white rounded-full hover:bg-purple-700"
+                                <Button
                                     type="submit"
                                     disabled={!isValid}
                                 >
                                     Deploy
-                                </button>
+                                </Button>
                             </Form>
                         )}
                     </Formik>
@@ -132,61 +132,61 @@ export const DeployTreasuryAndGovernanceForm = ({ buildingAddress, onGetNextStep
                             governanceName: Yup.string().required("Required"),
                         })}
                         onSubmit={handleDeployBuildingGovernance}>
-                        {({ isValid }) => (
+                        {({ isValid, getFieldProps }) => (
                             <Form className="space-y-4">
                                 <div>
-                                    <label className="block text-md font-semibold text-purple-400">
+                                    <Label htmlFor="governanceName" className="text-gray-500 text-md block mb-1 font-semibold">
                                         Governance Name
-                                    </label>
-                                    <Field
-                                        name="governanceName"
+                                    </Label>
+                                    <Input
                                         type="text"
-                                        className="input input-bordered w-full mt-2"
-                                        placeholder="E.g: MyGov"
+                                        placeholder="E.g: 10"
+                                        {...getFieldProps('governanceName')}
                                     />
                                 </div>
                                 <div className="flex gap-5 mt-5">
-                                    <button
-                                        className="btn btn-primary bg-purple-600 text-white rounded-full"
-                                        type="submit"
-                                        disabled={!isValid}
-                                    >
-                                        Deploy
-                                    </button>
-                                    <button
-                                        className="btn btn-primary bg-purple-600 text-white rounded-full"
+                                    <Button
+                                        variant="outline"
                                         type="button"
                                         onClick={() => onGetNextStep()}
                                     >
                                         Add Liquidity
-                                    </button>
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={!isValid}
+                                    >
+                                        Deploy
+                                    </Button>
                                 </div>
                             </Form>
                         )}
                     </Formik>    
                 )}
-                {treasuryAddress && <div className="mt-2 text-sm text-purple-700" onClick={() => {
-                    navigator.clipboard.writeText(treasuryAddress);
-                    
-                    toast.success("Address copied!", {
-                        icon: "✅",
-                        style: { maxWidth: "unset" },
-                        duration: 5000,
-                    });
-                }}>
-                    Treasury Address: <span className="font-bold cursor-pointer">{treasuryAddress}</span>
-                </div>}
-                {governanceAddress && <div className="mt-2 text-sm text-purple-700"  onClick={() => {
-                    navigator.clipboard.writeText(governanceAddress);
-                    
-                    toast.success("Address copied!", {
-                        icon: "✅",
-                        style: { maxWidth: "unset" },
-                        duration: 5000,
-                    });
-                }}>
-                    Governance Address: <span className="font-bold cursor-pointer">{governanceAddress}</span>
-                </div>}
+                <div className="mt-5 flex flex-col">
+                    {treasuryAddress && <div className="mt-2 text-sm text-purple-700" onClick={() => {
+                        navigator.clipboard.writeText(treasuryAddress);
+                        
+                        toast.success("Address copied!", {
+                            icon: "✅",
+                            style: { maxWidth: "unset" },
+                            duration: 5000,
+                        });
+                    }}>
+                        Treasury Address: <span className="font-bold cursor-pointer">{treasuryAddress}</span>
+                    </div>}
+                    {governanceAddress && <div className="mt-2 text-sm text-purple-700"  onClick={() => {
+                        navigator.clipboard.writeText(governanceAddress);
+                        
+                        toast.success("Address copied!", {
+                            icon: "✅",
+                            style: { maxWidth: "unset" },
+                            duration: 5000,
+                        });
+                    }}>
+                        Governance Address: <span className="font-bold cursor-pointer">{governanceAddress}</span>
+                    </div>}
+                </div>
             </div>
     );
 };

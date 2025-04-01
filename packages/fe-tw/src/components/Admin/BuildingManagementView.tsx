@@ -17,6 +17,7 @@ import { AdminInfoPanel } from "./AdminInfoPanel";
 import { DeployBuildingERC3643TokenForm } from "./DeployBuildingERC3643TokenForm";
 import { DeployBuildingVaultCompounderForm } from "./DeployBuildingVaultCompounderForm";
 import { Stepper, StepperSeparator, StepperStep } from "@/components/ui/stepper";
+import { DeployTreasuryAndGovernanceForm } from "./DeployTreasuryAndGovernanceForm";
 
 export function BuildingManagementView() {
    const { isConnected: isConnectedHashpack } = useWallet(HashpackConnector) || {};
@@ -56,6 +57,10 @@ export function BuildingManagementView() {
             <StepperSeparator />
             <StepperStep isSelected={currentSetupStep === 6} onClick={() => setCurrentSetupStep(6)}>
                6
+            </StepperStep>
+            <StepperSeparator />
+            <StepperStep isSelected={currentSetupStep === 7} onClick={() => setCurrentSetupStep(7)}>
+               7
             </StepperStep>
          </Stepper>
 
@@ -101,15 +106,19 @@ export function BuildingManagementView() {
                         }}
                      />
                   ) : currentSetupStep === 5 ? (
-                     <AddBuildingTokenLiquidityForm
+                     <DeployTreasuryAndGovernanceForm
                         buildingAddress={selectedBuildingAddress}
                         onGetNextStep={() => {
                            setCurrentSetupStep(6)
                         }}
-                        onGetPrevStep={() => {
-                           setCurrentSetupStep(4)
+                     /> 
+                  ) : currentSetupStep === 6 ? (
+                     <AddBuildingTokenLiquidityForm
+                        buildingAddress={selectedBuildingAddress}
+                        onGetNextStep={() => {
+                           setCurrentSetupStep(7)
                         }}
-                     />
+                     />             
                   ) : (
                      <DeployBuildingVaultCompounderForm />
                   )}
