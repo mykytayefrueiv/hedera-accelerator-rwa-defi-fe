@@ -1,4 +1,4 @@
-# 🏙️ Buildings "R" Us – Frontend
+# 🏙️ Hedera RWA DeFi Accelerator – Frontend
 
 Welcome to the frontend of the **Hedera RWA DeFi Accelerator** – a reference dApp for building, managing, and interacting with tokenized real estate assets on Web3. This is the user interface layer for a modular REIT system that models real estate as on-chain assets, designed with composability, investor accessibility, and DeFi integration in mind.
 
