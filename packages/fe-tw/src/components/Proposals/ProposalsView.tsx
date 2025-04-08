@@ -1,16 +1,15 @@
 "use client";
 
 import { activeProposals } from "@/consts/proposals";
-import { ProposalType } from "@/types/props";
-import { getCurrentDate, getFutureDate } from "@/utils/date";
 import { sortProposals } from "@/utils/sorting";
 import moment from "moment";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { CreateProposalForm } from "./CreateProposalForm";
 import { ProposalsList } from "./ProposalsList";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
 import {
    Select,
    SelectContent,
@@ -22,15 +21,24 @@ import {
    Dialog,
    DialogContent,
    DialogDescription,
-   DialogFooter,
    DialogHeader,
    DialogTitle,
 } from "@/components/ui/dialog";
+import { useBuildingDetails } from "@/hooks/useBuildingDetails";
+import { ethers } from "ethers";
+import { LoadingView } from "../LoadingView/LoadingView";
 
-export function ProposalsView() {
+type Props = {
+   buildingAddress: `0x${string}`,
+};
+
+export function ProposalsView(props: Props) {
    const [showModal, setShowModal] = useState(false);
+   const [pageLoading, setPageLoading] = useState(true);
    const now = moment();
-
+   const { replace } = useRouter();
+   const { buildingDetails, buildingDetailsLoading } = useBuildingDetails(props.buildingAddress);
+   
    const allActiveProposals = useMemo(
       () =>
          activeProposals.filter(
@@ -54,69 +62,20 @@ export function ProposalsView() {
       [allPastProposals, sortOption],
    );
 
-   const handleCreateProposal = (newProposal: {
-      title: string;
-      description: string;
-      propType: ProposalType;
-      amount?: number;
-      to?: string;
-      frequency?: number;
-      numPayments?: number;
-   }) => {
-      const newProposalId = activeProposals.length + 1;
+   const buildingGovernance: `0x${string}` | undefined = buildingDetails?.[0]?.[6];
 
-      if (newProposal.propType === ProposalType.RecurringProposal) {
-         activeProposals.push({
-            id: newProposalId,
-            title: newProposal.title,
-            description: newProposal.description,
-            propType: ProposalType.RecurringProposal,
-            started: getCurrentDate(),
-            expiry: getFutureDate(3),
-            votesYes: 0,
-            votesNo: 0,
-
-            amount: newProposal.amount ?? 0,
-            to: newProposal.to ?? "",
-            frequency: newProposal.frequency ?? 0,
-            numPayments: newProposal.numPayments ?? 0,
-            startPayment: getCurrentDate(),
-
-            imageUrl: "/assets/budget.jpeg",
-         });
-      } else if (newProposal.propType === ProposalType.PaymentProposal) {
-         activeProposals.push({
-            id: newProposalId,
-            title: newProposal.title,
-            description: newProposal.description,
-            propType: ProposalType.PaymentProposal,
-            started: getCurrentDate(),
-            expiry: getFutureDate(3),
-            votesYes: 0,
-            votesNo: 0,
-
-            amount: newProposal.amount ?? 0,
-            to: newProposal.to ?? "",
-            imageUrl: "/assets/budget.jpeg",
-         });
-      } else {
-         activeProposals.push({
-            id: newProposalId,
-            title: newProposal.title,
-            description: newProposal.description,
-            propType: ProposalType.TextProposal,
-            started: getCurrentDate(),
-            expiry: getFutureDate(3),
-            votesYes: 0,
-            votesNo: 0,
-            imageUrl: "/assets/budget.jpeg",
-         });
+   useEffect(() => {
+      if (!buildingDetailsLoading) {
+         if (buildingGovernance === ethers.ZeroAddress) {
+            toast.warning("Governance needs to be deployed before you can start submitting proposals");
+            replace(`/admin/buildingmanagement?governance=true&bAddress=${props.buildingAddress}`);
+         } else {
+            setPageLoading(false);
+         }
       }
+   }, [buildingGovernance, buildingDetailsLoading]);
 
-      setShowModal(false);
-   };
-
-   return (
+   return pageLoading ? <LoadingView isLoading /> : (
       <div className="p-2">
          <Tabs defaultValue="active">
             <TabsList>
@@ -180,7 +139,9 @@ export function ProposalsView() {
                   </DialogDescription>
                </DialogHeader>
 
-               <CreateProposalForm onSubmit={handleCreateProposal} />
+               <CreateProposalForm onProposalSuccesseed={() => {
+                  setShowModal(false);
+               }} buildingGovernanceAddress={buildingGovernance!} />
             </DialogContent>
          </Dialog>
       </div>
