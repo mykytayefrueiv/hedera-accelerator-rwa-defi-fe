@@ -1,9 +1,9 @@
 "use client";
 
 import { Formik } from "formik";
-import Link from "next/link";
 import { useState } from "react";
-import some from "lodash/some";
+import { toast } from "sonner";
+import { Check, TriangleAlert, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Stepper,
@@ -20,53 +20,55 @@ import {
    DialogTitle,
 } from "@/components/ui/dialog";
 import { LoadingView } from "@/components/LoadingView/LoadingView";
-import { CreateSliceRequestBody } from "@/types/erc3643/types";
+import { CreateSliceRequestData, SliceDeploymentStep } from "@/types/erc3643/types";
 import { useCreateSlice } from "@/hooks/useCreateSlice";
-import { INITIAL_VALUES, STEPS, FRIENDLY_STEP_NAME, FRIENDLY_STEP_STATUS, VALIDATION_SCHEMA } from "./constants";
 import { AddSliceForm } from "./AddSliceForm";
 import { AddSliceAllocationForm } from "./AddSliceAllocationForm";
+import { INITIAL_VALUES, STEPS, FRIENDLY_STEP_NAME, FRIENDLY_STEP_STATUS, VALIDATION_SCHEMA } from "./constants";
 import { StepsStatus } from "../buildingManagement/types";
 
-type SliceDeploymentStep = 'slice' | 'sliceAllocation';
-
 const getCurrentStepState = (
-    isSelecte: boolean,
-    hasErrors: boolean,
-    sDirty: boolean,
+    isSelected: boolean,
+    errors: any,
+    touched: any,
     isSubmitting: boolean,
-    step: SliceDeploymentStep
+    step: SliceDeploymentStep,
 ): StepsStatus => {
-    if (step === 'slice') {
-        return StepsStatus.DEPLOYED;
+    if (isSelected && !isSubmitting) {
+        return StepsStatus.IN_PROGRESS;
+    }
+    
+    if (!!touched[step]) {
+        if (!!errors[step]) {
+            return StepsStatus.INVALID;
+        }
+
+        return StepsStatus.VALID;
     }
 
-    if (step === 'sliceAllocation') {
-        return StepsStatus.DEPLOYED;
-    }
-
-    return StepsStatus.IN_PROGRESS;
+    return StepsStatus.NOT_STARTED;
 };
 
-// className={cn(tokenDeployed && "opacity-50 pointer-events-none")}
 export const SliceManagement = () => {
     const [currentSetupStep, setCurrentSetupStep] = useState(1);
+    const [isModalOpened, setIsModalOpened] = useState(false);
     const [txResult, setTxResult] = useState<string>();
     const [txError, setTxError] = useState<string>();
     const [isTransactionInProgress, setIsTransactionInProgress] = useState<boolean>(false);
-    const { handleCreateSlice, addSliceAllocation } = useCreateSlice();
+    const { createSlice } = useCreateSlice();
         
-    // CreateSliceRequestBody
-    const handleSubmit = async (values: any) => {
+    const handleSubmit = async (values: CreateSliceRequestData) => {
         try {
-           setIsTransactionInProgress(true);
-           const txOrHash = await handleCreateSlice(values);
-  
-           // toast.success(`Slice ${values.name} created successfully`);
-           setTxResult(txOrHash);
+            setIsTransactionInProgress(true);
+            const txOrHash = await createSlice(values);
+    
+            toast.success(`Slice ${values.slice.name} created successfully`);
+                
+            setTxResult(txOrHash);
         } catch (err) {
-           setTxError((err as unknown as { message: string }).message);
+            setTxError((err as unknown as { message: string }).message);
         } finally {
-           setIsTransactionInProgress(false);
+            setIsTransactionInProgress(false);
         }
     };
     
@@ -91,8 +93,8 @@ export const SliceManagement = () => {
                             {STEPS.map((step, stepId) => {
                                 const currentState = getCurrentStepState(
                                     currentSetupStep === stepId + 1,
-                                    some(errors[step as SliceDeploymentStep], (_, value) => !!value),
-                                    some(touched[step as SliceDeploymentStep], (_, value) => !!value),
+                                    errors,
+                                    touched,
                                     isSubmitting,
                                     step as SliceDeploymentStep,
                                 );
@@ -125,7 +127,7 @@ export const SliceManagement = () => {
                             )}
                         </div>
 
-                        <div className="flex justify-end">
+                        <div className="flex justify-end mt-10">
                             {currentSetupStep === 1 ? (
                                 <Button
                                     size="lg"
@@ -146,46 +148,30 @@ export const SliceManagement = () => {
                 </Formik>
             )}
 
-            {/** <Dialog open={isModalOpened} onOpenChange={(state) => setIsModalOpened(state)}>
+            <Dialog open={isModalOpened} onOpenChange={(state) => setIsModalOpened(state)}>
                 <DialogContent onInteractOutside={(e) => e.preventDefault()}>
-                <DialogHeader>
-                    <DialogTitle>
-                        {error
-                            ? "Error occurred"
-                            : `${MAJOR_STEP_TO_FRIENDLY_NAME[majorDeploymentStep]} Deployment`}
-                    </DialogTitle>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {txError ? "Error occurred" : "Deployment..."}
+                        </DialogTitle>
 
-                    <DialogDescription className="flex flex-col justify-center text-xl items-center gap-4 p-10">
-                        {result ? (
-                            <Check size={64} className="text-violet-500" />
-                        ) : error ? (
-                            <TriangleAlert size={64} className="text-red-500" />
-                        ) : (
-                            <Loader size={64} className="animate-spin" />
-                        )}
-                        {result ? (
-                            <>
-                            <span>
-                                Deployment of the building and its parts was successful!
-                                <br />
-                                One step remains to be done - you need to add&nbsp;
-                                <Link
-                                    className="underline font-semibold"
-                                    href={`/building/${result.buildingAddress}/liquidity`}
-                                >
-                                    liquidity
-                                </Link>
-                            </span>
-                            </>
-                        ) : error ? (
-                            ERROR_TO_DESCRIPTION[error]
-                        ) : (
-                            MINOR_STEP_TO_FRIENDLY_NAME[majorDeploymentStep][minorDeploymentStep]
-                        )}
-                    </DialogDescription>
-                </DialogHeader>
+                        <DialogDescription className="flex flex-col justify-center text-xl items-center gap-4 p-10">
+                            {txResult ? (
+                                <Check size={64} className="text-violet-500" />
+                            ) : txError ? (
+                                <TriangleAlert size={64} className="text-red-500" />
+                            ) : (
+                                <Loader size={64} className="animate-spin" />
+                            )}
+                            {txResult ? (
+                                <span>
+                                    Deployment of the slice and its parts was successful!
+                                </span>
+                            ) : txError}
+                        </DialogDescription>
+                    </DialogHeader>
                 </DialogContent>
-            </Dialog> **/}
+            </Dialog>
         </div>
     );
 }

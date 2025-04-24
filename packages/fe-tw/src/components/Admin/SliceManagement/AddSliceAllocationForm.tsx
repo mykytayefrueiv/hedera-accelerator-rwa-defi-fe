@@ -1,6 +1,6 @@
 import { useATokenVaultData } from "@/hooks/vault/useATokenVaultData";
 import React from "react";
-import { useFormikContext } from "formik";
+import { useFormikContext, Form } from "formik";
 import { Label } from "@/components/ui/label";
 import { FormInput } from "@/components/ui/formInput";
 import {
@@ -20,34 +20,28 @@ export const AddSliceAllocationForm = () => {
    const { autoCompounders } = useATokenVaultData();
 
    return (
-      <div>
+      <Form className="grid grid-cols-2 gap-4">
          <div>
-            <div className="flex items-center gap-2">
-               <h2 className="text-xl font-semibold">Slice Allocation</h2>
-               {/** tokenDeployed && <CheckCheck /> **/}
-            </div>
-            <div className="grid grid-cols-2 gap-4 mt-5">
-               <div>
-                  <FormInput
-                     required
-                     label="Token Allocation (%)"
-                     placeholder="e.g. Allocation"
-                     className="mt-1"
-                     error={
-                        formik.touched?.sliceAllocation?.allocation ? formik.errors?.sliceAllocation?.allocation : undefined
-                     }
-                     {...formik.getFieldProps("sliceAllocation.allocation")}
-                  />
-               </div>
-               <div>
-                  <Label htmlFor="tokenAsset">Token Asset (Auto Compounder Token)</Label>
-                  <Select
-                     {...formik.getFieldProps("sliceAllocation.tokenAsset")}
-                     name="tokenAsset"
-                     onValueChange={(value) => formik.setFieldValue("sliceAllocation.tokenAsset", value)}
-                  >
-                     <SelectTrigger className="w-full mt-1">
-                        <SelectValue placeholder="Token Asset" />
+            <FormInput
+               required
+               label="Token Allocation (%)"
+               placeholder="e.g. Allocation"
+               className="mt-1"
+               error={
+                  formik.touched?.sliceAllocation?.allocation ? formik.errors?.sliceAllocation?.allocation : undefined
+               }
+               {...formik.getFieldProps("sliceAllocation.allocation")}
+            />
+         </div>
+            <div>
+               <Label htmlFor="tokenAsset">Token Asset (Auto Compounder Token)</Label>
+               <Select
+                  onValueChange={(value) => formik.setFieldValue("sliceAllocation.tokenAsset", value)}
+                  required
+                  value={formik.values.sliceAllocation?.tokenAsset}
+               >
+                  <SelectTrigger className="w-full mt-1">
+                     <SelectValue placeholder="Token Asset" />
                      </SelectTrigger>
                      <SelectContent>
                         {autoCompounders.map((token) => (
@@ -55,11 +49,9 @@ export const AddSliceAllocationForm = () => {
                               {token.name}
                            </SelectItem>
                         ))}
-                     </SelectContent>
-                  </Select>
-               </div>
-            </div>
+                  </SelectContent>
+               </Select>
          </div>
-      </div>
+      </Form>
    );
 };

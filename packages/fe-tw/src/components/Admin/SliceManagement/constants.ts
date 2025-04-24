@@ -32,24 +32,24 @@ export const INITIAL_VALUES = {
     sliceAllocation: addAllocationFormInitialValues,
 };
 
-export const VALIDATION_SCHEMA = {
+export const VALIDATION_SCHEMA = Yup.object({
     slice: Yup.object().shape({
-        name: Yup.string(),
-        description: Yup.string(),
-        endDate: Yup.string(),
-        sliceImageIpfsHash: Yup.string(),
-        symbol: Yup.string(),
+        name: Yup.string().required('Name is required'),
+        description: Yup.string().required('Description is required'),
+        endDate: Yup.string().required('End date is required'),
+        sliceImageIpfsHash: Yup.string().required('Image is required'),
+        symbol: Yup.string().required('Symbol is required'),
     }),
     sliceAllocation: Yup.object().shape({
-        tokenAsset: Yup.string(),
-        allocation: Yup.string(),
+        tokenAsset: Yup.string().required('Token asset is required'),
+        allocation: Yup.string().required('Allocation is required'),
     }),
-};
+});
 
 export const STEPS = ["slice", "sliceAllocation"];
 
 export const FRIENDLY_STEP_NAME = {
-   slice: "Slice",
+   slice: "Deploy Slice",
    sliceAllocation: "Add Slice Allocation",
 };
 
