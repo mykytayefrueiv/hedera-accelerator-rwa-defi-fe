@@ -30,9 +30,9 @@ type Props = {
 };
 
 export function SliceDetailPage({ sliceData, isInBuildingContext = false, buildingId }: Props) {
-   const [buildingDeployedTokens, setBuildingDeployedTokens] = useState<BuildingToken[]>([]);
+   // todo
+   const [buildingDeployedTokens] = useState<BuildingToken[]>([]);
    const [isModalOpen, setIsModalOpen] = useState(false);
-   const { buildings } = useBuildings();
    const { sliceAllocations, sliceBuildings } = useSliceData(
       sliceData.address,
       buildingDeployedTokens,
@@ -118,14 +118,6 @@ export function SliceDetailPage({ sliceData, isInBuildingContext = false, buildi
                ))}
             </div>
          </div>
-
-         {buildings.map((building) => (
-            <BuildingDetailsView
-               key={building.id}
-               address={building.address as `0x${string}`}
-               setBuildingTokens={setBuildingDeployedTokens}
-            />
-         ))}
 
          <Allocations
             isOpen={isModalOpen}

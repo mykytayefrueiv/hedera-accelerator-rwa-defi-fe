@@ -1,4 +1,4 @@
-"use client";
+/** "use client";
 
 import { useCreateSlice } from "@/hooks/useCreateSlice";
 import type { CreateSliceRequestBody } from "@/types/erc3643/types";
@@ -37,7 +37,6 @@ export function SliceManagementView() {
    return (
       <div className="p-6 max-w-8xl mx-auto space-y-6">
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Column: Description */}
             <div className="bg-purple-50 p-6 rounded-lg">
                <h2 className="text-2xl font-bold mb-4">What You Can Do</h2>
                <p className="text-sm sm:text-base text-gray-700">
@@ -49,8 +48,6 @@ export function SliceManagementView() {
                   will streamline asset management for your portfolio.
                </p>
             </div>
-
-            {/* Right Column: Slice Management Form */}
             <div className="bg-white rounded-lg p-8 border border-gray-300">
                <h2 className="text-xl font-semibold mb-6">
                   {deployStep === "DeploySlice" ? "Create New Slice" : "Add Slice Allocation"}
@@ -91,4 +88,4 @@ export function SliceManagementView() {
          </div>
       </div>
    );
-}
+} **/

@@ -1,7 +1,7 @@
 "use client";
 
 import { Formik } from "formik";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Check, TriangleAlert, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ import { AddSliceForm } from "./AddSliceForm";
 import { AddSliceAllocationForm } from "./AddSliceAllocationForm";
 import { INITIAL_VALUES, STEPS, FRIENDLY_STEP_NAME, FRIENDLY_STEP_STATUS, VALIDATION_SCHEMA } from "./constants";
 import { StepsStatus } from "../buildingManagement/types";
+import { useSlicesData } from "@/hooks/useSlicesData";
 
 const getCurrentStepState = (
     isSelected: boolean,
@@ -55,10 +56,30 @@ export const SliceManagement = () => {
     const [txResult, setTxResult] = useState<string>();
     const [txError, setTxError] = useState<string>();
     const [isTransactionInProgress, setIsTransactionInProgress] = useState<boolean>(false);
-    const { createSlice } = useCreateSlice();
-        
-    const handleSubmit = async (values: CreateSliceRequestData) => {
+    const { recentlyDeployedSlice } = useSlicesData();
+    const { createSlice, addSliceAllocationTxId } = useCreateSlice(recentlyDeployedSlice);
+
+    const renderSliceTxResult = useMemo(() => {
+        if (!!txResult && !!addSliceAllocationTxId) {
+            return (
+                <span>
+                    Deployment of the slice and its parts such as allocation was deployed successfully!
+                </span>
+            );
+        } else if (!!txResult) {
+            return (
+                <span>
+                    Deployment of the slice was successfull! Still waiting for allocation to be deployed.
+                </span>
+            );
+        }
+
+        return '';
+    }, [txResult, addSliceAllocationTxId]);
+
+    const handleSubmit = async (values: CreateSliceRequestData, e: { resetForm: () => void }) => {
         try {
+            setIsModalOpened(true);
             setIsTransactionInProgress(true);
             const txOrHash = await createSlice(values);
     
@@ -68,7 +89,9 @@ export const SliceManagement = () => {
         } catch (err) {
             setTxError((err as unknown as { message: string }).message);
         } finally {
+            e.resetForm();
             setIsTransactionInProgress(false);
+            setCurrentSetupStep(1);
         }
     };
     
@@ -152,22 +175,29 @@ export const SliceManagement = () => {
                 <DialogContent onInteractOutside={(e) => e.preventDefault()}>
                     <DialogHeader>
                         <DialogTitle>
-                            {txError ? "Error occurred" : "Deployment..."}
+                            {txError || txResult ?
+                                <span>
+                                    {txError ? "Deployment error" : "Deployment success"}
+                                </span>
+                            : "Deployment in progress..."}
                         </DialogTitle>
 
                         <DialogDescription className="flex flex-col justify-center text-xl items-center gap-4 p-10">
-                            {txResult ? (
-                                <Check size={64} className="text-violet-500" />
-                            ) : txError ? (
-                                <TriangleAlert size={64} className="text-red-500" />
+                            {(txResult || txError) ? txError ? (
+                                <>
+                                    <span>Deployment error: {txError}</span>
+                                    <TriangleAlert size={64} className="text-red-500" />
+                                </>
                             ) : (
-                                <Loader size={64} className="animate-spin" />
+                                <>
+                                    <Check size={64} className="text-violet-500" />
+                                    <span>
+                                        {renderSliceTxResult}
+                                    </span>
+                                </>
+                             ) : (
+                               <Loader size={64} className="animate-spin" />
                             )}
-                            {txResult ? (
-                                <span>
-                                    Deployment of the slice and its parts was successful!
-                                </span>
-                            ) : txError}
                         </DialogDescription>
                     </DialogHeader>
                 </DialogContent>
