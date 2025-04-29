@@ -126,6 +126,15 @@ export function Navbar() {
                         </ul>
                      </NavigationMenuContent>
                   </NavigationMenuItem>
+
+                  <NavigationMenuItem>
+                     <Link href="/trade" legacyBehavior>
+                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                           Trade
+                        </NavigationMenuLink>
+                     </Link>
+                  </NavigationMenuItem>
+                  
                   <NavigationMenuItem>
                      <WalletConnectModalRW />
                   </NavigationMenuItem>
