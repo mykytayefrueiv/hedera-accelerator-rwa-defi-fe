@@ -111,11 +111,20 @@ export function Navbar() {
                   </NavigationMenuItem>
 
                   <NavigationMenuItem>
-                     <Link href="/admin" legacyBehavior>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                           Admin
-                        </NavigationMenuLink>
-                     </Link>
+                     <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>Admin</NavigationMenuTrigger>
+                     <NavigationMenuContent asChild data-state="open">
+                        <ul className="grid w-[300px] gap-2 p-1 md:w-[300px] md:grid-cols-1 lg:w-[300px]">
+                           <ListItem icon={<Radar />} title="Token Management" href="/admin/tokenmanagement">
+                              Create and manage tokens
+                           </ListItem>
+                           <ListItem icon={<Building />} title="Building Management" href="/admin/buildingmanagement">
+                              Create and manage buildings
+                           </ListItem>
+                           <ListItem icon={<Slice />} title="Slice Management" href="/admin/slicemanagement">
+                              Create and manage slices
+                           </ListItem>
+                        </ul>
+                     </NavigationMenuContent>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                      <WalletConnectModalRW />
