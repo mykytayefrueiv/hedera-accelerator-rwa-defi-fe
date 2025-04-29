@@ -30,7 +30,6 @@ type Props = {
 };
 
 export function SliceDetailPage({ sliceData, isInBuildingContext = false, buildingId }: Props) {
-   // todo
    const [buildingDeployedTokens] = useState<BuildingToken[]>([]);
    const [isModalOpen, setIsModalOpen] = useState(false);
    const { sliceAllocations, sliceBuildings } = useSliceData(
