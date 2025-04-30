@@ -4,6 +4,7 @@ import { Formik } from "formik";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Check, TriangleAlert, Loader } from "lucide-react";
+import { tryCatch } from "@/services/tryCatch";
 import { Button } from "@/components/ui/button";
 import {
     Stepper,
@@ -78,21 +79,22 @@ export const SliceManagement = () => {
     }, [txResult, addSliceAllocationTxId]);
 
     const handleSubmit = async (values: CreateSliceRequestData, e: { resetForm: () => void }) => {
-        try {
-            setIsModalOpened(true);
-            setIsTransactionInProgress(true);
-            const txOrHash = await createSlice(values);
-    
+        setIsModalOpened(true);
+        setIsTransactionInProgress(true);
+
+        const { data, error } = await tryCatch(createSlice(values));
+
+        if (data) {
             toast.success(`Slice ${values.slice.name} created successfully`);
                 
-            setTxResult(txOrHash);
-        } catch (err) {
-            setTxError((err as unknown as { message: string }).message);
-        } finally {
-            e.resetForm();
-            setIsTransactionInProgress(false);
-            setCurrentSetupStep(1);
+            setTxResult(data);
+        } else {
+            setTxError((error as unknown as { message: string }).message);
         }
+
+        e.resetForm();
+        setIsTransactionInProgress(false);
+        setCurrentSetupStep(1);
     };
     
     return (
@@ -183,21 +185,28 @@ export const SliceManagement = () => {
                         </DialogTitle>
 
                         <DialogDescription className="flex flex-col justify-center text-xl items-center gap-4 p-10">
-                            {(txResult || txError) ? txError ? (
-                                <>
-                                    <span>Deployment error: {txError}</span>
-                                    <TriangleAlert size={64} className="text-red-500" />
-                                </>
-                            ) : (
-                                <>
-                                    <Check size={64} className="text-violet-500" />
-                                    <span>
-                                        {renderSliceTxResult}
-                                    </span>
-                                </>
-                             ) : (
-                               <Loader size={64} className="animate-spin" />
-                            )}
+                            {(txResult || txError) ?
+                                txError ? (
+                                    <>
+                                        <span>Deployment error: {txError}</span>
+                                        <TriangleAlert size={64} className="text-red-500" />
+                                    </>
+                                ) : (
+                                    <>
+                                        <Check size={64} className="text-violet-500" />
+                                        {addSliceAllocationTxId ?
+                                            <span>
+                                                Deployment of the slice and its parts such as allocation was deployed successfully!
+                                            </span> :
+                                            <span>
+                                                Deployment of the slice was successfull! Still waiting for allocation to be deployed.
+                                            </span>
+                                        }
+                                    </>
+                                ) : (
+                                    <Loader size={64} className="animate-spin" />
+                                )
+                            }
                         </DialogDescription>
                     </DialogHeader>
                 </DialogContent>
