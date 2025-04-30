@@ -19,8 +19,9 @@ export default function Page({ params }: Props) {
 
    const sliceData = slices.find((slice) => slugify(slice.id) === slugify(slug));
 
-   if (!sliceData && slices?.length > 0) {
-      notFound();
+   if (slices?.length > 0) {
+      console.log('sliceData', sliceData)
+      // notFound();
    }
 
    const sliceValuation = 0;
@@ -35,7 +36,6 @@ export default function Page({ params }: Props) {
             tokenPrice,
             tokenBalance: userBalance,
          }}
-         tokensWithBuilding={[]}
          isInBuildingContext={true}
          buildingId={buildingId}
       />
