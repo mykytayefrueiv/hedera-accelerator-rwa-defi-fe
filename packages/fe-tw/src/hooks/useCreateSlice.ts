@@ -1,32 +1,55 @@
+import { sliceAbi } from "@/services/contracts/abi/sliceAbi";
 import { sliceFactoryAbi } from "@/services/contracts/abi/sliceFactoryAbi";
-import { UNISWAP_ROUTER_ADDRESS, USDC_ADDRESS } from "@/services/contracts/addresses";
-import { SLICE_FACTORY_ADDRESS } from "@/services/contracts/addresses";
-import type { CreateSliceRequestBody } from "@/types/erc3643/types";
+import { UNISWAP_ROUTER_ADDRESS, USDC_ADDRESS, SLICE_FACTORY_ADDRESS } from "@/services/contracts/addresses";
+import type { CreateSliceRequestData } from "@/types/erc3643/types";
 import { pinata } from "@/utils/pinata";
 import { useWatchTransactionReceipt, useWriteContract } from "@buidlerlabs/hashgraph-react-wallets";
 import { ContractId } from "@hashgraph/sdk";
+import { useEffect, useState } from "react";
 import * as uuid from "uuid";
+import { useExecuteTransaction } from "./useExecuteTransaction";
 
-export function useCreateSlice() {
+const CHAINLINK_PRICE_ID = "0x269501f5674BeE3E8fef90669d3faa17021344d0";
+
+export function useCreateSlice(deployedSlice?: `0x${string}`) {
    const { writeContract } = useWriteContract();
    const { watch } = useWatchTransactionReceipt();
+   const { executeTransaction } = useExecuteTransaction();
+   const [sliceData, setSliceData] = useState<CreateSliceRequestData>();
+   const [sliceDeployed, setSliceDeployed] = useState(false);
+   const [addSliceAllocationTxId, setAddSliceAllocationTxId] = useState<string>();
 
-   const handleCreateSlice = async (formData: CreateSliceRequestBody): Promise<string> => {
+   const addSliceAllocation = async (values: CreateSliceRequestData): Promise<string> => {
+      const { sliceAllocation } = values;
+
+      const tx = await executeTransaction(() => writeContract({
+         contractId: ContractId.fromEvmAddress(0, 0, deployedSlice!),
+         abi: sliceAbi,
+         functionName: "addAllocation",
+         args: [sliceAllocation.tokenAsset, CHAINLINK_PRICE_ID, sliceAllocation.allocation],
+      })) as { transaction_id: string };
+
+      return tx?.transaction_id;
+   };
+
+   const createSlice = async (values: CreateSliceRequestData): Promise<string> => {
+      const { slice } = values;
       const keyRequest = await fetch("/api/pinataKey");
       const keyData = await keyRequest.json();
+      setSliceData(values);
 
       return new Promise((res, rej) => {
          pinata.upload
-            .json(formData, {
-               metadata: { name: `Slice-${formData.name}` },
+            .json(slice, {
+               metadata: { name: `Slice-${slice.name}` },
             })
             .key(keyData.JWT)
             .then(({ IpfsHash }) => {
                const sliceDetails = {
                   uniswapRouter: UNISWAP_ROUTER_ADDRESS,
                   usdc: USDC_ADDRESS,
-                  name: formData.name,
-                  symbol: formData.symbol,
+                  name: slice.name,
+                  symbol: slice.symbol,
                   metadataUri: IpfsHash,
                };
 
@@ -40,6 +63,7 @@ export function useCreateSlice() {
                      watch(tx as string, {
                         onSuccess: (transaction) => {
                            res(transaction.transaction_id);
+                           setSliceDeployed(true);
 
                            return transaction;
                         },
@@ -57,7 +81,18 @@ export function useCreateSlice() {
       });
    };
 
+   useEffect(() => {
+      if (deployedSlice && sliceDeployed && !!sliceData) {
+         addSliceAllocation(sliceData).then(txId => {
+            setAddSliceAllocationTxId(txId);
+         });
+      }
+   }, [deployedSlice, sliceDeployed]);
+
+   
    return {
-      handleCreateSlice,
+      createSlice,
+      addSliceAllocation,
+      addSliceAllocationTxId,
    };
 }
