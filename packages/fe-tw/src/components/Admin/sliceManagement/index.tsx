@@ -60,24 +60,6 @@ export const SliceManagement = () => {
     const { recentlyDeployedSlice } = useSlicesData();
     const { createSlice, addSliceAllocationTxId } = useCreateSlice(recentlyDeployedSlice);
 
-    const renderSliceTxResult = useMemo(() => {
-        if (!!txResult && !!addSliceAllocationTxId) {
-            return (
-                <span>
-                    Deployment of the slice and its parts such as allocation was deployed successfully!
-                </span>
-            );
-        } else if (!!txResult) {
-            return (
-                <span>
-                    Deployment of the slice was successfull! Still waiting for allocation to be deployed.
-                </span>
-            );
-        }
-
-        return '';
-    }, [txResult, addSliceAllocationTxId]);
-
     const handleSubmit = async (values: CreateSliceRequestData, e: { resetForm: () => void }) => {
         setIsModalOpened(true);
         setIsTransactionInProgress(true);

@@ -33,7 +33,7 @@ export const AddSliceAllocationForm = () => {
                {...formik.getFieldProps("sliceAllocation.allocation")}
             />
          </div>
-            <div>
+         <div>
                <Label htmlFor="tokenAsset">Token Asset (Auto Compounder Token)</Label>
                <Select
                   onValueChange={(value) => formik.setFieldValue("sliceAllocation.tokenAsset", value)}
@@ -42,13 +42,13 @@ export const AddSliceAllocationForm = () => {
                >
                   <SelectTrigger className="w-full mt-1">
                      <SelectValue placeholder="Token Asset" />
-                     </SelectTrigger>
-                     <SelectContent>
-                        {autoCompounders.map((token) => (
-                           <SelectItem key={token.address} value={token.address}>
-                              {token.name}
-                           </SelectItem>
-                        ))}
+                  </SelectTrigger>
+                  <SelectContent>
+                     {autoCompounders.map((token) => (
+                        <SelectItem key={token.address} value={token.address}>
+                           {token.name}
+                        </SelectItem>
+                     ))}
                   </SelectContent>
                </Select>
          </div>

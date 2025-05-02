@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 import { Button } from "@/components/ui/button";
 import type { BuildingToken, SliceAllocation } from "@/types/erc3643/types";
 import { AllocationBuildingToken } from "./AllocationBuildingToken";
@@ -9,12 +10,16 @@ type AllocationsProps = {
    allocations: SliceAllocation[];
    sliceBuildings: BuildingToken[];
    onConfirmRebalance: () => void;
+   onAddAllocation: () => void;
 };
 
 export default function SliceAllocations({
    allocations,
    onConfirmRebalance,
+   onAddAllocation,
 }: AllocationsProps) {
+   const { data: evmAddress } = useEvmAddress();
+   
    return (
          <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-2xl p-6">
             <div className="flex justify-between items-center mb-4">
@@ -53,14 +58,20 @@ export default function SliceAllocations({
                </div>
             </div>
 
-            <div className="flex justify-end space-x-4 mt-5">
+            {!!evmAddress && <div className="flex justify-end space-x-4 mt-5">
                <Button
                   type="button"
                   onClick={onConfirmRebalance}
                >
                   Confirm Rebalance
                </Button>
-            </div>
+               <Button
+                  type="button"
+                  onClick={onAddAllocation}
+               >
+                  Add Allocation
+               </Button>
+            </div>}
          </div>
    );
 }

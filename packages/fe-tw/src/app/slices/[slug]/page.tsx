@@ -38,22 +38,9 @@ export default function Page({ params }: Props) {
       }
    }, [isLoaded]);
 
-   const sliceValuation = 0;
-   const tokenPrice = 0;
-   const userBalance = 0;
-
    if (sliceNotFound) {
       return notFound();
    }
 
-   return (
-      <SliceDetailPage
-         sliceData={{
-            ...(slice as SliceData),
-            sliceValuation,
-            tokenPrice,
-            tokenBalance: userBalance,
-         }}
-      />
-   );
+   return !!slice && <SliceDetailPage slice={slice!} />;
 }
