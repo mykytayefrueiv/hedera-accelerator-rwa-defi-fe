@@ -143,6 +143,17 @@ export type CreateSliceRequestBody = {
    description: string;
    sliceImageIpfsHash: string;
    symbol: string;
+   endDate: string;
+};
+
+export type AddSliceAllocationRequestBody = {
+   tokenAsset: string;
+   allocation: string;
+};
+
+export type CreateSliceRequestData = {
+   slice: CreateSliceRequestBody,
+   sliceAllocation: AddSliceAllocationRequestBody,
 };
 
 export type QueryData<ArgType> = {
@@ -204,8 +215,8 @@ export type SwapTradeItem = {
 };
 
 export type SwapLiquidityPair = {
-   tokenA?: `0x${string}`;
-   tokenB?: `0x${string}`;
+   tokenA: `0x${string}`;
+   tokenB: `0x${string}`;
 };
 
 export type SwapTokenPriceRequestBody = {
@@ -275,6 +286,4 @@ export type CreateProposalPayload = {
    to: string;
 };
 
-export type TokenDecimals = {
-   [key: `0x${string}`]: string;
-};
+export type SliceDeploymentStep = 'slice' | 'sliceAllocation';

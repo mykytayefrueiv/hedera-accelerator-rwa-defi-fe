@@ -1,7 +1,6 @@
 "use client";
 
 import Allocations from "@/components/Slices/Allocations";
-import { useBuildings } from "@/hooks/useBuildings";
 import { useSliceData } from "@/hooks/useSliceData";
 import type { BuildingToken, SliceData } from "@/types/erc3643/types";
 import React, { useState } from "react";
@@ -29,11 +28,11 @@ type Props = {
 };
 
 export function SliceDetailPage({ sliceData, isInBuildingContext = false, buildingId }: Props) {
+   const [buildingDeployedTokens] = useState<BuildingToken[]>([]);
    const [isModalOpen, setIsModalOpen] = useState(false);
-   const { buildingTokens } = useBuildings();
    const { sliceAllocations, sliceBuildings } = useSliceData(
       sliceData.address,
-      buildingTokens,
+      buildingDeployedTokens,
    );
 
    const openModal = () => setIsModalOpen(true);
