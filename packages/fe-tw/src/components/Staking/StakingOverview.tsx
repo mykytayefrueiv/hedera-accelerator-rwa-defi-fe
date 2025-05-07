@@ -40,6 +40,7 @@ export default function StakingOverview({ buildingId }: StakingOverviewProps) {
       stakeTokens,
       unstakeTokens,
       rewardTokens,
+      aTokenBalance,
    } = useStaking({
       buildingId,
    });
@@ -80,11 +81,13 @@ export default function StakingOverview({ buildingId }: StakingOverviewProps) {
                isLoading={loadingState.isFetchingVaultInfo}
                totalStakedTokens={totalStakedTokens}
                userStakedTokens={userStakedTokens}
+               aTokenBalance={aTokenBalance}
             />
 
             <BalanceInfo
                isLoading={loadingState.isFetchingVaultInfo || loadingState.isFetchingTokenInfo}
                stakedTokens={userStakedTokens}
+               aTokenBalance={aTokenBalance}
                availableTokens={tokenBalance}
             />
          </div>

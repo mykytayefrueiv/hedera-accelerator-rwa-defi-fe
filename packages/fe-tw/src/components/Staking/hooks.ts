@@ -12,6 +12,13 @@ import { basicVaultAbi } from "@/services/contracts/abi/basicVaultAbi";
 import { ContractId } from "@hashgraph/sdk";
 import { TokenInfo, VaultInfo } from "@/components/Staking/types";
 import { useExecuteTransaction } from "@/hooks/useExecuteTransaction";
+import { useEffect } from "react";
+import { watchContractEvent } from "@/services/contracts/watchContractEvent";
+import { autoCompounderFactoryAbi } from "@/services/contracts/abi/autoCompounderFactoryAbi";
+import { AUTO_COMPOUNDER_FACTORY_ADDRESS } from "@/services/contracts/addresses";
+import { ethers } from "ethers";
+import { find, isEmpty } from "lodash";
+import { autoCompounderAbi } from "@/services/contracts/abi/autoCompounderAbi";
 
 interface StakingHookReturnParams {
    loadingState: {
@@ -34,7 +41,34 @@ interface StakingHookReturnParams {
    rewardTokens: string[];
 }
 
-export const useStaking = ({ buildingId }: { buildingId: `0x${string}` }): StakingHookReturnParams => {
+const getAutoCompounderAddress = async (vaultAddress: string) => {
+   const provider = new ethers.BrowserProvider(window.ethereum);
+   const signer = await provider.getSigner();
+
+   const currentBlock = await provider.getBlockNumber();
+   const fromBlock = Math.max(currentBlock - 10000, 0);
+
+   const contract = new ethers.Contract(
+      AUTO_COMPOUNDER_FACTORY_ADDRESS,
+      autoCompounderFactoryAbi,
+      provider,
+   );
+
+   const events = await contract.queryFilter("AutoCompounderDeployed", fromBlock, currentBlock);
+
+   const autoCompounder = find(events, (log) => {
+      const args = log.args as any;
+      return args[1] === vaultAddress;
+   });
+
+   return isEmpty(autoCompounder) ? null : autoCompounder.args[0];
+};
+
+export const useStaking = ({
+   buildingId,
+}: {
+   buildingId: `0x${string}`;
+}): StakingHookReturnParams => {
    const { deployedBuildingTokens } = useBuildingDetails(buildingId);
    const { readContract } = useReadContract();
    const { writeContract } = useWriteContract();
@@ -58,6 +92,14 @@ export const useStaking = ({ buildingId }: { buildingId: `0x${string}` }): Staki
          }),
       enabled: Boolean(treasuryAddress),
    });
+
+   const { data: autoCompounderAddress, isLoading: isFetchingAutoCompounderAddress } = useQuery({
+      queryKey: ["AUTO_COMPOUNDER_ADDRESS", vaultAddress],
+      queryFn: () => getAutoCompounderAddress(vaultAddress as string),
+      enabled: Boolean(vaultAddress),
+   });
+
+   console.log("autoCompounderAddress :>> ", autoCompounderAddress);
 
    const { data: tokenInfo, isLoading: isFetchingTokenInfo } = useQuery({
       queryKey: ["TOKEN_INFO", tokenAddress],
@@ -162,6 +204,41 @@ export const useStaking = ({ buildingId }: { buildingId: `0x${string}` }): Staki
       onSuccess: refetchVaultInfo,
    });
 
+   const { mutateAsync: stakeAutoCompound, isPending: isDepositingAutoCompounder } = useMutation({
+      mutationFn: async ({ amount }: { amount: number }) => {
+         const bigIntAmount = BigInt(
+            Math.floor(Number.parseFloat(amount!) * 10 ** tokenInfo.decimals),
+         );
+
+         const approveTx = await executeTransaction(() =>
+            writeContract({
+               contractId: ContractId.fromEvmAddress(0, 0, tokenAddress),
+               abi: tokenAbi,
+               functionName: "approve",
+               args: [autoCompounderAddress, bigIntAmount],
+            }),
+         );
+         const depositTx = await executeTransaction(() =>
+            writeContract({
+               contractId: ContractId.fromEvmAddress(0, 0, autoCompounderAddress),
+               abi: autoCompounderAbi,
+               functionName: "deposit",
+               args: [bigIntAmount, evmAddress],
+            }),
+         );
+
+         return { approveTx, depositTx };
+      },
+      onSuccess: refetchVaultInfo,
+   });
+
+   const handleStake = async ({ amount, compoundRewards }) => {
+      if (compoundRewards) {
+         return stakeAutoCompound({ amount });
+      }
+      return stake({ amount });
+   };
+
    const { mutateAsync: unstake, isPending: isWithdrawing } = useMutation({
       mutationFn: async ({ amount }: { amount: number }) => {
          const bigIntAmount = BigInt(
@@ -182,9 +259,37 @@ export const useStaking = ({ buildingId }: { buildingId: `0x${string}` }): Staki
       onSuccess: refetchVaultInfo,
    });
 
+   const { data: aTokenInfo } = useQuery({
+      queryKey: ["A_TOKENS", autoCompounderAddress, evmAddress],
+      queryFn: async () => {
+         const [balanceOfAToken, decimals] = await Promise.all([
+            readContract({
+               address: autoCompounderAddress,
+               abi: autoCompounderAbi,
+               functionName: "balanceOf",
+               args: [evmAddress],
+            }),
+            readContract({
+               address: autoCompounderAddress,
+               abi: autoCompounderAbi,
+               functionName: "decimals",
+            }),
+            // readContract({
+            //    address: autoCompounderAddress,
+            //    abi: autoCompounderAbi,
+            //    functionName: "exchangeRate",
+            // }),
+         ]);
+
+         const aTokenBalance = Number(ethers.formatUnits(balanceOfAToken, decimals));
+         return { aTokenBalance, exchangeRate: 1 };
+      },
+      enabled: Boolean(autoCompounderAddress) && Boolean(evmAddress),
+   });
+
    return {
       loadingState: {
-         isDepositing,
+         isDepositing: isDepositing || isDepositingAutoCompounder,
          isWithdrawing,
          isFetchingTokenInfo,
          isFetchingVaultInfo,
@@ -194,9 +299,10 @@ export const useStaking = ({ buildingId }: { buildingId: `0x${string}` }): Staki
       treasuryAddress,
       vaultAddress: vaultAddress as string,
       tokenAddress,
-      stakeTokens: ({ amount }) => stake({ amount }),
+      stakeTokens: handleStake,
       unstakeTokens: ({ amount }) => unstake({ amount }),
       userRewards: userRewards as number,
+      aTokenBalance: aTokenInfo?.aTokenBalance,
       ...vaultInfo,
       ...tokenInfo,
    };

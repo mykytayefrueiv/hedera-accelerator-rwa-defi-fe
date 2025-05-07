@@ -9,15 +9,17 @@ type BalanceInfoProps = {
    isLoading: boolean;
    stakedTokens: number | undefined;
    availableTokens: number | undefined;
+   aTokenBalance: number | undefined;
 };
 
 export default function BalanceInfo({
    isLoading,
    stakedTokens,
    availableTokens,
+   aTokenBalance,
 }: BalanceInfoProps) {
    const chartData = [
-      { name: "Staked", value: stakedTokens },
+      { name: "Staked", value: stakedTokens + aTokenBalance },
       { name: "Available", value: availableTokens },
    ];
 
@@ -52,7 +54,8 @@ export default function BalanceInfo({
             {availableTokens !== 0 && (
                <div className="text-center mt-auto">
                   <p className="text-sm">
-                     <span className="font-semibold">Staked:</span> {stakedTokens} tokens
+                     <span className="font-semibold">Staked:</span> {stakedTokens + aTokenBalance}{" "}
+                     tokens
                   </p>
                   <p className="text-sm">
                      <span className="font-semibold">Available:</span> {availableTokens} tokens

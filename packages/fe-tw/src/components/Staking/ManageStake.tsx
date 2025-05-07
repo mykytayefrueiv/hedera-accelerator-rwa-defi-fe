@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { tryCatch } from "@/services/tryCatch";
+import { CheckboxIndicator } from "@radix-ui/react-checkbox";
+import { Checkbox } from "../ui/checkbox";
 
 type ManageStakeProps = {
    disabled: boolean;
@@ -24,9 +26,10 @@ export default function ManageStake({
    onUnstake,
 }: ManageStakeProps) {
    const [amount, setAmount] = useState("");
+   const [compoundRewards, setCompoundRewards] = useState<boolean>(false);
 
    const handleStake = async () => {
-      const { data, error } = await tryCatch(onStake({ amount: Number(amount) }));
+      const { data, error } = await tryCatch(onStake({ amount: Number(amount), compoundRewards }));
 
       console.log(data);
       if (data) {
@@ -118,6 +121,25 @@ export default function ManageStake({
                   onChange={(e) => setAmount(e.target.value)}
                />
             </div>
+            <div className="items-top flex space-x-2">
+               <Checkbox
+                  id="autoCompound"
+                  checked={compoundRewards}
+                  onCheckedChange={(state) => setCompoundRewards(state)}
+               />
+               <div className="grid gap-1.5 leading-none">
+                  <label
+                     htmlFor="autoCompound"
+                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                     Autocompound rewards
+                  </label>
+                  <p className="text-sm text-muted-foreground">
+                     Check this box to reinvest your rewards into your stake as you claim.
+                  </p>
+               </div>
+            </div>
+
             <div className="flex gap-4 justify-end mt-auto">
                <Button
                   isLoading={isWithdrawing}

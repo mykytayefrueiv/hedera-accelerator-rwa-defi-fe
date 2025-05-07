@@ -9,16 +9,18 @@ type StakingShareChartProps = {
    isLoading: boolean;
    totalStakedTokens: number | undefined;
    userStakedTokens: number | undefined;
+   aTokenBalance: number | undefined;
 };
 
 const StakingShareChart = ({
    isLoading,
    totalStakedTokens,
    userStakedTokens,
+   aTokenBalance,
 }: StakingShareChartProps) => {
    const data = [
-      { name: "Your Stake", value: userStakedTokens },
-      { name: "Other Stakers", value: totalStakedTokens - userStakedTokens },
+      { name: "Your Stake", value: userStakedTokens + aTokenBalance },
+      { name: "Other Stakers", value: totalStakedTokens - userStakedTokens - aTokenBalance },
    ];
 
    const COLORS = ["#6b46c1", "#E5E5E5"];
@@ -67,9 +69,21 @@ const StakingShareChart = ({
             )}
 
             {userStakedTokens !== 0 && (
-               <div className="text-center mt-auto">
+               <div className="text-center mt-auto flex flex-col">
                   <p className="text-sm">
-                     <span className="font-semibold">Total Staked: {userStakedTokens}</span>
+                     <span className="font-semibold">Classic stake:</span> {userStakedTokens}
+                     &nbsp;tokens
+                  </p>
+
+                  <p className="text-sm">
+                     <span className="font-semibold">Autocompound stake:</span> {aTokenBalance}
+                     &nbsp;tokens
+                  </p>
+
+                  <p className="text-sm mt-1">
+                     <span className="font-semibold">
+                        Total Staked: {userStakedTokens + aTokenBalance}
+                     </span>
                   </p>
                </div>
             )}
