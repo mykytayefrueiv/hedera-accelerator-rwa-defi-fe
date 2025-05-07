@@ -37,9 +37,9 @@ export const useTreasuryData = (treasuryAddress: string | undefined) => {
             }),
          ]);
 
-         const formattted = Number(ethers.formatUnits(balance, decimals));
+         const formatted = Number(ethers.formatUnits(balance, decimals));
 
-         return { balance: formattted, usdcAddress: treasuryUsdcAddress, decimals };
+         return { balance: formatted, usdcAddress: treasuryUsdcAddress, decimals };
       },
       enabled: Boolean(treasuryAddress),
    });
