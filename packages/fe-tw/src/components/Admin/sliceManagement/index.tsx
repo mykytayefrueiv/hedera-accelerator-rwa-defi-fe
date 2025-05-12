@@ -23,11 +23,11 @@ import {
 import { LoadingView } from "@/components/LoadingView/LoadingView";
 import { CreateSliceRequestData, SliceDeploymentStep } from "@/types/erc3643/types";
 import { useCreateSlice } from "@/hooks/useCreateSlice";
-import { AddSliceForm } from "./AddSliceForm";
-import { AddSliceAllocationForm } from "./AddSliceAllocationForm";
-import { INITIAL_VALUES, STEPS, FRIENDLY_STEP_NAME, FRIENDLY_STEP_STATUS, VALIDATION_SCHEMA } from "./constants";
 import { StepsStatus } from "../buildingManagement/types";
 import { useSlicesData } from "@/hooks/useSlicesData";
+import { AddSliceForm } from "@/components/Admin/sliceManagement/AddSliceForm";
+import { AddSliceAllocationForm } from "@/components/Admin/sliceManagement/AddSliceAllocationForm";
+import { INITIAL_VALUES, STEPS, FRIENDLY_STEP_NAME, FRIENDLY_STEP_STATUS, VALIDATION_SCHEMA } from "@/components/Admin/sliceManagement/constants";
 
 const getCurrentStepState = (
     isSelected: boolean,
@@ -57,26 +57,38 @@ export const SliceManagement = () => {
     const [txResult, setTxResult] = useState<string>();
     const [txError, setTxError] = useState<string>();
     const [isTransactionInProgress, setIsTransactionInProgress] = useState<boolean>(false);
-    const { recentlyDeployedSlice } = useSlicesData();
-    const { createSlice, addSliceAllocationTxId } = useCreateSlice(recentlyDeployedSlice);
+    const { createSlice, waitForLastSliceDeployed, addSliceAllocationMutation } = useCreateSlice();
 
     const handleSubmit = async (values: CreateSliceRequestData, e: { resetForm: () => void }) => {
         setIsModalOpened(true);
         setIsTransactionInProgress(true);
-
-        const { data, error } = await tryCatch(createSlice(values));
-
-        if (data) {
-            toast.success(`Slice ${values.slice.name} created successfully`);
-
-            setTxResult(data);
-        } else {
-            setTxError((error as unknown as { message: string }).message);
-        }
-
         e.resetForm();
-        setIsTransactionInProgress(false);
         setCurrentSetupStep(1);
+
+        try {
+            const results = await Promise.all([
+                tryCatch(createSlice(values)),
+                tryCatch(waitForLastSliceDeployed())
+            ]);
+
+            if (results[0].data) {
+                setTxResult(results[0].data);
+                toast.success(`Slice ${values.slice.name} created successfully`);
+    
+                if (results[1].data) {
+                    await addSliceAllocationMutation.mutateAsync({
+                        ...values,
+                        slice: results[1].data,
+                    });
+                }
+            } else {
+                setTxError(results[0].error?.message);
+            }
+        } catch (err) {
+            setTxError((err as { message: string }).message);
+        } finally {
+            setIsTransactionInProgress(false);
+        }
     };
 
     return (
@@ -176,7 +188,7 @@ export const SliceManagement = () => {
                                 ) : (
                                     <>
                                         <Check size={64} className="text-violet-500" />
-                                        {addSliceAllocationTxId ?
+                                        {addSliceAllocationMutation.data ?
                                             <span>
                                                 Deployment of the slice and its parts such as allocation was deployed successfully!
                                             </span> :

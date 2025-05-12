@@ -56,8 +56,8 @@ export const VALIDATION_SCHEMA = Yup.object({
         allocation: Yup.string().required('Allocation is required'),
     }),
     deposit: Yup.object().shape({
-        amount: Yup.string(),
-        token: Yup.string(),
+        amount: Yup.string().required('Token amount is required'),
+        token: Yup.string().required('Token asset is required'),
     }),
 });
 

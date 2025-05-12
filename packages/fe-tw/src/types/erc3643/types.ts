@@ -167,10 +167,6 @@ export type CreateSliceRequestData = {
    deposit: DepositSliceRequestBody;
 };
 
-export type DepositSliceRequestData = {
-
-};
-
 export type SliceDepositRequestData = {
    amount: bigint,
    aToken: string,
