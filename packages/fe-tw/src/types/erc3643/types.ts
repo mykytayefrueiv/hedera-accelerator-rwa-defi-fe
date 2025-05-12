@@ -36,6 +36,11 @@ export type SliceData = {
    estimatedPrice: number;
 };
 
+export type SliceAllocationSmall = {
+   slice: `0x${string}`;
+   buildingToken: `0x${string}`;
+}
+
 export type SliceAllocation = {
    buildingToken: `0x${string}`;
    aToken: `0x${string}`;
@@ -147,13 +152,28 @@ export type CreateSliceRequestBody = {
 };
 
 export type AddSliceAllocationRequestBody = {
-   tokenAsset: string;
+   tokenAssets: string[];
    allocation: string;
 };
 
+export type DepositSliceRequestBody = {
+   amount: string;
+   token: string;
+};
+
 export type CreateSliceRequestData = {
-   slice: CreateSliceRequestBody,
-   sliceAllocation: AddSliceAllocationRequestBody,
+   slice: CreateSliceRequestBody;
+   sliceAllocation: AddSliceAllocationRequestBody;
+   deposit: DepositSliceRequestBody;
+};
+
+export type DepositSliceRequestData = {
+
+};
+
+export type SliceDepositRequestData = {
+   amount: bigint,
+   aToken: string,
 };
 
 export type QueryData<ArgType> = {

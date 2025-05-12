@@ -11,12 +11,14 @@ type AllocationsProps = {
    sliceBuildings: BuildingToken[];
    onConfirmRebalance: () => void;
    onAddAllocation: () => void;
+   onDepositSlice: () => void;
 };
 
 export default function SliceAllocations({
    allocations,
    onConfirmRebalance,
    onAddAllocation,
+   onDepositSlice,
 }: AllocationsProps) {
    const { data: evmAddress } = useEvmAddress();
    
@@ -49,7 +51,7 @@ export default function SliceAllocations({
                                  {item.actualAllocation || "N/A"}
                               </td>
                               <td className="px-4 py-2 border text-center">
-                                 {item.idealAllocation}
+                                 {item.idealAllocation}%
                               </td>
                            </tr>
                         ))}
@@ -70,6 +72,12 @@ export default function SliceAllocations({
                   onClick={onAddAllocation}
                >
                   Add Allocation
+               </Button>
+               <Button
+                  type="button"
+                  onClick={onDepositSlice}
+               >
+                  Deposit
                </Button>
             </div>}
          </div>

@@ -34,11 +34,12 @@ export const AddSliceAllocationForm = () => {
             />
          </div>
          <div>
-               <Label htmlFor="tokenAsset">Token Asset (Auto Compounder Token)</Label>
+               <Label htmlFor="tokenAssets">Token Asset (Auto Compounder Token)</Label>
                <Select
-                  onValueChange={(value) => formik.setFieldValue("sliceAllocation.tokenAsset", value)}
+                  onValueChange={(value) => {
+                     formik.setFieldValue("sliceAllocation.tokenAssets", [...formik.values.sliceAllocation?.tokenAssets, value]);
+                  }}
                   required
-                  value={formik.values.sliceAllocation?.tokenAsset}
                >
                   <SelectTrigger className="w-full mt-1">
                      <SelectValue placeholder="Token Asset" />
@@ -50,7 +51,12 @@ export const AddSliceAllocationForm = () => {
                         </SelectItem>
                      ))}
                   </SelectContent>
-               </Select>
+            </Select>
+            <div className="flex flex-col mt-5" style={{ overflowX: "scroll" }}>
+               {formik.values.sliceAllocation?.tokenAssets?.map(asset => (
+                  <p className="text-xs font-semibold text-purple-800" key={asset}>{asset}</p>
+               ))}
+            </div>
          </div>
       </Form>
    );

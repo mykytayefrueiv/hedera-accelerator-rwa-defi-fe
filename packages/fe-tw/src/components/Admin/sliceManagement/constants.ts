@@ -10,13 +10,18 @@ export type CreateSliceFormProps = {
 };
 
 export type AddSliceAllocationFormProps = {
-    tokenAsset: string,
+    tokenAssets: string[],
     allocation: string,
 };
 
+export type DepositSliceFormProps = {
+    amount: string,
+    token: string,
+};
+
 export const addAllocationFormInitialValues = {
-    tokenAsset: "",
-    allocation: "",
+    tokenAssets: [],
+    allocation: "0",
 };
 
 export const deploySliceFormInitialValues = {
@@ -27,9 +32,15 @@ export const deploySliceFormInitialValues = {
     symbol: "",
 };
 
+export const depositSliceFormInitialValues = {
+   amount: "",
+   token: "",
+};
+
 export const INITIAL_VALUES = {
     slice: deploySliceFormInitialValues,
     sliceAllocation: addAllocationFormInitialValues,
+    deposit: depositSliceFormInitialValues,
 };
 
 export const VALIDATION_SCHEMA = Yup.object({
@@ -41,8 +52,12 @@ export const VALIDATION_SCHEMA = Yup.object({
         symbol: Yup.string().required('Symbol is required'),
     }),
     sliceAllocation: Yup.object().shape({
-        tokenAsset: Yup.string().required('Token asset is required'),
+        tokenAssets: Yup.array().of(Yup.string()).required('Token assets is required'),
         allocation: Yup.string().required('Allocation is required'),
+    }),
+    deposit: Yup.object().shape({
+        amount: Yup.string(),
+        token: Yup.string(),
     }),
 });
 

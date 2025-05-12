@@ -29,7 +29,7 @@ export const AddSliceForm = () => {
          <div>
             <FormInput
                required
-               label="Slice Token Symbol"
+               label="Slice Symbol"
                placeholder="e.g. SLICE"
                className="mt-1"
                error={
@@ -66,7 +66,7 @@ export const AddSliceForm = () => {
          <div className="flex gap-1 items-end w-full">
             <div className="w-full">
                <FormInput
-                  label="Slice IPFS Hash"
+                  label="Slice Image IPFS Hash"
                   placeholder="e.g. 02323x12142146t512764512763535353535353535"
                   className="mt-1"
                   required

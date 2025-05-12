@@ -4,9 +4,19 @@ import { SLICE_FACTORY_ADDRESS } from "@/services/contracts/addresses";
 import { readContract } from "@/services/contracts/readContract";
 import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 import { fetchJsonFromIpfs } from "@/services/ipfsService";
-import type { SliceData } from "@/types/erc3643/types";
+import type { SliceAllocation, SliceAllocationSmall, SliceData } from "@/types/erc3643/types";
 import { prepareStorageIPFSfileURL } from "@/utils/helpers";
 import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useBuildings } from "./useBuildings";
+
+const readSliceAllocation = (sliceAddress: `0x${string}`) =>
+   readContract({
+      abi: sliceAbi,
+      functionName: "allocations",
+      address: sliceAddress,
+      args: [],
+   });
 
 /**
  * Reads slice details from SC.
@@ -26,7 +36,8 @@ export function useSlicesData() {
    const [sliceLogs, setSliceLogs] = useState<any[]>([]);
    const [recentSliceLogs, setRecentSliceLogs] = useState<any[]>([]);
    const [recentlyDeployedSlice, setRecentlyDeployedSlice] = useState<`0x${string}`>();
-
+   const { buildings, buildingTokens } = useBuildings();
+   
    useEffect(() => {
       const unsubscribe = watchContractEvent({
          address: SLICE_FACTORY_ADDRESS,
@@ -79,9 +90,57 @@ export function useSlicesData() {
       setRecentSliceLogs(sliceLogs);
    }, [sliceLogs?.length]);
 
+   const { data: slicesAllocationsData } = useQuery({
+      queryKey: ["slicesAllocations", slices.map(slice => slice.address)],
+      queryFn: async () => {
+         const allocationsData = await Promise.allSettled(slices.map(slice => readSliceAllocation(slice.address)));
+         let allocations: SliceAllocationSmall[] = [];
+
+         allocationsData.forEach((alloc, index) => {
+            allocations = [...allocations, {
+               buildingToken: (alloc as any).value[0][1],
+               slice: slices[index].address,
+            }];
+         });
+
+         return allocations;
+      },
+      enabled: slices?.length > 0,
+      initialData: [],
+   });
+
+   const { data: buildingToSlices } = useQuery({
+      queryKey: [
+         "buildingToSlices",
+         slicesAllocationsData.map(alloc => alloc.buildingToken),
+         `buildingsCount_${buildings?.length}`,
+         `buildingsTokensCount_${buildingTokens?.length}`,
+      ],
+      queryFn: async () => {
+         const buildingToSlices: { [key: `0x${string}`]: SliceData[] } = {};
+
+         buildings?.forEach(building => {
+            const _buildingTokens = buildingTokens.filter(tok => tok.buildingAddress === building.address);
+
+            if (_buildingTokens?.length) {
+               buildingToSlices[building.address!] = slicesAllocationsData
+                  .filter(alloc => _buildingTokens.find(tok => tok.tokenAddress === alloc.buildingToken))
+                  .map(alloc => slices.find(_slice => _slice.address === alloc.slice))
+                  .filter(_slice => !!_slice);
+            }
+         });
+
+         return buildingToSlices;
+      },
+      enabled: slicesAllocationsData.length > 0,
+      initialData: {},
+   });
+
    return {
       sliceAddresses,
+      slicesAllocationsData,
       slices,
+      buildingToSlices,
       recentlyDeployedSlice,
    };
 }

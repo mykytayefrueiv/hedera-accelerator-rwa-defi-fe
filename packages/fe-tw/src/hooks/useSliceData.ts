@@ -5,16 +5,13 @@ import type { BuildingToken, SliceAllocation } from "@/types/erc3643/types";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-const calculateIdealAllocation = (allocations: any[], allocation: number, totalSliceTokens: number) => {
-   const totalAlloc = allocations.reduce((acc, alloc) => {
-      return acc += alloc?.[0]?.[0];
-   });
-
-   if (totalAlloc < totalSliceTokens) {
-      return 0;
-   }
-
-   return 0;
+const calculateIdealAllocation = (totalAllocationsCount: number) => {
+   switch (totalAllocationsCount) {
+      case 1:
+         return 100;
+      default:
+         return 100 / totalAllocationsCount;
+   } 
 };
 
 const readSymbol = (tokenAddress: `0x${string}`) =>
@@ -45,7 +42,6 @@ export const useSliceData = (
    buildingDeployedTokens: BuildingToken[],
 ) => {
    const [sliceBuildings, setSliceBuildings] = useState<BuildingToken[]>([]);
-   const totalSliceTokens = 100;
 
    const { data: sliceBaseToken } = useQuery<`0x${string}`>({
       queryKey: ["sliceBaseToken"],
@@ -74,7 +70,7 @@ export const useSliceData = (
                aToken: allocationLog[0],
                aTokenName: (allocationTokenNames[index] as { value: any[] }).value[0],
                buildingToken: allocationLog[1],
-               idealAllocation: calculateIdealAllocation(allocations, allocationLog[2], totalSliceTokens),
+               idealAllocation: calculateIdealAllocation(allocations[0].length),
                actualAllocation: allocationLog[2],
             }));
       },
