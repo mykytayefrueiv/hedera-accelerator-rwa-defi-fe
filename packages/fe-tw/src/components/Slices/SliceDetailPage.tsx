@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { toast } from "sonner";
 import { Loader } from "lucide-react";
+import { useReadContract } from "@buidlerlabs/hashgraph-react-wallets";
 import { Button } from "@/components/ui/button";
 import { INITIAL_VALUES } from "../Admin/sliceManagement/constants";
 import SliceAllocations from "@/components/Slices/SliceAllocations";
@@ -19,13 +19,12 @@ import {
    BreadcrumbPage,
    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useRebalanceSlice } from "@/hooks/useRebalanceSlice";
 import { AddSliceAllocationForm } from "@/components/Admin/sliceManagement/AddSliceAllocationForm";
 import { useCreateSlice } from "@/hooks/useCreateSlice";
 import { getTokenBalanceOf, getTokenName } from "@/services/erc20Service";
 import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 import { parseUnits } from "ethers";
-import { DepositSliceForm } from "../Admin/sliceManagement/DepositSliceForm";
+import { basicVaultAbi } from "@/services/contracts/abi/basicVaultAbi";
 
 type Props = {
    slice: SliceData;
@@ -36,26 +35,34 @@ type Props = {
 const VALIDATION_SCHEMA = Yup.object({
    slice: Yup.object(),
    sliceAllocation: Yup.object().shape({
-      tokenAssets: Yup.array().of(Yup.string()).required('Token assets is required'),
-      allocation: Yup.string().required('Token allocation is required'),
-   }),
-   deposit: Yup.object().shape({
-      amount: Yup.string().required('Token amount is required'),
-      token: Yup.string().required('Token address is required'),
+      tokenAssetAmounts: Yup.object(),
+      tokenAssets: Yup.array().of(Yup.string()).when(['sliceAllocation.totalAssetsAmount'], (a, schema) => 
+         schema.test(
+            "token_assets",
+            "More when one token should be selected in order to add allocation",
+            value => !!a ? !!value && value?.length > 0 : true
+         )
+      ),
+      totalAssetsAmount: Yup.string().when(['sliceAllocation.tokenAssets'], (a, schema) => 
+         schema.test(
+            "total_deposit_amount",
+            "Total deposit amount should be provided",
+            value => a.length > 0 ? Number(value) > 0 : true
+         )
+      ),
    }),
 });
 
 export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false }: Props) {
    const { buildingTokens } = useBuildings();
+   const { readContract } = useReadContract();
    const { sliceAllocations, sliceBaseToken, sliceBuildings } = useSliceData(
       slice.address,
       buildingTokens,
    );
-   const { rebalanceMutation } = useRebalanceSlice(slice.address);
-   const { addSliceAllocation, depositToSlice } = useCreateSlice(slice.address);
+   const { addSliceTokenAssetsMutation, rebalanceSliceMutation } = useCreateSlice(slice.address);
    const { data: evmAddress } = useEvmAddress();
    const [isAllocationOpen, setIsAllocationOpen] = useState(false);
-   const [isDepositOpen, setIsDepositOpen] = useState(false);
    const [sliceValuationCup, setSliceValuationCup] = useState({
       valuation: '--',
       tokenPrice: '--',
@@ -63,36 +70,32 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
       tokenName: '',
    });
 
-   const handleConfirmRebalance = async () => {
-      try {
-         const tx = await rebalanceMutation.mutateAsync();
-         toast.success(`Rebalance submitted with hash ${tx}`);
-      } catch (err) {
-         toast.error('Rebalance error: no tokens deposited to slice');
-      }
-   };
-
-   const handleConfirmDepositSlice = async (values: CreateSliceRequestData) => {
-      try {
-         const tx = await depositToSlice({
-            aToken: values.deposit.token,
-            amount: BigInt(Math.floor(Number.parseFloat(values.deposit.amount) * 10 ** 18)),
-         });
-         toast.success(`Deposit confirmed ${tx}`);
-      } catch (err) {
-         toast.error('Deposit error: check amount of your asset token');
-      }
+   const getCompounderAssets = async (acTokens: string[]) => {
+      const autoCompounderVaults = await Promise.allSettled(
+         acTokens.map(vault => readContract({
+            abi: basicVaultAbi,
+            address: vault as `0x${string}`,
+            functionName: 'asset',
+            args: [],
+         }))
+      );
+           
+      return autoCompounderVaults.map(asset => (asset as { value: `0x${string}` }).value);
    };
 
    const handleAddAllocationSubmit = async (values: CreateSliceRequestData) => {
-      try {
-         const tx = await addSliceAllocation(values);
-         toast.success(`Allocation added with hash ${tx}`);
+      const underlyingAssets = await getCompounderAssets(values.sliceAllocation.tokenAssets);
 
-         setIsAllocationOpen(false);
-      } catch (err) {
-         toast.error('Allocation error');
-      }
+      await addSliceTokenAssetsMutation.mutateAsync({
+         ...values,
+         underlyingAssets,
+      });
+      await rebalanceSliceMutation.mutateAsync({
+         ...values,
+         vaults: [],
+      });
+      
+      setIsAllocationOpen(false);
    };
 
    useEffect(() => {
@@ -169,63 +172,27 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
          <SliceAllocations
             allocations={sliceAllocations}
             sliceBuildings={sliceBuildings}
-            onConfirmRebalance={handleConfirmRebalance}
-            onDepositSlice={() => {
-               setIsDepositOpen(true);
-            }}
             onAddAllocation={() => {
                setIsAllocationOpen(true);
             }}
          />
 
-         {isDepositOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-               <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-2xl p-6">
-               <Formik
-                  initialValues={INITIAL_VALUES}
-                  validationSchema={VALIDATION_SCHEMA}
-                  onSubmit={handleConfirmDepositSlice}
-               >
-                     {({ isSubmitting, submitForm }) => (
-                        <div>
-                           <Button
-                              type="button"
-                              onClick={() => {
-                                 setIsDepositOpen(false);
-                              }}
-                              variant="outline"
-                              className="text-gray-500 hover:text-gray-700"
-                           >
-                              ✕
-                           </Button>
-                           <div className="mt-6">
-                              <DepositSliceForm />
-                           </div>
-                           <div className="mt-6">
-                              <Button
-                                 type="submit"
-                                 variant="default"
-                                 disabled={isSubmitting}
-                                 onClick={submitForm}
-                              >
-                                 Deposit to Slice
-                              </Button>
-                           </div>
-                           <div className="mt-6">
-                              {isSubmitting && <Loader size={64} className="animate-spin" />}
-                           </div>
-                        </div>
-                     )}
-                  </Formik>
-               </div>
-            </div>
-         )}
-
          {isAllocationOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-               <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-2xl p-6">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 w-full">
+               <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-2xl p-6" style={{ minWidth: '60%' }}>
                   <Formik
-                     initialValues={INITIAL_VALUES}
+                     initialValues={{
+                        ...INITIAL_VALUES,
+                        sliceAllocation: {
+                           ...INITIAL_VALUES.sliceAllocation,
+                           tokenAssetAmounts: sliceAllocations.reduce((acc, alloc) => {
+                              return {
+                                 ...acc,
+                                 [alloc.aToken]: alloc.actualAllocation.toString(),
+                              };
+                           }, {}),
+                        },
+                     }}
                      validationSchema={VALIDATION_SCHEMA}
                      onSubmit={handleAddAllocationSubmit}
                   >
@@ -242,7 +209,7 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
                               ✕
                            </Button>
                            <div className="mt-6">
-                              <AddSliceAllocationForm />
+                              <AddSliceAllocationForm existsAllocations={sliceAllocations} />
                            </div>
                            <div className="mt-6">
                               <Button

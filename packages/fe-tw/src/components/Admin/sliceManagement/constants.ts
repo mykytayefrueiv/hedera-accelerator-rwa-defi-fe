@@ -11,7 +11,8 @@ export type CreateSliceFormProps = {
 
 export type AddSliceAllocationFormProps = {
     tokenAssets: string[],
-    allocation: string,
+    tokenAssetAmounts: { [key: string]: string },
+    totalAssetsAmount: string,
 };
 
 export type DepositSliceFormProps = {
@@ -21,7 +22,8 @@ export type DepositSliceFormProps = {
 
 export const addAllocationFormInitialValues = {
     tokenAssets: [],
-    allocation: "0",
+    tokenAssetAmounts: {},
+    totalAssetsAmount: "0",
 };
 
 export const deploySliceFormInitialValues = {
@@ -52,12 +54,11 @@ export const VALIDATION_SCHEMA = Yup.object({
         symbol: Yup.string().required('Symbol is required'),
     }),
     sliceAllocation: Yup.object().shape({
-        tokenAssets: Yup.array().of(Yup.string()).required('Token assets is required'),
-        allocation: Yup.string().required('Allocation is required'),
-    }),
-    deposit: Yup.object().shape({
-        amount: Yup.string().required('Token amount is required'),
-        token: Yup.string().required('Token asset is required'),
+        tokenAssets: Yup.array().of(Yup.string()),
+        tokenAssetAmounts: Yup.object(),
+        totalAssetsAmount: Yup.string().when(['sliceAllocation.tokenAssets'], (a, schema) => 
+            schema.test("total_deposit_amount", "Total deposit amount should be provided", value => a.length > 0 ? Number(value) > 0 : true)
+        ),
     }),
 });
 
@@ -65,7 +66,7 @@ export const STEPS = ["slice", "sliceAllocation"];
 
 export const FRIENDLY_STEP_NAME = {
    slice: "Deploy Slice",
-   sliceAllocation: "Add Slice Allocation",
+   sliceAllocation: "Add Slice Allocations in tokens",
 };
 
 export const FRIENDLY_STEP_STATUS: Record<StepsStatus, string> = {

@@ -68,7 +68,7 @@ export const useATokenDeployFlow = () => {
          const salt = uuid.v4();
          const details = {
             uniswapV2Router: UNISWAP_ROUTER_ADDRESS,
-            usdc: USDC_ADDRESS,
+            usdc: '0x5555ce918Ac43De2dbc3596BE67D45884D6CAa78',
             vault: data.tokenAsset,
             aTokenName: data.tokenName,
             aTokenSymbol: data.tokenSymbol,

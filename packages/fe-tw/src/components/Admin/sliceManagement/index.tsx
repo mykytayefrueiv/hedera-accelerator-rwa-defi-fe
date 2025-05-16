@@ -1,7 +1,7 @@
 "use client";
 
 import { Formik } from "formik";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Check, TriangleAlert, Loader } from "lucide-react";
 import { tryCatch } from "@/services/tryCatch";
@@ -24,10 +24,11 @@ import { LoadingView } from "@/components/LoadingView/LoadingView";
 import { CreateSliceRequestData, SliceDeploymentStep } from "@/types/erc3643/types";
 import { useCreateSlice } from "@/hooks/useCreateSlice";
 import { StepsStatus } from "../buildingManagement/types";
-import { useSlicesData } from "@/hooks/useSlicesData";
 import { AddSliceForm } from "@/components/Admin/sliceManagement/AddSliceForm";
 import { AddSliceAllocationForm } from "@/components/Admin/sliceManagement/AddSliceAllocationForm";
 import { INITIAL_VALUES, STEPS, FRIENDLY_STEP_NAME, FRIENDLY_STEP_STATUS, VALIDATION_SCHEMA } from "@/components/Admin/sliceManagement/constants";
+import { useReadContract } from "@buidlerlabs/hashgraph-react-wallets";
+import { basicVaultAbi } from "@/services/contracts/abi/basicVaultAbi";
 
 const getCurrentStepState = (
     isSelected: boolean,
@@ -57,7 +58,21 @@ export const SliceManagement = () => {
     const [txResult, setTxResult] = useState<string>();
     const [txError, setTxError] = useState<string>();
     const [isTransactionInProgress, setIsTransactionInProgress] = useState<boolean>(false);
-    const { createSlice, waitForLastSliceDeployed, addSliceAllocationMutation } = useCreateSlice();
+    const { createSlice, waitForLastSliceDeployed, addSliceTokenAssetsMutation, rebalanceSliceMutation } = useCreateSlice();
+    const { readContract } = useReadContract();
+    
+     const getCompounderAssets = async (acTokens: string[]) => {
+          const autoCompounderVaults = await Promise.allSettled(
+             acTokens.map(vault => readContract({
+                abi: basicVaultAbi,
+                address: vault as `0x${string}`,
+                functionName: 'asset',
+                args: [],
+             }))
+          );
+               
+          return autoCompounderVaults.map(asset => (asset as { value: `0x${string}` }).value);
+    };
 
     const handleSubmit = async (values: CreateSliceRequestData, e: { resetForm: () => void }) => {
         setIsModalOpened(true);
@@ -66,6 +81,7 @@ export const SliceManagement = () => {
         setCurrentSetupStep(1);
 
         try {
+            const underlyingAssets = await getCompounderAssets(values.sliceAllocation.tokenAssets);
             const results = await Promise.all([
                 tryCatch(createSlice(values)),
                 tryCatch(waitForLastSliceDeployed())
@@ -73,12 +89,18 @@ export const SliceManagement = () => {
 
             if (results[0].data) {
                 setTxResult(results[0].data);
-                toast.success(`Slice ${values.slice.name} created successfully`);
+                toast.success(`Slice ${values.slice.name} deployed successfully`);
     
                 if (results[1].data) {
-                    await addSliceAllocationMutation.mutateAsync({
+                    await addSliceTokenAssetsMutation.mutateAsync({
                         ...values,
-                        slice: results[1].data,
+                        deployedSliceAddress: results[1].data,
+                        underlyingAssets,
+                    });
+                    await rebalanceSliceMutation.mutateAsync({
+                        ...values,
+                        deployedSliceAddress: results[1].data,
+                        vaults: [],
                     });
                 }
             } else {
@@ -188,7 +210,7 @@ export const SliceManagement = () => {
                                 ) : (
                                     <>
                                         <Check size={64} className="text-violet-500" />
-                                        {addSliceAllocationMutation.data ?
+                                        {addSliceTokenAssetsMutation.data ?
                                             <span>
                                                 Deployment of the slice and its parts such as allocation was deployed successfully!
                                             </span> :
