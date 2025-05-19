@@ -26,3 +26,12 @@ export const getTokenName = (tokenAddress: `0x${string}`) =>
       address: tokenAddress,
       args: [],
    });
+
+export const getTokenSymbol = async (tokenAddress: `0x${string}`) => {
+   return await readContract({
+      address: tokenAddress,
+      abi: tokenAbi,
+      functionName: "symbol",
+      args: [],
+   });
+};
