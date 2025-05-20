@@ -12,6 +12,9 @@ import { basicVaultAbi } from "@/services/contracts/abi/basicVaultAbi";
 import { ContractId } from "@hashgraph/sdk";
 import { TokenInfo, VaultInfo } from "@/components/Staking/types";
 import { useExecuteTransaction } from "@/hooks/useExecuteTransaction";
+import { useEffect } from "react";
+import { ethers } from "ethers";
+import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 
 interface StakingHookReturnParams {
    loadingState: {
@@ -34,7 +37,11 @@ interface StakingHookReturnParams {
    rewardTokens: string[];
 }
 
-export const useStaking = ({ buildingId }: { buildingId: `0x${string}` }): StakingHookReturnParams => {
+export const useStaking = ({
+   buildingId,
+}: {
+   buildingId: `0x${string}`;
+}): StakingHookReturnParams => {
    const { deployedBuildingTokens } = useBuildingDetails(buildingId);
    const { readContract } = useReadContract();
    const { writeContract } = useWriteContract();
@@ -46,6 +53,17 @@ export const useStaking = ({ buildingId }: { buildingId: `0x${string}` }): Staki
       queryKey: ["BUILDING_DETAILS", buildingId],
       queryFn: () => readBuildingDetails(buildingId),
       select: (data) => data[0][5],
+   });
+
+   const { data: treasuryUsdcAddress, isLoading: isFetchingTreasuryAddress2 } = useQuery({
+      queryKey: ["USDC", treasuryAddress],
+      queryFn: () =>
+         readContract({
+            address: treasuryAddress,
+            abi: buildingTreasuryAbi,
+            functionName: "usdc",
+         }),
+      enabled: Boolean(treasuryAddress),
    });
 
    const { data: vaultAddress, isLoading: isFetchingVaultAddress } = useQuery({
@@ -128,8 +146,8 @@ export const useStaking = ({ buildingId }: { buildingId: `0x${string}` }): Staki
          readContract({
             address: vaultAddress,
             abi: basicVaultAbi,
-            functionName: "getUserReward",
-            args: [evmAddress, vaultInfo?.rewardTokens[0]],
+            functionName: "getAllRewards",
+            args: [evmAddress],
          }),
       enabled: Boolean(vaultInfo?.rewardTokens[0]) && Boolean(vaultAddress),
    });
