@@ -8,17 +8,12 @@ export type PaymentRecord = {
 };
 
 export type ExpenseRecord = {
-   id: number;
    buildingId: string;
+   dateCreated: Date;
    title: string;
    amount: number;
-   expenseType: "once-off" | "recurring";
-   method: "flat" | "percentage";
-   period?: number;
-   endDate?: Date;
-   percentage?: number;
-   notes?: string;
-   dateCreated: Date;
+   notes: string;
+   receiver: `0x${string}`;
 };
 
 export type TreasuryState = {
@@ -57,29 +52,20 @@ export const treasuryState: TreasuryState = {
 
    expenses: [
       {
-         id: 1,
          buildingId: "1234",
          title: "Office Supplies",
          amount: 100,
-         expenseType: "once-off",
-         method: "flat",
+         receiver: "0x",
          dateCreated: new Date(),
+         notes: "Monthly cleaning services for common areas",
       },
       {
-         id: 2,
          buildingId: "1234",
          title: "Cleaning Services",
          amount: 300,
-         expenseType: "recurring",
-         method: "flat",
-         period: 30,
-         endDate: new Date(2025, 12, 1),
+         receiver: "0x",
          dateCreated: new Date(2024, 12, 1),
          notes: "Monthly cleaning services for common areas",
       },
    ],
 };
-
-export type ExpenseType = ExpenseRecord["expenseType"];
-
-export type ExpenseMethod = ExpenseRecord["method"];

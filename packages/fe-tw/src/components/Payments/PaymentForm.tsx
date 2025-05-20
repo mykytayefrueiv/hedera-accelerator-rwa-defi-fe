@@ -1,6 +1,6 @@
 "use client";
 
-import { useTreasuryData } from "@/hooks/useTreasuryData";
+import { useBuildingTreasury } from "@/hooks/useBuildingTreasury";
 import type React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -17,16 +17,16 @@ import {
 import { Button } from "@/components/ui/button";
 
 type PaymentFormProps = {
-   buildingId: string;
+   treasuryAddress: `0x${string}`;
    onCompleted?: (amount: number, revenueType: string, notes: string) => void;
 };
 
-export function PaymentForm({ buildingId, onCompleted }: PaymentFormProps) {
+export function PaymentForm({ treasuryAddress, onCompleted }: PaymentFormProps) {
    const [amount, setAmount] = useState("");
    const [revenueType, setRevenueType] = useState("rental");
    const [notes, setNotes] = useState("");
 
-   const { deposit } = useTreasuryData();
+   const { deposit } = useBuildingTreasury(treasuryAddress);
 
    async function handleSubmit(e: React.FormEvent) {
       e.preventDefault();

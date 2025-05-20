@@ -1,7 +1,7 @@
 "use client";
 
 import { usePaymentsData } from "@/hooks/usePaymentsData";
-import { useTreasuryData } from "@/hooks/useTreasuryData";
+import { useBuildingTreasury} from "@/hooks/useBuildingTreasury";
 import moment from "moment";
 import { useState } from "react";
 import { PaymentForm } from "./PaymentForm";
@@ -26,10 +26,19 @@ import {
 
 type PaymentsViewProps = {
    buildingId: string;
+   treasuryAddress: `0x${string}`;
 };
 
-export function PaymentsView({ buildingId }: PaymentsViewProps) {
-   const { data } = useTreasuryData();
+type PaymentModalProps = {
+   open: boolean;
+   buildingId: string;
+   treasuryAddress: `0x${string}`;
+   onOpenChange: (state: boolean) => void;
+   onPaymentCompleted: (amount: number, revenueType: string, notes: string) => Promise<void>;
+};
+
+export function PaymentsView({ buildingId, treasuryAddress }: PaymentsViewProps) {
+   const { data } = useBuildingTreasury(treasuryAddress);
    const { payments, isLoading, isError, addPayment } = usePaymentsData(buildingId);
 
    const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -110,9 +119,10 @@ export function PaymentsView({ buildingId }: PaymentsViewProps) {
 
          <PaymentModal
             open={showPaymentModal}
-            buildingId={buildingId}
             onOpenChange={(state) => setShowPaymentModal(state)}
             onPaymentCompleted={handlePaymentCompleted}
+            treasuryAddress={treasuryAddress}
+            buildingId={buildingId}
          />
       </div>
    );
@@ -121,14 +131,10 @@ export function PaymentsView({ buildingId }: PaymentsViewProps) {
 function PaymentModal({
    open,
    buildingId,
+   treasuryAddress,
    onOpenChange,
    onPaymentCompleted,
-}: {
-   open: boolean;
-   buildingId: string;
-   onOpenChange: (state: boolean) => void;
-   onPaymentCompleted: (amount: number, revenueType: string, notes: string) => Promise<void>;
-}) {
+}: PaymentModalProps) {
    return (
       <Dialog open={open} onOpenChange={onOpenChange}>
          <DialogContent className="sm:max-w-[425px]">
@@ -139,7 +145,7 @@ function PaymentModal({
                </DialogDescription>
             </DialogHeader>
 
-            <PaymentForm buildingId={buildingId} onCompleted={onPaymentCompleted} />
+            <PaymentForm treasuryAddress={treasuryAddress} onCompleted={onPaymentCompleted} />
          </DialogContent>
       </Dialog>
    );
