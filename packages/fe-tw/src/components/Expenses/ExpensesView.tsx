@@ -1,6 +1,6 @@
 "use client";
 
-import { PaymentRequestPayload, useBuildingTreasury } from "@/hooks/useBuildingTreasury";
+import { useBuildingTreasury } from "@/hooks/useBuildingTreasury";
 import moment from "moment";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -13,7 +13,6 @@ import {
    TableHeader,
    TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
    Dialog,
@@ -22,6 +21,9 @@ import {
    DialogHeader,
    DialogTitle,
 } from "@/components/ui/dialog";
+import { ExpenseRecord } from "@/consts/treasury";
+import { PaymentRequestPayload } from "@/types/erc3643/types";
+import { StorageKeys, storageService } from "@/services/storageService";
 
 type ExpensesViewProps = {
    buildingAddress: `0x${string}`;
@@ -31,39 +33,29 @@ type ExpensesModalProps = {
    open: boolean;
    buildingAddress: `0x${string}`;
    onOpenChange: (state: boolean) => void;
-   handleExpenseSubmitted: (data: PaymentRequestPayload) => Promise<void>;
-};
-
-export const utils = {
-   getExpenses: async () => {
-      return !!localStorage.getItem('Expenses') ? JSON.parse(localStorage.getItem('Expenses') as string) : [];
-   },
-   saveExpenses: async (expenseData: PaymentRequestPayload) => {
-      localStorage.setItem(
-         'Expenses',
-         JSON.stringify(
-            [...(
-               !!localStorage.getItem('Expenses') ? JSON.parse(localStorage.getItem('Expenses') as string) : []),
-               expenseData,
-            ]
-         )
-      );
-   },
+   handleExpenseSubmitted: (data: PaymentRequestPayload, actions: { resetForm: () => void }) => Promise<void>;
 };
 
 export function ExpensesView({ buildingAddress }: ExpensesViewProps) {
-   const { data, expenses, isError, isLoading, makePayment } = useBuildingTreasury(buildingAddress);
+   const { treasuryData, expenses, isError, isLoading, makePayment } = useBuildingTreasury(buildingAddress);
    const [showModal, setShowModal] = useState(false);
 
-   const onSubmitExpense = async (values: PaymentRequestPayload) => {
+   const onSubmitExpense = async (values: PaymentRequestPayload, actions: { resetForm: () => void }) => {
       try {
          await makePayment(values);
-         utils.saveExpenses(values);
+   
+         const _expenses = await storageService.restoreItem<ExpenseRecord[]>(StorageKeys.Expenses);
+         storageService.storeItem(StorageKeys.Expenses, [..._expenses ?? [], {
+            ...values,
+            dateCreated: new Date().toUTCString(),
+            buildingId: buildingAddress,
+            notes: values.notes,
+            title: values.title,
+         }]);
 
-         toast.success("Expense payment made from the treasury!");
          setShowModal(false);
       } catch (err) {
-         toast.error(`Could not make expense treasury payment: ${err}`);
+         actions.resetForm();
       }
    }
 
@@ -77,10 +69,12 @@ export function ExpensesView({ buildingAddress }: ExpensesViewProps) {
                </p>
             </div>
 
-            {data && (
+            {!!treasuryData && (
                <div className="text-right">
                   <p className="text-gray-500 text-base">Treasury Balance</p>
-                  <p className="text-2xl font-semibold">{data.balance.toLocaleString()} USDC</p>
+                  <p className="text-2xl font-semibold">
+                     {!!treasuryData ? treasuryData.balance : '--'} USDC
+                  </p>
                </div>
             )}
          </div>
@@ -115,14 +109,6 @@ export function ExpensesView({ buildingAddress }: ExpensesViewProps) {
                            <TableCell>{expense.amount} USDC</TableCell>
                            <TableCell>{expense.receiver}</TableCell>
                            <TableCell>{expense.notes || "No notes"}</TableCell>
-                           <TableCell>
-                              <Badge>Success</Badge>
-                           </TableCell>
-                           <TableCell>
-                              <Button variant="outline" size="sm" type="button">
-                                 Details
-                              </Button>
-                           </TableCell>
                         </TableRow>
                      ))}
                   </TableBody>

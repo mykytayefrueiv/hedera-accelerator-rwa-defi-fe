@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PaymentRequestPayload } from "@/hooks/useBuildingTreasury";
+import { PaymentRequestPayload } from "@/types/erc3643/types";
 
 type ExpenseFormProps = {
-   handlePayment: (data: PaymentRequestPayload) => Promise<void>;
+   handlePayment: (data: PaymentRequestPayload, actions: { resetForm: () => void }) => Promise<void>;
 };
 
 export function ExpenseForm({ handlePayment }: ExpenseFormProps) {
@@ -49,9 +49,7 @@ export function ExpenseForm({ handlePayment }: ExpenseFormProps) {
                   <Label className="block mb-1 font-semibold" htmlFor="amount">Amount</Label>
                   <Input
                      id="amount"
-                     type="number"
-                     step="0.01"
-                     min="0"
+                     type="text"
                      className="mt-1"
                      placeholder="Enter amount in building USDC"
                      required

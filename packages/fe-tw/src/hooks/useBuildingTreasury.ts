@@ -1,16 +1,9 @@
 "use client";
 
 import { toast } from "sonner";
-import {
-   depositToTreasury,
-   getBusinessBalance,
-   getTreasuryBalance,
-   getTreasuryReserve,
-   setTreasuryReserveAmount,
-} from "@/services/treasuryService";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useExecuteTransaction } from "./useExecuteTransaction";
-import { useWriteContract } from "@buidlerlabs/hashgraph-react-wallets";
+import { useWriteContract, useReadContract } from "@buidlerlabs/hashgraph-react-wallets";
 import { buildingTreasuryAbi } from "@/services/contracts/abi/buildingTreasuryAbi";
 import { watchContractEvent } from "@/services/contracts/watchContractEvent"
 import { ContractId } from "@hashgraph/sdk";
@@ -18,29 +11,54 @@ import { useEffect, useState } from "react";
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
 import { BUILDING_FACTORY_ADDRESS } from "@/services/contracts/addresses";
 import { ExpenseRecord } from "@/consts/treasury";
-import { utils } from "@/components/Expenses/ExpensesView";
+import { PaymentRequestPayload } from "@/types/erc3643/types";
+import { tokenAbi } from "@/services/contracts/abi/tokenAbi";
+import { ethers } from "ethers";
+import { StorageKeys, storageService } from "@/services/storageService";
 
-export type PaymentRequestPayload = {
-   receiver: string,
-   amount: string
-};
-
-export function useBuildingTreasury(building?: `0x${string}`) {
+export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
    const queryClient = useQueryClient();
    const { executeTransaction } = useExecuteTransaction();
    const { writeContract } = useWriteContract();
+   const { readContract } = useReadContract();
    const [treasuryAddress, setTreasuryAddress] = useState<`0x${string}`>();
    const [paymentLogs, setPaymentLogs] = useState<any>();
    const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
-   const [storedExpenses, setStoredExpenses] = useState<ExpenseRecord[]>([]);
 
-   const { data, isLoading, isError } = useQuery({
-      queryKey: ["treasuryData"],
-      queryFn: async () => ({
-         balance: getTreasuryBalance(),
-         reserve: getTreasuryReserve(),
-         businessBalance: getBusinessBalance(),
-      }),
+   const { data: treasuryData, isLoading, isError } = useQuery({
+      queryKey: ["treasuryData", treasuryAddress],
+      queryFn: async () => {
+         if (!treasuryAddress) return null;
+
+         const treasuryUsdcAddress = await readContract({
+            address: treasuryAddress,
+            abi: buildingTreasuryAbi,
+            functionName: "usdc",
+         });
+   
+         if (!treasuryUsdcAddress) return null;
+   
+         const [balance, decimals] = await Promise.all([
+            readContract({
+               address: treasuryUsdcAddress as `0x${string}`,
+               abi: tokenAbi,
+               functionName: "balanceOf",
+               args: [treasuryAddress],
+            }),
+            readContract({
+               address: treasuryUsdcAddress as `0x${string}`,
+               abi: tokenAbi,
+               functionName: "decimals",
+            }),
+         ]);
+   
+         return {
+            balance: Number(ethers.formatUnits(balance as bigint, decimals as bigint)),
+            usdcAddress: treasuryUsdcAddress,
+            decimals,
+         };
+      },
+      enabled: Boolean(treasuryAddress),
    });
 
    useEffect(() => {
@@ -49,14 +67,14 @@ export function useBuildingTreasury(building?: `0x${string}`) {
          abi: buildingFactoryAbi,
          eventName: "NewTreasury",
          onLogs: (data) => {
-            const treasury = data.find(log => (log as unknown as { args: any[] }).args[1] === building);
+            const treasury = data.find(log => (log as unknown as { args: any[] }).args[1] === buildingAddress);
 
             if (treasury) {
                setTreasuryAddress((treasury as unknown as { args: any[] }).args[0]);
             }
          },
       });
-   }, [building]);
+   }, [buildingAddress]);
 
    useEffect(() => {
       if (treasuryAddress) {
@@ -72,35 +90,28 @@ export function useBuildingTreasury(building?: `0x${string}`) {
    }, [treasuryAddress]);
 
    useEffect(() => {
-      if (storedExpenses?.length && paymentLogs?.length) {
-         console.log('...!', paymentLogs, storedExpenses);
-
-         const payments = paymentLogs
-            .filter((payment: { args: any[] }) =>
-               !!storedExpenses.find(exp => exp.receiver === payment.args[0] && exp.amount === payment.args[1])
-            );
-
-         console.log('payments...', payments);
-         
-         if (payments?.length) {
-            setExpenses(payments);
+      storageService.restoreItem<ExpenseRecord[]>(StorageKeys.Expenses).then(data => {
+         if (data?.length && paymentLogs?.length) {
+            const expensePayments = data
+               .filter(expense =>
+                  !!paymentLogs.find(
+                     (payment: { args: any[] }) =>
+                        expense.receiver === payment.args[0] &&
+                        expense.amount === ethers.formatUnits(payment.args[1].toString(), 6)
+                  )
+               );
+            
+            if (expensePayments?.length) {
+               setExpenses(expensePayments);
+            }
          }
-      }
-   }, [storedExpenses, paymentLogs]);
-
-   const depositMutation = useMutation({
-      mutationFn: (amount: number) => depositToTreasury(amount),
-      onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: ["treasuryData"] });
-      },
-      onError: (err: Error) => {
-         console.error("Error:", err.message);
-      },
-   });
+      });
+   }, [paymentLogs]);
 
    const paymentMutation = useMutation({
       mutationFn: async (payload: PaymentRequestPayload) => {
-         const txAmount = ((parseFloat(payload.amount) * 10) ** 18);
+         const txAmount = ethers.parseUnits(parseFloat(payload.amount).toString(), treasuryData?.decimals as string);
+
          const tx = await executeTransaction(() => writeContract({
             functionName: 'makePayment',
             args: [payload.receiver, txAmount],
@@ -119,23 +130,33 @@ export function useBuildingTreasury(building?: `0x${string}`) {
       },
    });
 
-   const reserveMutation = useMutation({
-      mutationFn: (newReserve: number) => setTreasuryReserveAmount(newReserve),
-      onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: ["treasuryData"] });
-      },
-      onError: (err: Error) => {
-         console.error("Error:", err.message);
-      },
-   });
+   /** 
+      const depositMutation = useMutation({
+         mutationFn: (amount: number) => depositToTreasury(amount),
+         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["treasuryData"] });
+         },
+         onError: (err: Error) => {
+            console.error("Error:", err.message);
+         },
+      });
+
+      const reserveMutation = useMutation({
+         mutationFn: (newReserve: number) => setTreasuryReserveAmount(newReserve),
+         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["treasuryData"] });
+         },
+         onError: (err: Error) => {
+            console.error("Error:", err.message);
+         },
+      });
+   **/
 
    return {
-      data,
+      treasuryData,
       expenses,
       isLoading,
       isError,
-      deposit: depositMutation.mutateAsync,
       makePayment: paymentMutation.mutateAsync,
-      setReserve: reserveMutation.mutateAsync,
    };
 }

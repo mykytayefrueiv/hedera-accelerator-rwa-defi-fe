@@ -9,11 +9,11 @@ export type PaymentRecord = {
 
 export type ExpenseRecord = {
    buildingId: string;
-   dateCreated: Date;
-   title: string;
-   amount: number;
-   notes: string;
-   receiver: `0x${string}`;
+   dateCreated: string;
+   amount: string;
+   receiver: string;
+   notes?: string;
+   title?: string;
 };
 
 export type TreasuryState = {
@@ -54,17 +54,17 @@ export const treasuryState: TreasuryState = {
       {
          buildingId: "1234",
          title: "Office Supplies",
-         amount: 100,
+         amount: '100',
          receiver: "0x",
-         dateCreated: new Date(),
+         dateCreated: new Date().toUTCString(),
          notes: "Monthly cleaning services for common areas",
       },
       {
          buildingId: "1234",
          title: "Cleaning Services",
-         amount: 300,
+         amount: '300',
          receiver: "0x",
-         dateCreated: new Date(2024, 12, 1),
+         dateCreated: new Date().toUTCString(),
          notes: "Monthly cleaning services for common areas",
       },
    ],
