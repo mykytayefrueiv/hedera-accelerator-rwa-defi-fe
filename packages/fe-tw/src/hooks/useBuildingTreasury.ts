@@ -67,10 +67,10 @@ export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
          abi: buildingFactoryAbi,
          eventName: "NewTreasury",
          onLogs: (data) => {
-            const treasury = data.find(log => (log as unknown as { args: any[] }).args[1] === buildingAddress);
+            const treasuryLog = data.find(log => (log as unknown as { args: any[] }).args[1] === buildingAddress);
 
-            if (treasury) {
-               setTreasuryAddress((treasury as unknown as { args: any[] }).args[0]);
+            if (treasuryLog) {
+               setTreasuryAddress((treasuryLog as unknown as { args: any[] }).args[0]);
             }
          },
       });
@@ -83,29 +83,31 @@ export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
             abi: buildingTreasuryAbi,
             eventName: "Payment",
             onLogs: (data) => {
-               setPaymentLogs(data);
+               setPaymentLogs((prev: any) => [...(prev ?? []), ...data]);
             },
         });
       }
    }, [treasuryAddress]);
 
    useEffect(() => {
-      storageService.restoreItem<ExpenseRecord[]>(StorageKeys.Expenses).then(data => {
-         if (data?.length && paymentLogs?.length) {
-            const expensePayments = data
-               .filter(expense =>
-                  !!paymentLogs.find(
-                     (payment: { args: any[] }) =>
-                        expense.receiver === payment.args[0] &&
-                        expense.amount === ethers.formatUnits(payment.args[1].toString(), 6)
-                  )
-               );
-            
-            if (expensePayments?.length) {
-               setExpenses(expensePayments);
+      if (paymentLogs?.length) {
+         storageService.restoreItem<ExpenseRecord[]>(StorageKeys.Expenses).then(storedExpensesData => {
+            if (storedExpensesData?.length) {
+               const expensePayments = storedExpensesData
+                  .filter(expense =>
+                     !!paymentLogs.find(
+                        (payment: { args: any[] }) =>
+                           expense.receiver === payment.args[0] &&
+                           expense.amount === ethers.formatUnits(payment.args[1].toString(), 6)
+                     )
+                  );
+               
+               if (expensePayments?.length) {
+                  setExpenses(expensePayments);
+               }
             }
-         }
-      });
+         });
+      }
    }, [paymentLogs]);
 
    const paymentMutation = useMutation({
@@ -129,28 +131,6 @@ export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
          toast.error(`Payment submitted error ${err.message}`);
       },
    });
-
-   /** 
-      const depositMutation = useMutation({
-         mutationFn: (amount: number) => depositToTreasury(amount),
-         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["treasuryData"] });
-         },
-         onError: (err: Error) => {
-            console.error("Error:", err.message);
-         },
-      });
-
-      const reserveMutation = useMutation({
-         mutationFn: (newReserve: number) => setTreasuryReserveAmount(newReserve),
-         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["treasuryData"] });
-         },
-         onError: (err: Error) => {
-            console.error("Error:", err.message);
-         },
-      });
-   **/
 
    return {
       treasuryData,
