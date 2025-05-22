@@ -12,6 +12,7 @@ import WhyStake from "@/components/Staking/WhyStake";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useStaking } from "@/components/Staking/hooks";
+import { addUSDCTokenToMM, getTokenDecimals, getTokenSymbol } from "@/services/erc20Service";
 
 interface StakingOverviewProps {
    buildingId: string;
@@ -39,9 +40,25 @@ export default function StakingOverview({ buildingId }: StakingOverviewProps) {
       userStakedTokens,
       stakeTokens,
       unstakeTokens,
-   } = useStaking({
-      buildingId,
-   });
+   } = useStaking({ buildingId });
+
+   const addBuildingTokenToMM = async () => {
+      const tokenDecimals = (await getTokenDecimals(tokenAddress as `0x${string}`))[0];
+      const tokenSymbol = (await getTokenSymbol(tokenAddress as `0x${string}`))[0];
+
+      addUSDCTokenToMM({
+         tokenDecimals: tokenDecimals.toString(),
+         tokenSymbol,
+         tokenAddress: tokenAddress as `0x${string}`,
+         tokenType: 'ERC20',
+      });
+   };
+
+   useEffect(() => {
+      if (!!tokenAddress) {
+         addBuildingTokenToMM();
+      }
+   }, [tokenAddress]);
 
    const isLoading =
       loadingState.isFetchingTokenInfo ||
@@ -70,7 +87,6 @@ export default function StakingOverview({ buildingId }: StakingOverviewProps) {
                isDepositing={loadingState.isDepositing}
                isWithdrawing={loadingState.isWithdrawing}
                disabled={tokenBalance === 0}
-               buildingId={buildingId}
                onStake={stakeTokens}
                onUnstake={unstakeTokens}
             />

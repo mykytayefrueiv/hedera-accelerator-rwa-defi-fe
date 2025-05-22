@@ -1,10 +1,36 @@
+'use client';
+
 import { AddBuildingTokenLiquidityForm } from "@/components/Admin/AddBuildingTokenLiquidityForm";
+import { useStaking } from "@/components/Staking/hooks";
+import { addTokenToMM, getTokenDecimals, getTokenSymbol } from "@/services/erc20Service";
+import { useEffect } from "react";
 
 type Props = {
    buildingAddress: `0x${string}`;
+   buildingId: string;
 };
 
 export const BuildingAddLiquidity = (props: Props) => {
+   const { tokenAddress } = useStaking({ buildingId: props.buildingId });
+   
+   const addBuildingTokenToMM = async () => {
+      const tokenDecimals = (await getTokenDecimals(tokenAddress as `0x${string}`))[0];
+      const tokenSymbol = (await getTokenSymbol(tokenAddress as `0x${string}`))[0];
+   
+      addTokenToMM({
+         tokenDecimals: tokenDecimals.toString(),
+         tokenAddress: tokenAddress as `0x${string}`,
+         tokenSymbol,
+         tokenType: 'ERC20',
+      });
+   };
+   
+   useEffect(() => {
+      if (!!tokenAddress) {
+         addBuildingTokenToMM();
+      }
+   }, [tokenAddress]);
+   
    return (
       <div className="p-6 max-w-7xl mx-auto space-y-6">
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -2,19 +2,19 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import {
    convertBuildingNFTsData,
-   readBuildingDetails,
+   filterBuildingsByOnlyUniqueIpfsHash,
    readBuildingsList,
 } from "@/services/buildingService";
 import { fetchJsonFromIpfs } from "@/services/ipfsService";
-import { includes, map } from "lodash";
 
 export async function BuildingsOverview() {
    const buildings = await readBuildingsList();
    const buildingNftData = await Promise.all(
-      buildings[0].map((building) => fetchJsonFromIpfs(building[2])),
+      buildings[0].map((building: string[]) => fetchJsonFromIpfs(building[2])),
    );
+
    const convertedBuildings = convertBuildingNFTsData(
-      buildingNftData.map((data, idx) => ({
+      filterBuildingsByOnlyUniqueIpfsHash(buildingNftData).map((data, idx) => ({
          ...data,
          address: buildings[0][idx][0],
          copeIpfsHash: buildings[0][idx][2],

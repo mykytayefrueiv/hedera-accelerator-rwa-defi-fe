@@ -40,7 +40,7 @@ interface StakingHookReturnParams {
 export const useStaking = ({
    buildingId,
 }: {
-   buildingId: `0x${string}`;
+   buildingId: `0x${string}` | string;
 }): StakingHookReturnParams => {
    const { deployedBuildingTokens } = useBuildingDetails(buildingId);
    const { readContract } = useReadContract();
