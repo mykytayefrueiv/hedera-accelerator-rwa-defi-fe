@@ -4,7 +4,7 @@ import { useBuildingDetails } from "@/hooks/useBuildingDetails";
 import { useBuildingLiquidity } from "@/hooks/useBuildingLiquidity";
 import { useBuildings } from "@/hooks/useBuildings";
 import { Form, Formik } from "formik";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
    Select,
@@ -26,6 +26,12 @@ export function AddBuildingTokenLiquidityForm({ buildingAddress }: Props) {
    const { buildings } = useBuildings();
    const { isAddingLiquidity, txHash, txError, addLiquidity } = useBuildingLiquidity();
    const { deployedBuildingTokens, tokenNames } = useBuildingDetails(buildingAddress);
+   const [tokensToLiquidity, setTokensToLiquidity] = useState<string[]>([]);
+
+   const copyToClipboard = (text: string) => {
+      navigator.clipboard.writeText(text);
+      toast.success('Successfully copied to clipboard');
+   };
 
    async function handleSubmit(
       values: {
@@ -57,6 +63,7 @@ export function AddBuildingTokenLiquidityForm({ buildingAddress }: Props) {
          return;
       }
 
+      setTokensToLiquidity([tokenAAddress, tokenBAddress]);
       await addLiquidity({
          buildingAddress: buildingAddressOneOf,
          tokenAAddress,
@@ -112,7 +119,7 @@ export function AddBuildingTokenLiquidityForm({ buildingAddress }: Props) {
                               <SelectValue placeholder="Choose a Building" />
                            </SelectTrigger>
                            <SelectContent>
-                              {buildings.map((building) => (
+                              {buildings?.map((building) => (
                                  <SelectItem
                                     key={building.address}
                                     value={building.address as `0x${string}`}
@@ -201,7 +208,26 @@ export function AddBuildingTokenLiquidityForm({ buildingAddress }: Props) {
          {txHash && (
             <div className="mt-5 max-w-md">
                <p className="text-sm text-green-600 break-all">
-                  Liquidity Tx Hash: <span className="font-bold">{txHash}</span>
+                  <span className="font-bold">Liquidity Tx Hash:</span>
+                  <br />
+                  <span
+                     onClick={() => {
+                        copyToClipboard(tokensToLiquidity[0]);
+                     }}
+                     style={{ textDecoration: "underline" }}
+                     className="cursor-pointer hover:text-slate-200"
+                  >{txHash}</span>
+               </p>
+               <p className="text-sm text-green-600 break-all">
+                  <span className="font-bold">Liquidity USDC token addresses: </span>
+                  <br />
+                  <span onClick={() => {
+                     copyToClipboard(tokensToLiquidity[0]);
+                  }}  style={{ textDecoration: "underline" }} className="cursor-pointer hover:text-slate-200">{tokensToLiquidity[0]}</span>
+                  <br />
+                  <span onClick={() => {
+                     copyToClipboard(tokensToLiquidity[1]);
+                  }}  style={{ textDecoration: "underline" }} className="cursor-pointer hover:text-slate-200">{tokensToLiquidity[1]}</span>
                </p>
             </div>
          )}
