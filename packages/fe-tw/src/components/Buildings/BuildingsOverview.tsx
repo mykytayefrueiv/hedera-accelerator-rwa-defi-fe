@@ -1,11 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-   convertBuildingNFTsData,
-   filterBuildingsByOnlyUniqueIpfsHash,
-   readBuildingsList,
-} from "@/services/buildingService";
 import { fetchJsonFromIpfs } from "@/services/ipfsService";
+import { convertBuildingNFTsData, readBuildingsList, filterBuildingsByOnlyUniqueIpfsHash } from "@/services/buildingService";
 
 export async function BuildingsOverview() {
    const buildings = await readBuildingsList();
@@ -21,6 +17,28 @@ export async function BuildingsOverview() {
       })),
    );
 
+   const buildingsListResult = await readBuildingsList();
+   const rawBuildingsArray = buildingsListResult[0];
+
+   const buildingNftDataResults = await Promise.allSettled(
+      rawBuildingsArray.map((building: string[]) => fetchJsonFromIpfs(building[2])),
+   );
+
+   const dataToConvert = buildingNftDataResults
+      .map((result, index) => {
+         if (result.status === "fulfilled") {
+            const originalBuilding = rawBuildingsArray[index];
+            return {
+               ...result.value,
+               address: originalBuilding[0],
+               copeIpfsHash: originalBuilding[2],
+            };
+         }
+         console.warn(`Failed to fetch NFT data for building at index ${index}:`, result.reason);
+         return null;
+      })
+      .filter((item) => item !== null);
+
    return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
          {convertedBuildings.map((building) => (
@@ -32,11 +50,13 @@ export async function BuildingsOverview() {
                   <>
                      <img
                         src={building.imageUrl ?? "assets/dome.jpeg"}
-                        alt={building.title}
+                        alt={building.title ?? "Building Image"}
                         className="w-full h-32 object-cover rounded-t-md mb-3 top-0"
                      />
                      <CardContent>
-                        <h3 className="text-lg font-semibold">{building.title}</h3>
+                        <h3 className="text-lg font-semibold">
+                           {building.title ?? "Untitled Building"}
+                        </h3>
                         <p className="text-sm text-gray-600 mt-2 line-clamp-3">
                            {building.description ?? "No description available"}
                         </p>

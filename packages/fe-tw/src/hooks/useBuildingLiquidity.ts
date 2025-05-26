@@ -1,9 +1,12 @@
 "use client";
 
-import { useWallet, useWriteContract } from "@buidlerlabs/hashgraph-react-wallets";
-import { MetamaskConnector } from "@buidlerlabs/hashgraph-react-wallets/connectors";
+import { useEvmAddress, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
+import {
+   HashpackConnector,
+   MetamaskConnector,
+} from "@buidlerlabs/hashgraph-react-wallets/connectors";
 import { ContractId } from "@hashgraph/sdk";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { tokens } from "@/consts/tokens";
@@ -11,6 +14,7 @@ import { buildingAbi } from "@/services/contracts/abi/buildingAbi";
 import { tokenAbi } from "@/services/contracts/abi/tokenAbi";
 import { getTokenDecimals } from "@/services/erc20Service";
 import { useExecuteTransaction } from "./useExecuteTransaction";
+import useWriteContract from "./useWriteContract";
 
 type HederaWriteContractResult =
    | string
@@ -27,7 +31,8 @@ interface AddLiquidityArgs {
 }
 
 export function useBuildingLiquidity() {
-   const { isConnected } = useWallet(MetamaskConnector);
+   const { isConnected: isMetamaskConnected } = useWallet(MetamaskConnector);
+   const { isConnected: isHashpackConnected } = useWallet(HashpackConnector);
    const { writeContract } = useWriteContract();
    const { executeTransaction } = useExecuteTransaction();
 
@@ -46,7 +51,7 @@ export function useBuildingLiquidity() {
          setIsAddingLiquidity(true);
          setTxHash(undefined);
 
-         if (!isConnected) {
+         if (!isMetamaskConnected && !isHashpackConnected) {
             toast.error("No wallet connected. Please connect first.");
             return;
          }

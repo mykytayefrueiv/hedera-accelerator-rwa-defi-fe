@@ -12,7 +12,7 @@ import WhyStake from "@/components/Staking/WhyStake";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useStaking } from "@/components/Staking/hooks";
-import { addUSDCTokenToMM, getTokenDecimals, getTokenSymbol } from "@/services/erc20Service";
+import { addTokenToMM, getTokenDecimals, getTokenSymbol } from "@/services/erc20Service";
 
 interface StakingOverviewProps {
    buildingId: string;
@@ -26,7 +26,7 @@ export const FRIENDLY_ERRORS = {
 };
 
 export default function StakingOverview({ buildingId }: StakingOverviewProps) {
-   const { aprData, currentAPR, tvl, votingPower, totalVotingPower } = useStakingData({
+   const { aprData, currentAPR, votingPower, totalVotingPower } = useStakingData({
       buildingId,
    });
 
@@ -40,13 +40,17 @@ export default function StakingOverview({ buildingId }: StakingOverviewProps) {
       userStakedTokens,
       stakeTokens,
       unstakeTokens,
-   } = useStaking({ buildingId });
+      userRewards,
+      tvl,
+   } = useStaking({
+      buildingId,
+   });
 
    const addBuildingTokenToMM = async () => {
       const tokenDecimals = (await getTokenDecimals(tokenAddress as `0x${string}`))[0];
       const tokenSymbol = (await getTokenSymbol(tokenAddress as `0x${string}`))[0];
 
-      addUSDCTokenToMM({
+      addTokenToMM({
          tokenDecimals: tokenDecimals.toString(),
          tokenSymbol,
          tokenAddress: tokenAddress as `0x${string}`,
@@ -67,26 +71,32 @@ export default function StakingOverview({ buildingId }: StakingOverviewProps) {
 
    return (
       <div className="p-6 bg-white rounded-lg">
-         {!isLoading && (!tokenAddress || !tokenBalance || !vaultAddress || !treasuryAddress) && (
-            <Alert variant="destructive">
-               <AlertCircle className="h-4 w-4" />
-               <AlertTitle>Error</AlertTitle>
-               <AlertDescription>
-                  <ul>
-                     {!tokenAddress && <li>{FRIENDLY_ERRORS.NO_BUILDING_TOKEN}</li>}
-                     {!vaultAddress && <li>{FRIENDLY_ERRORS.NO_VAULT}</li>}
-                     {!treasuryAddress && <li>{FRIENDLY_ERRORS.NO_TREASURY}</li>}
-                     {!tokenBalance && <li>{FRIENDLY_ERRORS.NOT_ENOUGH_TOKENS}</li>}
-                  </ul>
-               </AlertDescription>
-            </Alert>
-         )}
+         {!isLoading &&
+            (!tokenAddress ||
+               (!tokenBalance && !userStakedTokens) ||
+               !vaultAddress ||
+               !treasuryAddress) && (
+               <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                     <ul>
+                        {!tokenAddress && <li>{FRIENDLY_ERRORS.NO_BUILDING_TOKEN}</li>}
+                        {!vaultAddress && <li>{FRIENDLY_ERRORS.NO_VAULT}</li>}
+                        {!treasuryAddress && <li>{FRIENDLY_ERRORS.NO_TREASURY}</li>}
+                        {!tokenBalance && !userStakedTokens && (
+                           <li>{FRIENDLY_ERRORS.NOT_ENOUGH_TOKENS}</li>
+                        )}
+                     </ul>
+                  </AlertDescription>
+               </Alert>
+            )}
 
          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
             <ManageStake
                isDepositing={loadingState.isDepositing}
                isWithdrawing={loadingState.isWithdrawing}
-               disabled={tokenBalance === 0}
+               disabled={tokenBalance === 0 && !userStakedTokens}
                onStake={stakeTokens}
                onUnstake={unstakeTokens}
             />
@@ -109,7 +119,7 @@ export default function StakingOverview({ buildingId }: StakingOverviewProps) {
                <VotingPower votingPower={votingPower} totalVotingPower={totalVotingPower} />
             </div>
             <div className="col-span-2 flex">
-               <RewardsDetails currentAPR={currentAPR} tvl={tvl} aprData={aprData} />
+               <RewardsDetails tvl={tvl} claimableRewards={userRewards!} aprData={aprData} />
             </div>
          </div>
 
