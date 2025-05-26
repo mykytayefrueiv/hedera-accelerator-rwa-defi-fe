@@ -3,8 +3,8 @@
 import { useBuildingTreasury } from "@/hooks/useBuildingTreasury";
 import moment from "moment";
 import { useState } from "react";
-import { toast } from "sonner";
 import { ExpenseForm } from "./ExpenseForm";
+import { tryCatch } from "@/services/tryCatch";
 import {
    Table,
    TableBody,
@@ -41,9 +41,9 @@ export function ExpensesView({ buildingAddress }: ExpensesViewProps) {
    const [showModal, setShowModal] = useState(false);
 
    const onSubmitExpense = async (values: PaymentRequestPayload, actions: { resetForm: () => void }) => {
-      try {
-         await makePayment(values);
-   
+      const { data } = await tryCatch(makePayment(values));
+
+      if (data) {
          const _expenses = await storageService.restoreItem<ExpenseRecord[]>(StorageKeys.Expenses);
          storageService.storeItem(StorageKeys.Expenses, [..._expenses ?? [], {
             ...values,
@@ -54,14 +54,13 @@ export function ExpensesView({ buildingAddress }: ExpensesViewProps) {
          }]);
 
          setShowModal(false);
-      } catch (err) {
+      } else {
          actions.resetForm();
       }
    }
 
    return (
       <div className="space-y-8">
-         {/* Header */}
          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
             <div>
                <p className="text-gray-500 text-base mt-1">
@@ -73,13 +72,12 @@ export function ExpensesView({ buildingAddress }: ExpensesViewProps) {
                <div className="text-right">
                   <p className="text-gray-500 text-base">Treasury Balance</p>
                   <p className="text-2xl font-semibold">
-                     {!!treasuryData ? treasuryData.balance : '--'} USDC
+                     {treasuryData.balance} USDC
                   </p>
                </div>
             )}
          </div>
 
-         {/* Content */}
          <div className="bg-white rounded-lg p-4">
             <h2 className="text-2xl font-bold mb-4">Expenses History</h2>
 
@@ -101,7 +99,7 @@ export function ExpensesView({ buildingAddress }: ExpensesViewProps) {
                   </TableHeader>
                   <TableBody>
                      {expenses?.map((expense) => (
-                        <TableRow key={`${expense.amount}-${expense.receiver}`}>
+                        <TableRow key={`${expense.notes}-${expense.amount}-${expense.receiver}`}>
                            <TableCell>
                               {moment(expense.dateCreated).format("YYYY-MM-DD HH:mm")}
                            </TableCell>

@@ -22,16 +22,13 @@ export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
    const { writeContract } = useWriteContract();
    const { readContract } = useReadContract();
    const [treasuryAddress, setTreasuryAddress] = useState<`0x${string}`>();
-   const [paymentLogs, setPaymentLogs] = useState<any>();
    const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
 
    const { data: treasuryData, isLoading, isError } = useQuery({
       queryKey: ["treasuryData", treasuryAddress],
       queryFn: async () => {
-         if (!treasuryAddress) return null;
-
          const treasuryUsdcAddress = await readContract({
-            address: treasuryAddress,
+            address: treasuryAddress!,
             abi: buildingTreasuryAbi,
             functionName: "usdc",
          });
@@ -62,7 +59,7 @@ export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
    });
 
    useEffect(() => {
-      watchContractEvent({
+      const unsubscribe = watchContractEvent({
          address: BUILDING_FACTORY_ADDRESS as `0x${string}`,
          abi: buildingFactoryAbi,
          eventName: "NewTreasury",
@@ -74,41 +71,39 @@ export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
             }
          },
       });
+
+      return () => unsubscribe();
    }, [buildingAddress]);
 
    useEffect(() => {
       if (treasuryAddress) {
-         watchContractEvent({
+         const unsubscribe = watchContractEvent({
             address: treasuryAddress!,
             abi: buildingTreasuryAbi,
             eventName: "Payment",
             onLogs: (data) => {
-               setPaymentLogs((prev: any) => [...(prev ?? []), ...data]);
+               storageService.restoreItem<ExpenseRecord[]>(StorageKeys.Expenses).then(storedExpensesData => {
+                  if (storedExpensesData?.length) {
+                     const expensePayments = storedExpensesData
+                        .filter(expense =>
+                           (data as unknown as { args: any[] }[]).find(
+                              (payment) =>
+                                 expense.receiver === payment.args[0] &&
+                                 expense.amount === ethers.formatUnits(payment.args[1].toString(), 6)
+                           )
+                        );
+
+                     if (expensePayments?.length) {
+                        setExpenses(prev => [...prev, ...expensePayments]);
+                     }
+                  }
+               });
             },
-        });
+         });
+         
+         return () => unsubscribe();
       }
    }, [treasuryAddress]);
-
-   useEffect(() => {
-      if (paymentLogs?.length) {
-         storageService.restoreItem<ExpenseRecord[]>(StorageKeys.Expenses).then(storedExpensesData => {
-            if (storedExpensesData?.length) {
-               const expensePayments = storedExpensesData
-                  .filter(expense =>
-                     !!paymentLogs.find(
-                        (payment: { args: any[] }) =>
-                           expense.receiver === payment.args[0] &&
-                           expense.amount === ethers.formatUnits(payment.args[1].toString(), 6)
-                     )
-                  );
-               
-               if (expensePayments?.length) {
-                  setExpenses(expensePayments);
-               }
-            }
-         });
-      }
-   }, [paymentLogs]);
 
    const paymentMutation = useMutation({
       mutationFn: async (payload: PaymentRequestPayload) => {
