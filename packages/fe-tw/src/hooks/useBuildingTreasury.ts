@@ -62,12 +62,12 @@ export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
       const unsubscribe = watchContractEvent({
          address: BUILDING_FACTORY_ADDRESS as `0x${string}`,
          abi: buildingFactoryAbi,
-         eventName: "NewTreasury",
+         eventName: "NewBuilding",
          onLogs: (data) => {
-            const treasuryLog = data.find(log => (log as unknown as { args: any[] }).args[1] === buildingAddress);
+            const treasuryLog = data.find(log => (log as unknown as { args: any[] }).args[0] === buildingAddress);
 
             if (treasuryLog) {
-               setTreasuryAddress((treasuryLog as unknown as { args: any[] }).args[0]);
+               setTreasuryAddress((treasuryLog as unknown as { args: any[] }).args[2]);
             }
          },
       });
@@ -108,6 +108,14 @@ export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
    const paymentMutation = useMutation({
       mutationFn: async (payload: PaymentRequestPayload) => {
          const txAmount = ethers.parseUnits(parseFloat(payload.amount).toString(), treasuryData?.decimals as string);
+         console.log('treasuryAddress', treasuryAddress)
+
+         if (!treasuryAddress) {
+            toast.error('No treasury address...');
+            return;
+         }
+
+         toast.info(`Submit with args: ${txAmount}, ${payload.receiver}`);
 
          const tx = await executeTransaction(() => writeContract({
             functionName: 'makePayment',
