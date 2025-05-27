@@ -12,7 +12,16 @@ import {
    navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
-import { Building, Earth, Radar, Slice, Menu } from "lucide-react";
+import {
+   Building,
+   Earth,
+   Radar,
+   Slice,
+   Menu,
+   UserCircle,
+   LogOut,
+   ChartNoAxesColumnIncreasing,
+} from "lucide-react";
 import { WalletConnectModalRW } from "../Wallets/WalletConnectModalRW";
 import { SidebarTrigger, useSidebar } from "../ui/sidebar";
 import {
@@ -24,10 +33,35 @@ import {
    DrawerTitle,
 } from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
+import { useAccountId, useEvmAddress, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
+import {
+   HashpackConnector,
+   MetamaskConnector,
+} from "@buidlerlabs/hashgraph-react-wallets/connectors";
+import { toast } from "sonner";
+import { shortEvmAddress } from "@/services/util";
 
 export function Navbar() {
    const { isSidebarTriggerVisible } = useSidebar();
    const [isOpen, setIsOpen] = React.useState(false);
+
+   const { isConnected: isConnectedHashpack, disconnect: disconnectHashpack } =
+      useWallet(HashpackConnector) || {};
+
+   const { isConnected: isConnectedMetamask, disconnect: disconnectMetamask } =
+      useWallet(MetamaskConnector) || {};
+
+   const { data: accountId } = useAccountId();
+   const { data: evmAddress } = useEvmAddress();
+
+   const handleDisconnectHashpack = async () => {
+      await disconnectHashpack();
+      setTimeout(() => {
+         window.localStorage.removeItem("wagmi.store");
+      }, 100);
+      // Remove session info from local storage, because in the attempt of reconnect WalletConnect will throw an error
+      // Related issue: https://github.com/WalletConnect/walletconnect-monorepo/issues/315
+   };
 
    return (
       <div className="min-w-[100vw] flex justify-end p-4 border-b border-base-200 items-center sticky top-0 z-50 bg-white">
@@ -88,7 +122,7 @@ export function Navbar() {
                   <NavigationMenuItem>
                      <NavigationMenuTrigger>Explorer</NavigationMenuTrigger>
                      <NavigationMenuContent asChild data-state="open">
-                        <ul className="grid w-[300px] gap-2 p-1 md:w-[300px] md:grid-cols-1 lg:w-[300px]">
+                        <ul className="grid w-[400px] gap-2 p-1 md:w-[300px] md:grid-cols-1 lg:w-[400px]">
                            <ListItem icon={<Radar />} title="Featured" href="/explorer">
                               Dive into the world of our picks for You to explore
                            </ListItem>
@@ -101,7 +135,6 @@ export function Navbar() {
                         </ul>
                      </NavigationMenuContent>
                   </NavigationMenuItem>
-
                   <NavigationMenuItem>
                      <Link href="/faq" legacyBehavior>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -109,18 +142,31 @@ export function Navbar() {
                         </NavigationMenuLink>
                      </Link>
                   </NavigationMenuItem>
-
                   <NavigationMenuItem>
-                     <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>Admin</NavigationMenuTrigger>
+                     <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
+                        Admin
+                     </NavigationMenuTrigger>
                      <NavigationMenuContent asChild data-state="open">
-                        <ul className="grid w-[300px] gap-2 p-1 md:w-[300px] md:grid-cols-1 lg:w-[300px]">
-                           <ListItem icon={<Radar />} title="Token Management" href="/admin/tokenmanagement">
+                        <ul className="grid w-[400px] gap-2 p-1 md:w-[300px] md:grid-cols-1 lg:w-[400px]">
+                           <ListItem
+                              icon={<Radar />}
+                              title="Token Management"
+                              href="/admin/tokenmanagement"
+                           >
                               Create and manage tokens
                            </ListItem>
-                           <ListItem icon={<Building />} title="Building Management" href="/admin/buildingmanagement">
+                           <ListItem
+                              icon={<Building />}
+                              title="Building Management"
+                              href="/admin/buildingmanagement"
+                           >
                               Create and manage buildings
                            </ListItem>
-                           <ListItem icon={<Slice />} title="Slice Management" href="/admin/slicemanagement">
+                           <ListItem
+                              icon={<Slice />}
+                              title="Slice Management"
+                              href="/admin/slicemanagement"
+                           >
                               Create and manage slices
                            </ListItem>
                         </ul>
@@ -134,10 +180,51 @@ export function Navbar() {
                         </NavigationMenuLink>
                      </Link>
                   </NavigationMenuItem>
-                  
-                  <NavigationMenuItem>
+
+                  {isConnectedHashpack || isConnectedMetamask ? (
+                     <NavigationMenuItem>
+                        <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
+                           <UserCircle />
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent asChild data-state="open">
+                           <div>
+                              <div className="flex justify-center items-center text-center gap-2 p-2 text-sm text-muted-foreground">
+                                 AccountID: {accountId}
+                                 <span title={evmAddress}>
+                                    EVM Address: {shortEvmAddress(evmAddress)}
+                                 </span>
+                              </div>
+
+                              <ul className="grid w-[400px] gap-2 p-1 md:w-[300px] md:grid-cols-1 lg:w-[400px]">
+                                 <ListItem
+                                    icon={<ChartNoAxesColumnIncreasing />}
+                                    title="Portfolio"
+                                    href="/portfolio"
+                                 >
+                                    Review portfolio, explore your assets and track performance
+                                 </ListItem>
+                                 <ListItem
+                                    icon={<LogOut />}
+                                    title="Disconnect"
+                                    onClick={async () => {
+                                       if (isConnectedHashpack) {
+                                          await handleDisconnectHashpack();
+                                          toast.success("Disconnected from Hashpack");
+                                       }
+
+                                       if (isConnectedMetamask) {
+                                          disconnectMetamask();
+                                          toast.success("Disconnected from Metamask");
+                                       }
+                                    }}
+                                 />
+                              </ul>
+                           </div>
+                        </NavigationMenuContent>
+                     </NavigationMenuItem>
+                  ) : (
                      <WalletConnectModalRW />
-                  </NavigationMenuItem>
+                  )}
                </NavigationMenuList>
             </NavigationMenu>
          </div>
