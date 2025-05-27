@@ -64,5 +64,7 @@ export const addTokenToMM = async ({ tokenAddress, tokenDecimals, tokenSymbol, t
             },
          },
       });
-   } catch (err) { }
+   } catch (err) {
+      toast.error(`Not possible to add ${tokenSymbol} token to MM`);
+   }
 };

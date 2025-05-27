@@ -3,9 +3,9 @@
 import { AddBuildingTokenLiquidityForm } from "@/components/Admin/AddBuildingTokenLiquidityForm";
 import { useBuildingInfo } from "@/hooks/useBuildingInfo";
 import { addTokenToMM, getTokenDecimals, getTokenSymbol } from "@/services/erc20Service";
-import { useWalletInterface } from "@/services/useWalletInterface";
-import { TokenId } from "@hashgraph/sdk";
 import { useEffect } from "react";
+import { MetamaskConnector } from "@buidlerlabs/hashgraph-react-wallets/connectors";
+import { useWallet } from "@buidlerlabs/hashgraph-react-wallets";
 
 type Props = {
    buildingAddress: `0x${string}`;
@@ -14,29 +14,27 @@ type Props = {
 
 export const BuildingAddLiquidity = (props: Props) => {
    const { tokenAddress } = useBuildingInfo(props.buildingId);
-   const { walletInterface } = useWalletInterface();
+   const { isConnected: isMetamaskConnected } = useWallet(MetamaskConnector);
 
    const addBuildingTokenToWallet = async () => {
       const tokenDecimals = (await getTokenDecimals(tokenAddress as `0x${string}`))[0];
       const tokenSymbol = (await getTokenSymbol(tokenAddress as `0x${string}`))[0];
-   
-      await addTokenToMM({
-         tokenDecimals: tokenDecimals.toString(),
-         tokenAddress: tokenAddress as `0x${string}`,
-         tokenSymbol,
-         tokenType: 'ERC20',
-      });
-
-      try {
-         walletInterface?.associateToken?.(TokenId.fromSolidityAddress(tokenAddress as string));
-      } catch (err) { }
+      
+      if (isMetamaskConnected) {
+         await addTokenToMM({
+            tokenDecimals: tokenDecimals.toString(),
+            tokenAddress: tokenAddress as `0x${string}`,
+            tokenSymbol,
+            tokenType: 'ERC20',
+         });
+      }
    };
    
    useEffect(() => {
-      if (!!tokenAddress) {
+      if (!!tokenAddress && isMetamaskConnected) {
          addBuildingTokenToWallet();
       }
-   }, [tokenAddress]);
+   }, [isMetamaskConnected, tokenAddress]);
    
    return (
       <div className="p-6 max-w-7xl mx-auto space-y-6">
