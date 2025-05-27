@@ -4,7 +4,7 @@ import { AddBuildingTokenLiquidityForm } from "@/components/Admin/AddBuildingTok
 import { useBuildingInfo } from "@/hooks/useBuildingInfo";
 import { addTokenToMM, getTokenDecimals, getTokenSymbol } from "@/services/erc20Service";
 import { useWalletInterface } from "@/services/useWalletInterface";
-import { ContractId } from "@hashgraph/sdk";
+import { TokenId } from "@hashgraph/sdk";
 import { useEffect } from "react";
 
 type Props = {
@@ -16,22 +16,25 @@ export const BuildingAddLiquidity = (props: Props) => {
    const { tokenAddress } = useBuildingInfo(props.buildingId);
    const { walletInterface } = useWalletInterface();
 
-   const addBuildingTokenToMM = async () => {
+   const addBuildingTokenToWallet = async () => {
       const tokenDecimals = (await getTokenDecimals(tokenAddress as `0x${string}`))[0];
       const tokenSymbol = (await getTokenSymbol(tokenAddress as `0x${string}`))[0];
    
-      addTokenToMM({
+      await addTokenToMM({
          tokenDecimals: tokenDecimals.toString(),
          tokenAddress: tokenAddress as `0x${string}`,
          tokenSymbol,
          tokenType: 'ERC20',
       });
-      walletInterface?.associateToken?.(ContractId.fromEvmAddress(0, 0, tokenAddress as `0x${string}`));
+
+      try {
+         walletInterface?.associateToken?.(TokenId.fromSolidityAddress(tokenAddress as string));
+      } catch (err) { }
    };
    
    useEffect(() => {
       if (!!tokenAddress) {
-         addBuildingTokenToMM();
+         addBuildingTokenToWallet();
       }
    }, [tokenAddress]);
    

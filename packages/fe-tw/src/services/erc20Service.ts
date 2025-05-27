@@ -64,9 +64,5 @@ export const addTokenToMM = async ({ tokenAddress, tokenDecimals, tokenSymbol, t
             },
          },
       });
-
-      toast.success(`Token ${tokenSymbol} was successfully added to your wallet`);
-   } catch (err) {
-      toast.error('Not possible to add token to MM', (err as any).message);
-   }
+   } catch (err) { }
 };
