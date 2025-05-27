@@ -45,7 +45,7 @@ export function ExpensesView({ buildingAddress }: ExpensesViewProps) {
 
       if (data) {
          const _expenses = await storageService.restoreItem<ExpenseRecord[]>(StorageKeys.Expenses);
-         storageService.storeItem(StorageKeys.Expenses, [..._expenses ?? [], {
+         storageService.storeItem(StorageKeys.Expenses, [...(_expenses ?? []), {
             ...values,
             dateCreated: new Date().toUTCString(),
             buildingId: buildingAddress,

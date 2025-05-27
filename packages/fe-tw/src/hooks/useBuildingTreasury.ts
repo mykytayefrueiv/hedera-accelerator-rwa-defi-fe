@@ -108,14 +108,10 @@ export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
    const paymentMutation = useMutation({
       mutationFn: async (payload: PaymentRequestPayload) => {
          const txAmount = ethers.parseUnits(parseFloat(payload.amount).toString(), treasuryData?.decimals as string);
-         console.log('treasuryAddress', treasuryAddress)
 
          if (!treasuryAddress) {
-            toast.error('No treasury address...');
-            return;
+            throw new Error('No treasury address');
          }
-
-         toast.info(`Submit with args: ${txAmount}, ${payload.receiver}`);
 
          const tx = await executeTransaction(() => writeContract({
             functionName: 'makePayment',
@@ -127,11 +123,11 @@ export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
          return tx;
       },
       onSuccess: (tx) => {
-         toast.success(`Payment submitted successfully ${tx?.transaction_id}`);
-         queryClient.invalidateQueries({ queryKey: ["treasuryData"] });
+         toast.success(`Expense submitted successfully ${tx?.transaction_id}`);
+         queryClient.invalidateQueries({ queryKey: ['treasuryData'] });
       },
       onError: (err: Error) => {
-         toast.error(`Payment submitted error ${err.message}`);
+         toast.error(`Expense submitted error ${err.message}`);
       },
    });
 
