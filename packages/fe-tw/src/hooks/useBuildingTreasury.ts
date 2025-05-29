@@ -48,7 +48,7 @@ export function useBuildingTreasury(buildingAddress?: `0x${string}`) {
                functionName: "decimals",
             }),
          ]);
-   
+
          return {
             balance: Number(ethers.formatUnits(balance as bigint, decimals as bigint)),
             usdcAddress: treasuryUsdcAddress,

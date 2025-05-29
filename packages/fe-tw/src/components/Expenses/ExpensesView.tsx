@@ -30,6 +30,7 @@ type ExpensesViewProps = {
 };
 
 type ExpensesModalProps = {
+   treasuryBalance?: number;
    open: boolean;
    buildingAddress: `0x${string}`;
    onOpenChange: (state: boolean) => void;
@@ -114,14 +115,14 @@ export function ExpensesView({ buildingAddress }: ExpensesViewProps) {
             )}
          </div>
 
-         {/* Footer */}
          <div className="flex justify-end">
-            <Button type="button" onClick={() => setShowModal(true)}>
+            <Button type="button" onClick={() => setShowModal(true)} disabled={!treasuryData?.balance}>
                Submit New Expense
             </Button>
          </div>
 
          <ExpenseModal
+            treasuryBalance={treasuryData?.balance}
             open={showModal}
             buildingAddress={buildingAddress}
             onOpenChange={() => setShowModal(false)}

@@ -1,5 +1,6 @@
 export enum StorageKeys {
     Expenses = 'Expenses',
+    Payments = 'Payments',
 };
 
 export const storageService = {
