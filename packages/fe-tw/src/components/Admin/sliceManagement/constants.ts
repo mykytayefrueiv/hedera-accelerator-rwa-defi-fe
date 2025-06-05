@@ -14,6 +14,7 @@ export type AddSliceAllocationFormProps = {
     tokenAssetAmounts: { [key: string]: string },
     depositAmount?: string,
     rewardAmount?: string,
+    allocationAmount?: string,
 };
 
 export type DepositSliceFormProps = {
@@ -26,6 +27,7 @@ export const addAllocationFormInitialValues = {
     tokenAssetAmounts: {},
     depositAmount: "0",
     rewardAmount: "0",
+    allocationAmount: "0",
 };
 
 export const deploySliceFormInitialValues = {
@@ -47,7 +49,17 @@ export const INITIAL_VALUES = {
 };
 
 const validateAmountField = (val: any, fieldName: string) => val.when('tokenAssets', ([tokenAssets]: string[][], schema: Yup.Schema) => {
-    return schema.test(`total_${fieldName}_amount`, `Total ${fieldName} amount should be provided`, (value: string) => tokenAssets?.length > 0 ? !!Number(value) : true)
+    return schema.test(
+        `total_${fieldName}_amount`, `${fieldName} amount can't be empty and > 100`,
+        (value: string) => tokenAssets?.length > 0 ? !!Number(value) && Number(value) >= 100 : true
+    )
+});
+
+const validateAssetsField = (val: any) => val.when('allocationAmount', ([allocationAmount]: string[][], schema: Yup.Schema) => {
+    return schema.test(
+        'token_assets', 'Minimum amount of assets for allocation is 2',
+        (value: string) => value?.length > 0 ? value?.length >=2 : true
+    )
 });
 
 export const VALIDATION_SCHEMA = Yup.object({
@@ -69,10 +81,11 @@ export const VALIDATION_SCHEMA = Yup.object({
         symbol: Yup.string().required('Symbol is required'),
     }),
     sliceAllocation: Yup.object().shape({
-        tokenAssets: Yup.array().of(Yup.string()),
+        tokenAssets: validateAssetsField(Yup.array().of(Yup.string())),
         tokenAssetAmounts: Yup.object(),
         depositAmount: validateAmountField(Yup.string(), 'deposit'),
         rewardAmount: validateAmountField(Yup.string(), 'reward'),
+        allocationAmount: Yup.string(),
     }),
 });
 

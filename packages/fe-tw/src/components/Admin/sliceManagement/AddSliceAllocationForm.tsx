@@ -13,7 +13,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CreateSliceFormProps, AddSliceAllocationFormProps } from "./constants";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { SliceAllocation } from "@/types/erc3643/types";
@@ -26,24 +25,59 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
    }>();
    const { buildings } = useBuildings();
    const [tokensPercentageDialogOpen, setTokensPercentageDialogOpen] = useState(false);
-   const [tokenAllocationAmountValue, setTokenAllocationAmountValue] = useState("0");
    const lastSelectedAssetToken = formik.values.sliceAllocation.tokenAssets[formik.values.sliceAllocation.tokenAssets.length - 1];
 
+   const handleOpenChange = (state: boolean) => {
+      if (!state) {
+         if (!formik.values.sliceAllocation.tokenAssetAmounts[lastSelectedAssetToken]) {
+            const newTokenAssets = [...formik.values.sliceAllocation.tokenAssets];
+            newTokenAssets.pop();
+
+            formik.setFieldValue("sliceAllocation.tokenAssets", newTokenAssets);
+            toast.error("Allocation amount is mandatory for a asset token");
+         }
+      }
+
+      setTokensPercentageDialogOpen(state);
+   };
+
+   const handleConfirmAllocationAmount = () => {
+      const newTokenAllocationValue = Number(formik.values.sliceAllocation.allocationAmount);
+
+      if (newTokenAllocationValue) {
+         formik.setFieldValue("sliceAllocation.tokenAssetAmounts", {
+            ...formik.values.sliceAllocation.tokenAssetAmounts,
+            [lastSelectedAssetToken]: newTokenAllocationValue,
+         });
+      } else {
+         formik.setFieldValue("sliceAllocation.tokenAssetAmounts", {
+            ...formik.values.sliceAllocation.tokenAssetAmounts,
+            [lastSelectedAssetToken]: '100',
+         });
+      }
+
+      setTokensPercentageDialogOpen(false);
+   };
+
+   const handleSelectTokenAsset = (value: `0x${string}`) => {
+      if (formik.values.sliceAllocation?.tokenAssets?.length === 5) {
+         toast.error("It's possble to add maximum of 5 tokens");
+         return;
+      } else if (
+         formik.values.sliceAllocation?.tokenAssets.includes(value) ||
+         !!existsAllocations.find((allocation) => allocation.aToken === value)
+      ) {
+         toast.error("This token has been already selected");
+         return;
+      }
+
+      formik.setFieldValue("sliceAllocation.tokenAssets", [...formik.values.sliceAllocation?.tokenAssets, value]);
+      setTokensPercentageDialogOpen(true);
+   };
+   
    return (
       <Form className="grid grid-cols-2 gap-4">
-         <Dialog open={tokensPercentageDialogOpen} onOpenChange={(state) => {
-            if (!state) {
-               if (!formik.values.sliceAllocation.tokenAssetAmounts[lastSelectedAssetToken]) {
-                  const newTokenAssets = [...formik.values.sliceAllocation.tokenAssets];
-                  newTokenAssets.pop();
-
-                  formik.setFieldValue("sliceAllocation.tokenAssets", newTokenAssets);
-                  toast.error("Allocation amount is mandatory for a asset token");
-               }
-            }
-
-            setTokensPercentageDialogOpen(state);
-         }}>
+         <Dialog open={tokensPercentageDialogOpen} onOpenChange={handleOpenChange}>
             <DialogContent>
             <DialogHeader>
                   <DialogTitle>
@@ -55,29 +89,16 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
                      </span>
                   </DialogDescription>
                </DialogHeader>
-               <Input
-                  placeholder="Enter allocation amount (e.g. 100)"
-                  onChange={(e) => {
-                     setTokenAllocationAmountValue(e.target.value);
-                  }}
-               />
-               <Button onClick={() => {
-                  const newTokenAmountValue = Number(tokenAllocationAmountValue);
-
-                  if (newTokenAmountValue) {
-                     formik.setFieldValue("sliceAllocation.tokenAssetAmounts", {
-                        ...formik.values.sliceAllocation.tokenAssetAmounts,
-                        [lastSelectedAssetToken]: newTokenAmountValue,
-                     });
-                  } else {
-                     formik.setFieldValue("sliceAllocation.tokenAssetAmounts", {
-                        ...formik.values.sliceAllocation.tokenAssetAmounts,
-                        [lastSelectedAssetToken]: '100',
-                     });
+               <FormInput
+                  label="Allocation amount (e.g. 100)"
+                  placeholder="e.g. 100"
+                  className="mt-1"
+                  error={
+                     formik.touched?.sliceAllocation?.allocationAmount ? formik.errors?.sliceAllocation?.allocationAmount : undefined
                   }
-
-                  setTokensPercentageDialogOpen(false);
-               }} type="button" className="lg:w-4/12">
+                  {...formik.getFieldProps("sliceAllocation.allocationAmount")}
+               />
+               <Button onClick={handleConfirmAllocationAmount} type="button" className="lg:w-4/12">
                   Confirm
                </Button>
             </DialogContent>
@@ -122,21 +143,7 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
          <div>
                <Label htmlFor="tokenAssets">Select multiple token assets</Label>
                <Select
-                  onValueChange={(value) => {
-                     if (formik.values.sliceAllocation?.tokenAssets?.length === 5) {
-                        toast.error("It's possble to add maximum of 5 tokens");
-                        return;
-                     } else if (
-                        formik.values.sliceAllocation?.tokenAssets.includes(value) ||
-                        !!existsAllocations.find((allocation) => allocation.aToken === value)
-                     ) {
-                        toast.error("This token has been already selected");
-                        return;
-                     }
-      
-                     formik.setFieldValue("sliceAllocation.tokenAssets", [...formik.values.sliceAllocation?.tokenAssets, value]);
-                     setTokensPercentageDialogOpen(true);
-                  }}
+                  onValueChange={handleSelectTokenAsset}
                   required
                   defaultValue={formik.values.sliceAllocation?.tokenAssets[0]}
                >
@@ -154,7 +161,7 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
                </SelectContent>
                {
                   formik.errors.sliceAllocation?.tokenAssets &&
-                  <span className="text-md text-red-500">{formik.errors.sliceAllocation?.tokenAssets}</span>
+                  <span className="text-xs text-red-500">{formik.errors.sliceAllocation?.tokenAssets}</span>
                }
             </Select>
             {formik.values.sliceAllocation?.tokenAssets?.length > 0 && <div className="flex flex-col mt-5" style={{ overflowX: "scroll" }}>

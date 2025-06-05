@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { Loader } from "lucide-react";
-import { useReadContract } from "@buidlerlabs/hashgraph-react-wallets";
 import { Button } from "@/components/ui/button";
 import { INITIAL_VALUES } from "../Admin/sliceManagement/constants";
 import SliceAllocations from "@/components/Slices/SliceAllocations";
@@ -24,6 +23,7 @@ import { useCreateSlice } from "@/hooks/useCreateSlice";
 import { getTokenBalanceOf, getTokenDecimals, getTokenName } from "@/services/erc20Service";
 import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 import { parseUnits } from "ethers";
+import { readBuildingDetails } from "@/services/buildingService";
 
 type Props = {
    slice: SliceData;
@@ -33,7 +33,7 @@ type Props = {
 
 const validateAmountField = (val: any, fieldName: string) => val.when('tokenAssets', ([tokenAssets]: string[][], schema: Yup.Schema) => {
    return schema.test(
-      `total_${fieldName}_amount`, `${fieldName} amount can't be empty and more or equal to 100`,
+      `total_${fieldName}_amount`, `${fieldName} amount can't be empty and > 100`,
       (value: string) => tokenAssets?.length > 0 ? !!Number(value) && Number(value) >= 100 : true
    )
 });
@@ -45,6 +45,7 @@ const VALIDATION_SCHEMA = Yup.object({
       tokenAssetAmounts: Yup.object(),
       depositAmount: validateAmountField(Yup.string(), 'deposit'),
       rewardAmount: validateAmountField(Yup.string(), 'reward'),
+      allocationAmount: Yup.string(),
    }),
 });
 
@@ -77,9 +78,16 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
    };
 
    const onSubmitForm = async (values: CreateSliceRequestData) => {
-      await addTokenAssetsToSliceMutation.mutateAsync(values);
-      
-      setIsAllocationOpen(false);
+      const buildingDetails = await Promise.all(values.sliceAllocation?.tokenAssets?.map((building) => readBuildingDetails(building)));
+      const newTokenAssets = buildingDetails.filter(
+         (bDetailLog) => !sliceAllocations.find((alloc) => alloc.buildingToken === bDetailLog[0][4])
+      );
+   
+      if (newTokenAssets?.length >= 2) {
+         await addTokenAssetsToSliceMutation.mutateAsync(values);
+
+         setIsAllocationOpen(false);
+      }
    };
 
    useEffect(() => {

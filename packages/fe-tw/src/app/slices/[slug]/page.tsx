@@ -16,27 +16,18 @@ export default function Page({ params }: Props) {
    const { slices } = useSlicesData();
    const [slice, setSlice] = useState<SliceData>();
    const [sliceNotFound, setSliceNotFound] = useState(false);
-   const [isLoaded, setIsLoaded] = useState(false);
 
    useEffect(() => {
       if (slices?.length > 0) {
-         setTimeout(() => {
-            setIsLoaded(true);
-         }, 1000);
-      }
-   }, [slices?.length]);
-
-   useEffect(() => {
-      if (isLoaded) {
          const sliceData = slices.find((slice) => slugify(slice.id) === slugify(slug));
-   
-         if (!sliceData) {
-            setSliceNotFound(true);
-         } else {
+
+         if (!!sliceData) {
             setSlice(sliceData);
+         } else {
+            setSliceNotFound(true);
          }
       }
-   }, [isLoaded]);
+   }, [slices?.length]);
 
    if (sliceNotFound) {
       return notFound();

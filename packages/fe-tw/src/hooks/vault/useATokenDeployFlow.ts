@@ -45,7 +45,7 @@ export const useATokenDeployFlow = () => {
             .then((tx) => {
                watch(tx as string, {
                   onSuccess: (transaction) => {
-                     res(transaction);
+                     res(transaction.transaction_id);
 
                      return transaction;
                   },
@@ -69,7 +69,7 @@ export const useATokenDeployFlow = () => {
          const salt = uuid.v4();
          const details = {
             uniswapV2Router: UNISWAP_ROUTER_ADDRESS,
-            usdc: '0x5555ce918Ac43De2dbc3596BE67D45884D6CAa78',
+            usdc: USDC_ADDRESS,
             vault: data.tokenAsset,
             aTokenName: data.tokenName,
             aTokenSymbol: data.tokenSymbol,

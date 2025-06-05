@@ -1,9 +1,8 @@
-import { sliceAbi } from "@/services/contracts/abi/sliceAbi";
-import { tokenAbi } from "@/services/contracts/abi/tokenAbi";
-import { readContract } from "@/services/contracts/readContract";
 import type { BuildingToken, SliceAllocation } from "@/types/erc3643/types";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { getTokenSymbol } from "@/services/erc20Service";
+import { readSliceAllocations, readSliceBaseToken } from "@/services/sliceService";
 
 const calculateIdealAllocation = (totalAllocationsCount: number) => {
    switch (totalAllocationsCount) {
@@ -13,29 +12,6 @@ const calculateIdealAllocation = (totalAllocationsCount: number) => {
          return 100 / totalAllocationsCount;
    } 
 };
-
-const readSymbol = (tokenAddress: `0x${string}`) =>
-   readContract({
-      abi: tokenAbi,
-      functionName: "symbol",
-      address: tokenAddress.toString(),
-      args: [],
-   });
-
-const readSliceAllocation = (sliceAddress: `0x${string}`) =>
-   readContract({
-      abi: sliceAbi,
-      functionName: "allocations",
-      address: sliceAddress,
-      args: [],
-   });
-
-const readSliceBaseToken = (sliceAddress: `0x${string}`) => readContract({
-   abi: sliceAbi,
-   functionName: "baseToken",
-   address: sliceAddress,
-   args: [],
-});
 
 export const useSliceData = (
    sliceAddress: `0x${string}`,
@@ -57,11 +33,11 @@ export const useSliceData = (
       refetchInterval: 10000,
       queryKey: ["sliceAllocations"],
       queryFn: async () => {
-         const allocations = await readSliceAllocation(sliceAddress);
+         const allocations = await readSliceAllocations(sliceAddress);
          const allocationTokenNames = await Promise.allSettled(
             allocations[0]
                .filter((allocationLog: any[]) => allocationLog.length > 0)
-               .map((allocationLog: any[]) => readSymbol(allocationLog[0])),
+               .map((allocationLog: any[]) => getTokenSymbol(allocationLog[0])),
          );
          
          return allocations[0]
