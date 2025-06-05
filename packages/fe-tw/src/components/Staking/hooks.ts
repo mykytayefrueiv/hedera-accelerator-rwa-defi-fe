@@ -48,7 +48,7 @@ interface StakingHookReturnParams extends StakingData, StakingActions {
 export const useStaking = ({
    buildingId,
 }: {
-   buildingId: `0x${string}`;
+   buildingId: `0x${string}` | string;
 }): StakingHookReturnParams => {
    const {
       tokenAddress,
