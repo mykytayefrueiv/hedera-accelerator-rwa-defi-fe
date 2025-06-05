@@ -152,23 +152,16 @@ export type CreateSliceRequestBody = {
 };
 
 export type AddSliceAllocationRequestBody = {
-   tokenAssets: string[];
+   tokenAssets: `0x${string}`[];
    tokenAssetAmounts: { [key: string]: string };
-   totalAssetsAmount: string;
-};
-
-export type DepositSliceRequestBody = {
-   amount: string;
-   token: string;
+   depositAmount?: string;
+   rewardAmount?: string;
 };
 
 export type CreateSliceRequestData = {
    slice: CreateSliceRequestBody;
    sliceAllocation: AddSliceAllocationRequestBody;
-   deposit: DepositSliceRequestBody;
    deployedSliceAddress?: `0x${string}`;
-   vaults?: `0x${string}`[];
-   underlyingAssets?: `0x${string}`[];
 };
 
 export type SliceDepositRequestData = {

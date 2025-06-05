@@ -26,6 +26,7 @@ interface StakingData {
    treasuryAddress: string | undefined;
    vaultAddress: string | undefined;
    tokenAddress: string | undefined;
+   acAddress: string | undefined;
    tokenBalance: number | undefined;
    totalStakedTokens: number | undefined;
    userStakedTokens: number | undefined;
@@ -52,6 +53,7 @@ export const useStaking = ({
    const {
       tokenAddress,
       vaultAddress,
+      acAddress,
       treasuryAddress,
       isLoading: isFetchingAddresses,
    } = useBuildingInfo(buildingId);
@@ -103,6 +105,7 @@ export const useStaking = ({
       treasuryAddress,
       vaultAddress,
       tokenAddress,
+      acAddress,
       tokenBalance,
 
       totalStakedTokens: vaultInfo?.totalStakedTokens,

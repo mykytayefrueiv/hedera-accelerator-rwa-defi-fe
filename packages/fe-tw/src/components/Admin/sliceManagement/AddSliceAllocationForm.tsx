@@ -1,4 +1,3 @@
-import { useATokenVaultData } from "@/hooks/vault/useATokenVaultData";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { useFormikContext, Form } from "formik";
@@ -18,15 +17,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { SliceAllocation } from "@/types/erc3643/types";
+import { useBuildings } from "@/hooks/useBuildings";
 
 export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAllocations?: SliceAllocation[] }) => {
    const formik = useFormikContext<{
       slice: CreateSliceFormProps,
       sliceAllocation: AddSliceAllocationFormProps,
    }>();
-   const { autoCompounders } = useATokenVaultData();
+   const { buildings } = useBuildings();
    const [tokensPercentageDialogOpen, setTokensPercentageDialogOpen] = useState(false);
-   const [tokensPercentageValue, setTokensPercentageValue] = useState("0");
+   const [tokenAllocationAmountValue, setTokenAllocationAmountValue] = useState("0");
    const lastSelectedAssetToken = formik.values.sliceAllocation.tokenAssets[formik.values.sliceAllocation.tokenAssets.length - 1];
 
    return (
@@ -38,7 +38,7 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
                   newTokenAssets.pop();
 
                   formik.setFieldValue("sliceAllocation.tokenAssets", newTokenAssets);
-                  toast.error("Allocation percentage is mandatory for a asset token");
+                  toast.error("Allocation amount is mandatory for a asset token");
                }
             }
 
@@ -47,49 +47,33 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
             <DialogContent>
             <DialogHeader>
                   <DialogTitle>
-                     Add allocation percentage for token {autoCompounders.find(comp => comp.address === lastSelectedAssetToken)?.name}
+                     Add allocation amount for token {buildings?.find((b) => b.address === lastSelectedAssetToken)?.title}
                   </DialogTitle>
                   <DialogDescription>
                      <span className="text-xs text-red-700">
-                        In case of empty value percentage token amount would be assigned automatically.
+                        In case of empty amount it's would be assigned automatically.
                      </span>
                   </DialogDescription>
                </DialogHeader>
                <Input
-                  placeholder="Enter allocation percentage % (e.g 10)"
+                  placeholder="Enter allocation amount (e.g. 100)"
                   onChange={(e) => {
-                     setTokensPercentageValue(e.target.value);
+                     setTokenAllocationAmountValue(e.target.value);
                   }}
                />
                <Button onClick={() => {
-                  const newTokensPercentageValue = Number(tokensPercentageValue);
+                  const newTokenAmountValue = Number(tokenAllocationAmountValue);
 
-                  if (newTokensPercentageValue > 0) {
-                     const tokensPercentageValueActive = Object.values(
-                        formik.values.sliceAllocation.tokenAssetAmounts
-                     )?.reduce((acc, amount) => acc += Number(amount), 0) + newTokensPercentageValue;
-
-                     if (tokensPercentageValueActive > 100) {
-                        toast.error("Percentage can't be more then 100 in total");
-                     } else {
-                        formik.setFieldValue("sliceAllocation.tokenAssetAmounts", {
-                           ...formik.values.sliceAllocation.tokenAssetAmounts,
-                           [lastSelectedAssetToken]: tokensPercentageValue,
-                        });
-                     }
+                  if (newTokenAmountValue) {
+                     formik.setFieldValue("sliceAllocation.tokenAssetAmounts", {
+                        ...formik.values.sliceAllocation.tokenAssetAmounts,
+                        [lastSelectedAssetToken]: newTokenAmountValue,
+                     });
                   } else {
-                     const tokensPercentageValueActive = Object.values(
-                        formik.values.sliceAllocation.tokenAssetAmounts
-                     )?.reduce((acc, amount) => acc += Number(amount), 0) + 10;
-
-                     if (tokensPercentageValueActive > 100) {
-                        toast.error("Percentage can't be more then 100 in total");
-                     } else {
-                        formik.setFieldValue("sliceAllocation.tokenAssetAmounts", {
-                           ...formik.values.sliceAllocation.tokenAssetAmounts,
-                           [lastSelectedAssetToken]: '10',
-                        });
-                     }
+                     formik.setFieldValue("sliceAllocation.tokenAssetAmounts", {
+                        ...formik.values.sliceAllocation.tokenAssetAmounts,
+                        [lastSelectedAssetToken]: '100',
+                     });
                   }
 
                   setTokensPercentageDialogOpen(false);
@@ -99,17 +83,42 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
             </DialogContent>
          </Dialog>
 
-         <div>
+         {/** <div>
             <FormInput
-               label="Token deposit amount in USDC"
-               placeholder="e.g. 100"
+               label="Total allocations amount"
+               placeholder="e.g. 10000"
                className="mt-1"
                error={
                   formik.touched?.sliceAllocation?.totalAssetsAmount ? formik.errors?.sliceAllocation?.totalAssetsAmount : undefined
                }
                {...formik.getFieldProps("sliceAllocation.totalAssetsAmount")}
             />
+         </div> **/}
+      
+         <div>
+            <FormInput
+               label="Deposit amount"
+               placeholder="e.g. 100"
+               className="mt-1"
+               error={
+                  formik.touched?.sliceAllocation?.depositAmount ? formik.errors?.sliceAllocation?.depositAmount : undefined
+               }
+               {...formik.getFieldProps("sliceAllocation.depositAmount")}
+            />
          </div>
+
+         <div>
+            <FormInput
+               label="Token reward amount in USDC"
+               placeholder="e.g. 100"
+               className="mt-1"
+               error={
+                  formik.touched?.sliceAllocation?.rewardAmount ? formik.errors?.sliceAllocation?.rewardAmount : undefined
+               }
+               {...formik.getFieldProps("sliceAllocation.rewardAmount")}
+            />
+         </div>
+      
          <div>
                <Label htmlFor="tokenAssets">Select multiple token assets</Label>
                <Select
@@ -135,17 +144,17 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
                      <SelectValue placeholder="e.g 0x.." />
                   </SelectTrigger>
                   <SelectContent>
-                     {autoCompounders
-                        .map((token) => (
-                           <SelectItem key={token.address} value={token.address}>
-                              {token.name}
+                     {buildings
+                        ?.map((b) => (
+                           <SelectItem key={b.address} value={b.address as string}>
+                              {b.title}
                            </SelectItem>
                         ))
                      }
                </SelectContent>
                {
                   formik.errors.sliceAllocation?.tokenAssets &&
-                  <span className="text-xs text-red-700">{formik.errors.sliceAllocation?.tokenAssets}</span>
+                  <span className="text-md text-red-500">{formik.errors.sliceAllocation?.tokenAssets}</span>
                }
             </Select>
             {formik.values.sliceAllocation?.tokenAssets?.length > 0 && <div className="flex flex-col mt-5" style={{ overflowX: "scroll" }}>
@@ -153,18 +162,18 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
 
                {formik.values.sliceAllocation?.tokenAssets?.map(asset => (
                   <Badge className="badge badge-md badge-soft badge-info p-2 m-1" key={asset}>
-                     {autoCompounders.find(comp => comp.address === asset)?.name}
+                     {buildings?.find((b) => b.address === asset)?.title}
                      {asset ? ` ${asset}` : ''}
-                     {formik.values.sliceAllocation.tokenAssetAmounts[asset] ? ` (${formik.values.sliceAllocation.tokenAssetAmounts[asset]}%)` : ''}
+                     {formik.values.sliceAllocation.tokenAssetAmounts[asset] ? ` (${formik.values.sliceAllocation.tokenAssetAmounts[asset]})` : ''}
                   </Badge>
                ))}
 
                {!!formik.values.sliceAllocation.tokenAssetAmounts && (
                   <div className="flex flex-col">
-                     <p className="text-sm font-semibold mt-5">Total selected percentage: {
+                     <p className="text-sm font-semibold mt-5">Total allocation: {
                         Object.values(formik.values.sliceAllocation.tokenAssetAmounts)
                            .reduce((acc, amount) => acc += Number(amount), 0)
-                        }%
+                        }
                      </p>
                   </div>
                )}

@@ -21,10 +21,9 @@ import {
 } from "@/components/ui/breadcrumb";
 import { AddSliceAllocationForm } from "@/components/Admin/sliceManagement/AddSliceAllocationForm";
 import { useCreateSlice } from "@/hooks/useCreateSlice";
-import { getTokenBalanceOf, getTokenName } from "@/services/erc20Service";
+import { getTokenBalanceOf, getTokenDecimals, getTokenName } from "@/services/erc20Service";
 import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 import { parseUnits } from "ethers";
-import { basicVaultAbi } from "@/services/contracts/abi/basicVaultAbi";
 
 type Props = {
    slice: SliceData;
@@ -32,87 +31,60 @@ type Props = {
    buildingId?: string;
 };
 
+const validateAmountField = (val: any, fieldName: string) => val.when('tokenAssets', ([tokenAssets]: string[][], schema: Yup.Schema) => {
+   return schema.test(
+      `total_${fieldName}_amount`, `${fieldName} amount can't be empty and more or equal to 100`,
+      (value: string) => tokenAssets?.length > 0 ? !!Number(value) && Number(value) >= 100 : true
+   )
+});
+
 const VALIDATION_SCHEMA = Yup.object({
    slice: Yup.object(),
    sliceAllocation: Yup.object().shape({
+      tokenAssets: Yup.array().of(Yup.string()).min(2, 'Assets length more than 1'),
       tokenAssetAmounts: Yup.object(),
-      tokenAssets: Yup.array().of(Yup.string()).when(['sliceAllocation.totalAssetsAmount'], (a, schema) => 
-         schema.test(
-            "token_assets",
-            "More when one token should be selected in order to add allocation",
-            value => !!a ? !!value && value?.length > 0 : true
-         )
-      ),
-      totalAssetsAmount: Yup.string().when(['sliceAllocation.tokenAssets'], (a, schema) => 
-         schema.test(
-            "total_deposit_amount",
-            "Total deposit amount should be provided",
-            value => a.length > 0 ? Number(value) > 0 : true
-         )
-      ),
+      depositAmount: validateAmountField(Yup.string(), 'deposit'),
+      rewardAmount: validateAmountField(Yup.string(), 'reward'),
    }),
 });
 
 export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false }: Props) {
    const { buildingTokens } = useBuildings();
-   const { readContract } = useReadContract();
    const { sliceAllocations, sliceBaseToken, sliceBuildings } = useSliceData(
       slice.address,
       buildingTokens,
    );
-   const { addSliceTokenAssetsMutation, rebalanceSliceMutation } = useCreateSlice(slice.address);
+   const { addTokenAssetsToSliceMutation } = useCreateSlice(slice.address);
    const { data: evmAddress } = useEvmAddress();
    const [isAllocationOpen, setIsAllocationOpen] = useState(false);
-   const [sliceValuationCup, setSliceValuationCup] = useState({
-      valuation: '--',
-      tokenPrice: '--',
+   const [sliceTokenInfo, setSliceTokenInfo] = useState({
       tokenBalance: '--',
       tokenName: '',
    });
 
-   const getCompounderAssets = async (acTokens: string[]) => {
-      const autoCompounderVaults = await Promise.allSettled(
-         acTokens.map(vault => readContract({
-            abi: basicVaultAbi,
-            address: vault as `0x${string}`,
-            functionName: 'asset',
-            args: [],
-         }))
-      );
-           
-      return autoCompounderVaults.map(asset => (asset as { value: `0x${string}` }).value);
+   const fetchSliceTokenData = async () => {
+      if (sliceBaseToken) {
+         const balanceOf: any = await getTokenBalanceOf(sliceBaseToken, evmAddress);
+         const name = await getTokenName(sliceBaseToken);
+         const decimals = await getTokenDecimals(sliceBaseToken);
+
+         setSliceTokenInfo(prev => ({
+            ...prev,
+            tokenBalance: parseUnits(balanceOf[0]?.toString(), decimals[0]).toString(),
+            tokenName: name[0],
+         }));
+      }
    };
 
-   const handleAddAllocationSubmit = async (values: CreateSliceRequestData) => {
-      const underlyingAssets = await getCompounderAssets(values.sliceAllocation.tokenAssets);
-
-      await addSliceTokenAssetsMutation.mutateAsync({
-         ...values,
-         underlyingAssets,
-      });
-      await rebalanceSliceMutation.mutateAsync({
-         ...values,
-         vaults: [],
-      });
+   const onSubmitForm = async (values: CreateSliceRequestData) => {
+      await addTokenAssetsToSliceMutation.mutateAsync(values);
       
       setIsAllocationOpen(false);
    };
 
    useEffect(() => {
       if (sliceBaseToken && evmAddress) {
-         getTokenBalanceOf(sliceBaseToken, evmAddress).then(data => {
-            setSliceValuationCup(prev => ({
-               ...prev,
-               tokenBalance: parseUnits(data[0]?.toString(), 6).toString(),
-            }));
-         });
-
-         getTokenName(sliceBaseToken).then(data => {
-            setSliceValuationCup(prev => ({
-               ...prev,
-               tokenName: data[0],
-            }));
-         });
+         fetchSliceTokenData();
       }
    }, [sliceBaseToken, evmAddress]);
 
@@ -163,8 +135,10 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
 
                <div className="bg-white rounded-lg">
                   <h1 className="text-xl font-semibold mb-2">Slice Info</h1>
-                  <p className="mb-1">Slice token price: {sliceValuationCup.tokenPrice}</p>
-                  <p>Slice token balance: {sliceValuationCup.tokenBalance} {sliceValuationCup.tokenName}</p>
+                  <p>Slice token balance:
+                     <span className="text-xs text-purple- font-bold">{' ' + sliceTokenInfo.tokenBalance.slice(0, 20)}...</span>
+                     {sliceTokenInfo.tokenName}
+                  </p>
                </div>
             </div>
          </div>
@@ -194,7 +168,7 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
                         },
                      }}
                      validationSchema={VALIDATION_SCHEMA}
-                     onSubmit={handleAddAllocationSubmit}
+                     onSubmit={onSubmitForm}
                   >
                      {({ isSubmitting, submitForm }) => (
                         <div>

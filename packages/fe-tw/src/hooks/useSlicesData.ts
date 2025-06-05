@@ -4,7 +4,7 @@ import { SLICE_FACTORY_ADDRESS } from "@/services/contracts/addresses";
 import { readContract } from "@/services/contracts/readContract";
 import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 import { fetchJsonFromIpfs } from "@/services/ipfsService";
-import type { SliceAllocation, SliceAllocationSmall, SliceData } from "@/types/erc3643/types";
+import type { SliceAllocationSmall, SliceData } from "@/types/erc3643/types";
 import { prepareStorageIPFSfileURL } from "@/utils/helpers";
 import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -98,7 +98,7 @@ export function useSlicesData() {
 
          allocationsData.forEach((alloc, index) => {
             allocations = [...allocations, {
-               buildingToken: (alloc as any).value[0][1],
+               buildingToken: (alloc as any).value[0][1][1],
                slice: slices[index].address,
             }];
          });

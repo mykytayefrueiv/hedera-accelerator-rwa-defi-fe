@@ -65,6 +65,7 @@ export const AddSliceForm = () => {
          </div>
          <div className="flex gap-1 items-end w-full">
             <div className="w-full">
+               {/** todo: make up slice IPFS image input */}
                <FormInput
                   label="Slice Image IPFS Hash"
                   placeholder="e.g. 02323x12142146t512764512763535353535353535"

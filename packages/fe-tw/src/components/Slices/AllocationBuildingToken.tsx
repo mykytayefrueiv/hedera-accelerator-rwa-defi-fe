@@ -27,11 +27,6 @@ export const AllocationBuildingToken = ({ allocation }: Props) => {
       return (
          <Link key={tokenData.address} href={`/building/${tokenData.address}`}>
             <div className="p-4 bg-[#F9F3F8] hover:bg-[#EADFEA] transition duration-200 cursor-pointer">
-               {/** <img
-                  src={building.imageUrl ?? "/assets/dome.jpeg"}
-                  alt={building.title}
-                  className="mb-2 w-full h-32 object-cover rounded-sm"
-               /> **/}
                <div className="flex flex-row">
                   <span className="text-md mr-2">{tokenData.name}</span>
                   <Gem />

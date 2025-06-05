@@ -12,7 +12,8 @@ export type CreateSliceFormProps = {
 export type AddSliceAllocationFormProps = {
     tokenAssets: string[],
     tokenAssetAmounts: { [key: string]: string },
-    totalAssetsAmount: string,
+    depositAmount?: string,
+    rewardAmount?: string,
 };
 
 export type DepositSliceFormProps = {
@@ -23,7 +24,8 @@ export type DepositSliceFormProps = {
 export const addAllocationFormInitialValues = {
     tokenAssets: [],
     tokenAssetAmounts: {},
-    totalAssetsAmount: "0",
+    depositAmount: "0",
+    rewardAmount: "0",
 };
 
 export const deploySliceFormInitialValues = {
@@ -42,23 +44,35 @@ export const depositSliceFormInitialValues = {
 export const INITIAL_VALUES = {
     slice: deploySliceFormInitialValues,
     sliceAllocation: addAllocationFormInitialValues,
-    deposit: depositSliceFormInitialValues,
 };
+
+const validateAmountField = (val: any, fieldName: string) => val.when('tokenAssets', ([tokenAssets]: string[][], schema: Yup.Schema) => {
+    return schema.test(`total_${fieldName}_amount`, `Total ${fieldName} amount should be provided`, (value: string) => tokenAssets?.length > 0 ? !!Number(value) : true)
+});
 
 export const VALIDATION_SCHEMA = Yup.object({
     slice: Yup.object().shape({
         name: Yup.string().required('Name is required'),
         description: Yup.string().required('Description is required'),
-        endDate: Yup.string().required('End date is required'),
+        endDate: Yup.string().when('tokenAssets', ([_tokenAssets]: string[][], schema: Yup.Schema) => {
+            return schema.test('incoming_date', 'Should be incoming date', (value?: string) => {
+                if (!value) {
+                    return true;
+                }
+
+                const endDate = new Date(value);
+
+                return endDate > new Date();
+            })
+        }),
         sliceImageIpfsHash: Yup.string().required('Image is required'),
         symbol: Yup.string().required('Symbol is required'),
     }),
     sliceAllocation: Yup.object().shape({
         tokenAssets: Yup.array().of(Yup.string()),
         tokenAssetAmounts: Yup.object(),
-        totalAssetsAmount: Yup.string().when(['sliceAllocation.tokenAssets'], (a, schema) => 
-            schema.test("total_deposit_amount", "Total deposit amount should be provided", value => a.length > 0 ? Number(value) > 0 : true)
-        ),
+        depositAmount: validateAmountField(Yup.string(), 'deposit'),
+        rewardAmount: validateAmountField(Yup.string(), 'reward'),
     }),
 });
 
@@ -66,7 +80,7 @@ export const STEPS = ["slice", "sliceAllocation"];
 
 export const FRIENDLY_STEP_NAME = {
    slice: "Deploy Slice",
-   sliceAllocation: "Add Slice Allocations in tokens",
+   sliceAllocation: "Add Slice Allocations",
 };
 
 export const FRIENDLY_STEP_STATUS: Record<StepsStatus, string> = {
