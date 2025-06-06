@@ -16,7 +16,7 @@ const calculateIdealAllocation = (totalAllocationsCount: number) => {
 
 export const useSliceData = (
    sliceAddress: `0x${string}`,
-   buildingDeployedTokens: BuildingToken[],
+   buildingDeployedTokens?: BuildingToken[],
 ) => {
    const [sliceBuildings, setSliceBuildings] = useState<BuildingToken[]>([]);
    const { data: evmAddress } = useEvmAddress();
@@ -76,7 +76,7 @@ export const useSliceData = (
 
    useEffect(() => {
       if (sliceAllocations?.length) {
-         if (buildingDeployedTokens?.length > 0 && sliceAllocations?.length > 0) {
+         if (buildingDeployedTokens && buildingDeployedTokens?.length > 0 && sliceAllocations?.length > 0) {
             setSliceBuildings(
                sliceAllocations.map(
                   (allocation) =>

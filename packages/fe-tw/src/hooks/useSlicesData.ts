@@ -15,7 +15,7 @@ export function useSlicesData() {
    const [sliceLogs, setSliceLogs] = useState<any[]>([]);
    const [recentSliceLogs, setRecentSliceLogs] = useState<any[]>([]);
    const [recentlyDeployedSlice, setRecentlyDeployedSlice] = useState<`0x${string}`>();
-   const { buildings, buildingTokens } = useBuildings();
+   const { buildings, buildingsInfo } = useBuildings();
    
    useEffect(() => {
       const unsubscribe = watchContractEvent({
@@ -90,14 +90,14 @@ export function useSlicesData() {
       if (
          slicesAllocationsData!.length > 0 &&
          buildings!.length > 0 &&
-         buildingTokens!.length > 0
+         buildingsInfo!.length > 0
       ) {
          const buildingToSlices: {
             [key: `0x${string}`]: SliceData[],
          } = {};
 
          buildings?.forEach(building => {
-            const tokensForBuilding = buildingTokens.filter(tok => tok.buildingAddress === building.address);
+            const tokensForBuilding = buildingsInfo?.filter(tok => tok.buildingAddress === building.address);
 
             if (tokensForBuilding?.length) {
                buildingToSlices[building.address!] = slicesAllocationsData
@@ -109,7 +109,7 @@ export function useSlicesData() {
 
          return buildingToSlices;
       }
-   }, [slicesAllocationsData, buildingTokens]);
+   }, [slicesAllocationsData, buildingsInfo]);
 
    return {
       sliceAddresses,

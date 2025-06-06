@@ -55,34 +55,54 @@ const VALIDATION_SCHEMA = Yup.object({
 });
 
 export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false }: Props) {
-   const { buildingTokens } = useBuildings();
+   const { buildingsInfo } = useBuildings();
    const { sliceAllocations, sliceTokenInfo, sliceBuildings } = useSliceData(
       slice.address,
-      buildingTokens,
+      buildingsInfo,
    );
    const { addTokenAssetsToSliceMutation } = useCreateSlice(slice.address);
    const [isAllocationOpen, setIsAllocationOpen] = useState(false);
 
-   const onSubmitForm = async (values: CreateSliceRequestData) => {
-      try {
-         const txs = await addTokenAssetsToSliceMutation.mutateAsync(values);
+   const assetOptions = buildingsInfo?.filter(
+      (b) => !sliceAllocations.find((alloc) => buildingsInfo.find(info => info.tokenAddress === alloc.buildingToken)?.buildingAddress === b.buildingAddress)
+   );
 
-         toast.success(
-            <TxResultToastView
-               title={`Slice ${values.slice.name} successfully rebalanced`}
-               txSuccess={{
-                  transaction_id: (txs as unknown as string[])[0],
-               }}
-            />,
-            {
-               duration: 5000,
-            },
+   const onSubmitForm = async (values: CreateSliceRequestData, { setFieldError }: {
+      setFieldError: (name: string, value: string) => void,
+   }) => {
+      try {
+         const newAllocationAssets = values.sliceAllocation?.tokenAssets?.filter((asset) =>
+           !sliceAllocations.find((alloc) => alloc.buildingToken === asset)
          );
+
+         if (newAllocationAssets?.length > 0) {
+            const txs = await addTokenAssetsToSliceMutation.mutateAsync({
+               ...values,
+               sliceAllocation: {
+                  ...values.sliceAllocation,
+                  tokenAssets: newAllocationAssets,
+               },
+            });
+
+            toast.success(
+               <TxResultToastView
+                  title={`Slice ${values.slice.name} successfully rebalanced`}
+                  txSuccess={{
+                     transaction_id: (txs as unknown as string[])[0],
+                  }}
+               />,
+               {
+                  duration: 5000,
+               },
+            );
+         } else {
+            setFieldError('sliceAllocation.tokenAssets', 'Select new assets to continue');
+         }
       } catch (err) {
          toast.error(
             <TxResultToastView
-                title={`Error during slice rebalance ${(err as { message: string }).message}`}
-                txError={(err as { message: string }).message}
+               title="Error during slice rebalance"
+               txError="Error during submitting tx"
             />,
             { duration: Infinity, closeButton: true },
         );
@@ -166,6 +186,7 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
                                  [alloc.aToken]: alloc.actualAllocation.toString(),
                               };
                            }, {}),
+                           tokenAssets: sliceAllocations.map((asset) => asset.buildingToken),
                         },
                      }}
                      validationSchema={VALIDATION_SCHEMA}
@@ -184,7 +205,7 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
                               ✕
                            </Button>
                            <div className="mt-6">
-                              <AddSliceAllocationForm existsAllocations={sliceAllocations} />
+                              <AddSliceAllocationForm assetOptions={assetOptions!} />
                            </div>
                            <div className="mt-6">
                               <Button

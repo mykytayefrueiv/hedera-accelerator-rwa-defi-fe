@@ -14,10 +14,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { CreateSliceFormProps, AddSliceAllocationFormProps } from "./constants";
 import { Button } from "@/components/ui/button";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { SliceAllocation } from "@/types/erc3643/types";
 import { useBuildings } from "@/hooks/useBuildings";
+import { BuildingToken } from "@/types/erc3643/types";
 
-export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAllocations?: SliceAllocation[] }) => {
+export const AddSliceAllocationForm = ({ assetOptions }: { assetOptions: BuildingToken[] }) => {
    const formik = useFormikContext<{
       slice: CreateSliceFormProps,
       sliceAllocation: AddSliceAllocationFormProps,
@@ -58,15 +58,12 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
       setTokensPercentageDialogOpen(false);
    };
 
-   const handleSelectTokenAsset = (value: `0x${string}`) => {
+   const handleSelectTokenAsset = async (value: `0x${string}`) => {
       if (formik.values.sliceAllocation?.tokenAssets?.length === 5) {
          formik.setFieldError('sliceAllocation.tokenAssets', "It's possble to add maximum of 5 tokens");
          return;
-      } else if (
-         formik.values.sliceAllocation?.tokenAssets.includes(value) ||
-         !!existsAllocations.find((allocation) => allocation.aToken === value)
-      ) {
-         formik.setFieldError('sliceAllocation.tokenAssets', "This token has been already selected");
+      } else if (formik.values.sliceAllocation?.tokenAssets.includes(value)) {
+         formik.setFieldError('sliceAllocation.tokenAssets', 'This token has been already selected');
          return;
       }
 
@@ -138,10 +135,10 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
                      <SelectValue placeholder="e.g 0x.." />
                   </SelectTrigger>
                   <SelectContent>
-                     {buildings
-                        ?.map((b) => (
-                           <SelectItem key={b.address} value={b.address as string}>
-                              {b.title}
+                     {assetOptions
+                        ?.map((opt) => (
+                           <SelectItem key={opt.buildingAddress} value={opt.buildingAddress as string}>
+                              {buildings?.find((b) => b.address === opt.buildingAddress)?.title}
                            </SelectItem>
                         ))
                      }
