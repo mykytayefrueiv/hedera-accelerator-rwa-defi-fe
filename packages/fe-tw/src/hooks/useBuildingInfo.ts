@@ -24,7 +24,6 @@ export const useBuildingInfo = (id?: string) => {
             treasuryAddress: buildingInfo[0][5],
             governanceAddress: buildingInfo[0][6],
             vaultAddress: buildingInfo[0][7],
-            acAddress: buildingInfo[0][8],
          };
       },
       enabled: Boolean(id),

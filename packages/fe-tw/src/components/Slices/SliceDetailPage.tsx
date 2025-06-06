@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { toast } from "sonner";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { INITIAL_VALUES } from "../Admin/sliceManagement/constants";
@@ -19,11 +20,8 @@ import {
    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { AddSliceAllocationForm } from "@/components/Admin/sliceManagement/AddSliceAllocationForm";
+import { TxResultToastView } from "@/components/CommonViews/TxResultView";
 import { useCreateSlice } from "@/hooks/useCreateSlice";
-import { getTokenBalanceOf, getTokenDecimals, getTokenName } from "@/services/erc20Service";
-import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
-import { parseUnits } from "ethers";
-import { readBuildingDetails } from "@/services/buildingService";
 
 type Props = {
    slice: SliceData;
@@ -38,63 +36,58 @@ const validateAmountField = (val: any, fieldName: string) => val.when('tokenAsse
    )
 });
 
+const validateAssetsField = (val: any) => val.when('allocationAmount', ([allocationAmount]: string[][], schema: Yup.Schema) => {
+   return schema.test(
+        'token_assets', 'Minimum amount of assets for allocation is 2',
+        (value: string) => value?.length > 0 ? value?.length >=2 : true
+   )
+});
+
 const VALIDATION_SCHEMA = Yup.object({
    slice: Yup.object(),
    sliceAllocation: Yup.object().shape({
-      tokenAssets: Yup.array().of(Yup.string()).min(2, 'Assets length more than 1'),
-      tokenAssetAmounts: Yup.object(),
+      tokenAssets: validateAssetsField(Yup.array().of(Yup.string())),
       depositAmount: validateAmountField(Yup.string(), 'deposit'),
       rewardAmount: validateAmountField(Yup.string(), 'reward'),
+      tokenAssetAmounts: Yup.object(),
       allocationAmount: Yup.string(),
    }),
 });
 
 export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false }: Props) {
    const { buildingTokens } = useBuildings();
-   const { sliceAllocations, sliceBaseToken, sliceBuildings } = useSliceData(
+   const { sliceAllocations, sliceTokenInfo, sliceBuildings } = useSliceData(
       slice.address,
       buildingTokens,
    );
    const { addTokenAssetsToSliceMutation } = useCreateSlice(slice.address);
-   const { data: evmAddress } = useEvmAddress();
    const [isAllocationOpen, setIsAllocationOpen] = useState(false);
-   const [sliceTokenInfo, setSliceTokenInfo] = useState({
-      tokenBalance: '--',
-      tokenName: '',
-   });
-
-   const fetchSliceTokenData = async () => {
-      if (sliceBaseToken) {
-         const balanceOf: any = await getTokenBalanceOf(sliceBaseToken, evmAddress);
-         const name = await getTokenName(sliceBaseToken);
-         const decimals = await getTokenDecimals(sliceBaseToken);
-
-         setSliceTokenInfo(prev => ({
-            ...prev,
-            tokenBalance: parseUnits(balanceOf[0]?.toString(), decimals[0]).toString(),
-            tokenName: name[0],
-         }));
-      }
-   };
 
    const onSubmitForm = async (values: CreateSliceRequestData) => {
-      const buildingDetails = await Promise.all(values.sliceAllocation?.tokenAssets?.map((building) => readBuildingDetails(building)));
-      const newTokenAssets = buildingDetails.filter(
-         (bDetailLog) => !sliceAllocations.find((alloc) => alloc.buildingToken === bDetailLog[0][4])
-      );
-   
-      if (newTokenAssets?.length >= 2) {
-         await addTokenAssetsToSliceMutation.mutateAsync(values);
+      try {
+         const txs = await addTokenAssetsToSliceMutation.mutateAsync(values);
 
-         setIsAllocationOpen(false);
+         toast.success(
+            <TxResultToastView
+               title={`Slice ${values.slice.name} successfully rebalanced`}
+               txSuccess={{
+                  transaction_id: (txs as unknown as string[])[0],
+               }}
+            />,
+            {
+               duration: 5000,
+            },
+         );
+      } catch (err) {
+         toast.error(
+            <TxResultToastView
+                title={`Error during slice rebalance ${(err as { message: string }).message}`}
+                txError={(err as { message: string }).message}
+            />,
+            { duration: Infinity, closeButton: true },
+        );
       }
    };
-
-   useEffect(() => {
-      if (sliceBaseToken && evmAddress) {
-         fetchSliceTokenData();
-      }
-   }, [sliceBaseToken, evmAddress]);
 
    return (
       <div className="p-6 max-w-7xl mx-auto space-y-8">
@@ -144,8 +137,8 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
                <div className="bg-white rounded-lg">
                   <h1 className="text-xl font-semibold mb-2">Slice Info</h1>
                   <p>Slice token balance:
-                     <span className="text-xs text-purple- font-bold">{' ' + sliceTokenInfo.tokenBalance.slice(0, 20)}...</span>
-                     {sliceTokenInfo.tokenName}
+                     <span className="text-xs text-purple- font-bold">{' ' + sliceTokenInfo?.tokenBalance?.slice(0, 20)}...</span>
+                     {sliceTokenInfo?.tokenName}
                   </p>
                </div>
             </div>

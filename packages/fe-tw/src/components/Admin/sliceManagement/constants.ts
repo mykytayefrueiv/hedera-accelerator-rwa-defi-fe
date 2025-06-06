@@ -82,9 +82,9 @@ export const VALIDATION_SCHEMA = Yup.object({
     }),
     sliceAllocation: Yup.object().shape({
         tokenAssets: validateAssetsField(Yup.array().of(Yup.string())),
-        tokenAssetAmounts: Yup.object(),
         depositAmount: validateAmountField(Yup.string(), 'deposit'),
         rewardAmount: validateAmountField(Yup.string(), 'reward'),
+        tokenAssetAmounts: Yup.object(),
         allocationAmount: Yup.string(),
     }),
 });

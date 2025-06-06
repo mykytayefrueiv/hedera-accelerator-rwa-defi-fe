@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { toast } from "sonner";
 import { useFormikContext, Form } from "formik";
 import { Label } from "@/components/ui/label";
 import { FormInput } from "@/components/ui/formInput";
@@ -33,8 +32,8 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
             const newTokenAssets = [...formik.values.sliceAllocation.tokenAssets];
             newTokenAssets.pop();
 
-            formik.setFieldValue("sliceAllocation.tokenAssets", newTokenAssets);
-            toast.error("Allocation amount is mandatory for a asset token");
+            formik.setFieldValue('sliceAllocation.tokenAssets', newTokenAssets);
+            formik.setFieldError('sliceAllocation.tokenAssets', 'Allocation is mandatory for an asset selected');
          }
       }
 
@@ -61,13 +60,13 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
 
    const handleSelectTokenAsset = (value: `0x${string}`) => {
       if (formik.values.sliceAllocation?.tokenAssets?.length === 5) {
-         toast.error("It's possble to add maximum of 5 tokens");
+         formik.setFieldError('sliceAllocation.tokenAssets', "It's possble to add maximum of 5 tokens");
          return;
       } else if (
          formik.values.sliceAllocation?.tokenAssets.includes(value) ||
          !!existsAllocations.find((allocation) => allocation.aToken === value)
       ) {
-         toast.error("This token has been already selected");
+         formik.setFieldError('sliceAllocation.tokenAssets', "This token has been already selected");
          return;
       }
 
@@ -103,18 +102,6 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
                </Button>
             </DialogContent>
          </Dialog>
-
-         {/** <div>
-            <FormInput
-               label="Total allocations amount"
-               placeholder="e.g. 10000"
-               className="mt-1"
-               error={
-                  formik.touched?.sliceAllocation?.totalAssetsAmount ? formik.errors?.sliceAllocation?.totalAssetsAmount : undefined
-               }
-               {...formik.getFieldProps("sliceAllocation.totalAssetsAmount")}
-            />
-         </div> **/}
       
          <div>
             <FormInput
@@ -160,8 +147,8 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
                      }
                </SelectContent>
                {
-                  formik.errors.sliceAllocation?.tokenAssets &&
-                  <span className="text-xs text-red-500">{formik.errors.sliceAllocation?.tokenAssets}</span>
+                  !!formik.errors.sliceAllocation?.tokenAssets &&
+                  <span className="text-sm text-red-600">{formik.errors.sliceAllocation?.tokenAssets}</span>
                }
             </Select>
             {formik.values.sliceAllocation?.tokenAssets?.length > 0 && <div className="flex flex-col mt-5" style={{ overflowX: "scroll" }}>
@@ -177,10 +164,13 @@ export const AddSliceAllocationForm = ({ existsAllocations = [] }: { existsAlloc
 
                {!!formik.values.sliceAllocation.tokenAssetAmounts && (
                   <div className="flex flex-col">
-                     <p className="text-sm font-semibold mt-5">Total allocation: {
-                        Object.values(formik.values.sliceAllocation.tokenAssetAmounts)
-                           .reduce((acc, amount) => acc += Number(amount), 0)
-                        }
+                     <p className="text-sm mt-2">
+                        <span className="font-semibold">Total Allocation: {'\n'}</span>
+                        <span className="font-bold">{
+                           Object.values(formik.values.sliceAllocation.tokenAssetAmounts)
+                              .reduce((acc, amount) => acc += Number(amount), 0)
+                           }
+                        </span>
                      </p>
                   </div>
                )}

@@ -1,8 +1,9 @@
 import type { BuildingToken, SliceAllocation } from "@/types/erc3643/types";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getTokenSymbol } from "@/services/erc20Service";
+import { getTokenBalanceOf, getTokenDecimals, getTokenName, getTokenSymbol } from "@/services/erc20Service";
 import { readSliceAllocations, readSliceBaseToken } from "@/services/sliceService";
+import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 
 const calculateIdealAllocation = (totalAllocationsCount: number) => {
    switch (totalAllocationsCount) {
@@ -18,7 +19,8 @@ export const useSliceData = (
    buildingDeployedTokens: BuildingToken[],
 ) => {
    const [sliceBuildings, setSliceBuildings] = useState<BuildingToken[]>([]);
-
+   const { data: evmAddress } = useEvmAddress();
+   
    const { data: sliceBaseToken } = useQuery<`0x${string}`>({
       queryKey: ["sliceBaseToken"],
       queryFn: async () => {
@@ -27,6 +29,24 @@ export const useSliceData = (
          return baseToken[0]
       },
       enabled: !!sliceAddress,
+   });
+
+   const { data: sliceTokenInfo } = useQuery<any>({
+      queryKey: ["sliceTokenInfo"],
+      queryFn: async () => {
+         if (sliceBaseToken) {
+            const tokenBalance: any = await getTokenBalanceOf(sliceBaseToken, evmAddress);
+            const tokenName = await getTokenName(sliceBaseToken);
+            const tokenDecimals = await getTokenDecimals(sliceBaseToken);
+
+            return {
+               tokenBalance,
+               tokenName,
+               tokenDecimals,
+            };
+         }
+      },
+      enabled: !!sliceBaseToken && !!evmAddress,
    });
 
    const { data: sliceAllocations } = useQuery<SliceAllocation[]>({
@@ -69,5 +89,5 @@ export const useSliceData = (
       }
    }, [buildingDeployedTokens, sliceAllocations]);
 
-   return { sliceAllocations, sliceBaseToken, sliceBuildings };
+   return { sliceAllocations, sliceBaseToken, sliceTokenInfo, sliceBuildings };
 };

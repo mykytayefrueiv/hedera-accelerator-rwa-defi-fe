@@ -43,9 +43,6 @@ export default function SliceAllocations({ allocations, onAddAllocation }: Alloc
                               <td className="px-4 py-2 border text-center">
                                  {item.actualAllocation ? item.actualAllocation : "N/A"}
                               </td>
-                              {/** <td className="px-4 py-2 border text-center">
-                                 {item.idealAllocation}%
-                              </td> **/}
                            </tr>
                         ))}
                      </tbody>

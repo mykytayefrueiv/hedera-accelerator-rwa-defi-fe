@@ -21,6 +21,7 @@ import {
 import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 import type { CreateSliceRequestData } from "@/types/erc3643/types";
 import { pinata } from "@/utils/pinata";
+import { TransactionExtended } from "@/types/common";
 
 type VaultData = {
    vault: `0x${string}`,
@@ -203,8 +204,8 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
          const rewardsAmountToInStaking = parseUnits(rewardAmount, 18);
          const depositAmountTo = parseUnits(depositAmount, 18);
          const tokensToApprove = [...vaults.map((v) => v.token), USDC_ADDRESS];
-      
          let txHashes = [];
+
          const approvalsHashes = await approvalsInBatch(
             tokensToApprove,
             tokensToApprove.map(_t => _t === USDC_ADDRESS ? rewardsAmountToInUSDC : rewardsAmountToInStaking),
@@ -277,8 +278,14 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
             rewardsAmountToInUSDC,
          );
          txHashes.push(...addRewardsHashes);
+      
+         try {
+            const tx = await waitForDelayedRebalance({ deployedSliceAddress });
 
-         return txHashes;
+            return [tx.transaction_id, ...txHashes];
+         } catch (err: any) {
+            throw new Error(err.message);
+         }
       },
    });
 
@@ -302,23 +309,27 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
             vaults: vaultsInfo,
             deployedSliceAddress,
          });
+      },
+   });
 
+   const waitForDelayedRebalance = (values: {
+      deployedSliceAddress?: `0x${string}`,
+   }): Promise<TransactionExtended> => {
+      return new Promise((res, rej) => {
          setTimeout(() => {
             executeTransaction(() => writeContract({
                functionName: 'rebalance',
                args: [],
                abi: sliceAbi,
                contractId: ContractId.fromEvmAddress(0, 0, values.deployedSliceAddress || sliceAddress!),
-            })).then((txId) => {
-               txs = [...txs, txId];
-
-               toast.success('Allocation & rebalance successed!');
+            })).then((transaction) => {
+               res(transaction as TransactionExtended);
             }).catch((err) => {
-               toast.error(`Allocation & rebalance error: ${err.message}`);
+               rej(err);
             });
          }, 60000);
-      },
-   });
+      });
+   };
 
    const waitForLastSliceDeployed = (): Promise<`0x${string}` | undefined> => {
       return new Promise((res) => {
@@ -346,7 +357,7 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
       });
    };
 
-   const createSlice = async (values: CreateSliceRequestData): Promise<string> => {
+   const createSlice = async (values: CreateSliceRequestData): Promise<TransactionExtended> => {
       const { slice } = values;
       const keyRequest = await fetch("/api/pinataKey");
       const keyData = await keyRequest.json();
@@ -375,7 +386,7 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
                   .then((tx) => {
                      watch(tx as string, {
                         onSuccess: (transaction) => {
-                           res(transaction.transaction_id);
+                           res(transaction);
 
                            return transaction;
                         },
