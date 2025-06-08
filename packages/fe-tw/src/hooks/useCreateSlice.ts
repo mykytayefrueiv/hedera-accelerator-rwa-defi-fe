@@ -309,6 +309,8 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
             vaults: vaultsInfo,
             deployedSliceAddress,
          });
+
+         return txs;
       },
    });
 

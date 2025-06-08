@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
+import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 import { Button } from "@/components/ui/button";
 import { INITIAL_VALUES } from "../Admin/sliceManagement/constants";
 import SliceAllocations from "@/components/Slices/SliceAllocations";
@@ -22,6 +23,7 @@ import {
 import { AddSliceAllocationForm } from "@/components/Admin/sliceManagement/AddSliceAllocationForm";
 import { TxResultToastView } from "@/components/CommonViews/TxResultView";
 import { useCreateSlice } from "@/hooks/useCreateSlice";
+import { getTokenBalanceOf } from "@/services/erc20Service";
 
 type Props = {
    slice: SliceData;
@@ -60,12 +62,32 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
       slice.address,
       buildingsInfo,
    );
+   const { data: evmAddress } = useEvmAddress();
    const { addTokenAssetsToSliceMutation } = useCreateSlice(slice.address);
    const [isAllocationOpen, setIsAllocationOpen] = useState(false);
+   const [assetsOptions, setAssetsOptions] = useState<any>();
 
-   const assetOptions = buildingsInfo?.filter(
-      (b) => !sliceAllocations.find((alloc) => buildingsInfo.find(info => info.tokenAddress === alloc.buildingToken)?.buildingAddress === b.buildingAddress)
-   );
+   useEffect(() => {
+      setAssetOptionsAsync();
+   }, []);
+
+   const setAssetOptionsAsync = async () => {
+      const tokens = buildingsInfo?.map((building) => building.tokenAddress);
+
+      if (tokens) {
+         const balances = await Promise.all(tokens.map((tok) => getTokenBalanceOf(tok, evmAddress)));
+         const balancesToTokens = balances.map((balance, index) => ({
+            balance,
+            building: buildingsInfo?.[index].buildingAddress,
+         }));
+   
+         if (buildingsInfo) {
+            setAssetsOptions(buildingsInfo?.filter(
+               (b) => balancesToTokens.find((b2) => b2.building === b.buildingAddress)?.balance > 0 && !sliceAllocations.find((alloc) => buildingsInfo.find(info => info.tokenAddress === alloc.buildingToken)?.buildingAddress === b.buildingAddress)
+            ));
+         }
+      }
+   };
 
    const onSubmitForm = async (values: CreateSliceRequestData, { setFieldError }: {
       setFieldError: (name: string, value: string) => void,
@@ -205,7 +227,7 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
                               ✕
                            </Button>
                            <div className="mt-6">
-                              <AddSliceAllocationForm assetOptions={assetOptions!} />
+                              <AddSliceAllocationForm assetOptions={assetsOptions!} />
                            </div>
                            <div className="mt-6">
                               <Button
