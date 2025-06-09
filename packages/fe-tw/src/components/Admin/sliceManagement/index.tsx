@@ -1,7 +1,7 @@
 "use client";
 
 import { Formik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
 import { tryCatch } from "@/services/tryCatch";
@@ -28,6 +28,9 @@ import { AddSliceForm } from "@/components/Admin/sliceManagement/AddSliceForm";
 import { AddSliceAllocationForm } from "@/components/Admin/sliceManagement/AddSliceAllocationForm";
 import { INITIAL_VALUES, STEPS, FRIENDLY_STEP_NAME, FRIENDLY_STEP_STATUS, VALIDATION_SCHEMA } from "@/components/Admin/sliceManagement/constants";
 import { TxResultToastView } from "@/components/CommonViews/TxResultView";
+import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
+import { useBuildings } from "@/hooks/useBuildings";
+import { getTokenBalanceOf } from "@/services/erc20Service";
 
 const getCurrentStepState = (
     isSelected: boolean,
@@ -54,7 +57,30 @@ const getCurrentStepState = (
 export const SliceManagement = () => {
     const [currentSetupStep, setCurrentSetupStep] = useState(1);
     const [isTransactionInProgress, setIsTransactionInProgress] = useState<boolean>(false);
+    const [assetsOptions, setAssetsOptions] = useState<any>();
+    const { buildingsInfo } = useBuildings();
     const { createSlice, waitForLastSliceDeployed, addTokenAssetsToSliceMutation } = useCreateSlice();
+    const { data: evmAddress } = useEvmAddress();
+
+    useEffect(() => {
+        setAssetOptionsAsync();
+    }, [buildingsInfo, evmAddress]);
+    
+    const setAssetOptionsAsync = async () => {
+        const tokens = buildingsInfo?.map((building) => building.tokenAddress);
+       
+        if (tokens && evmAddress) {
+            const balances = await Promise.all(tokens.map((tok) => getTokenBalanceOf(tok, evmAddress)));
+            const balancesToTokens = balances.map((balance, index) => ({
+                balance,
+                building: buildingsInfo?.[index].buildingAddress,
+            }));
+          
+            if (buildingsInfo) {
+                setAssetsOptions(buildingsInfo?.filter((b) => balancesToTokens.find((b2) => b2.building === b.buildingAddress)?.balance > 0));
+            }
+        }
+    };
 
     const handleSubmit = async (values: CreateSliceRequestData, e: { resetForm: () => void }) => {
         setIsTransactionInProgress(true);
@@ -79,28 +105,28 @@ export const SliceManagement = () => {
                 );
     
                 if (results[1].data && values.sliceAllocation?.tokenAssets?.length > 0) {
-                    try {
-                        const txs = await addTokenAssetsToSliceMutation.mutateAsync({
-                            deployedSliceAddress: results[1].data,
-                            ...values,
-                        });
-
+                    const { data, error } = await tryCatch(addTokenAssetsToSliceMutation.mutateAsync({
+                        deployedSliceAddress: results[1].data,
+                        ...values,
+                    }));
+                    
+                    if (data) {
                         toast.success(
                             <TxResultToastView
                                 title={`Slice ${values.slice.name} successfully rebalanced`}
                                 txSuccess={{
-                                    transaction_id: (txs as unknown as string[])[0],
+                                    transaction_id: (data as unknown as string[])[0],
                                 }}
                             />,
                             {
                                duration: 5000,
                             },
                         );
-                    } catch (err) {
+                    } else {
                         toast.error(
                             <TxResultToastView
-                                title={`Error during slice rebalance ${(err as { message: string }).message}`}
-                                txError={(err as { message: string }).message}
+                                title={`Error during slice rebalance ${(error as { message: string }).message}`}
+                                txError={(error as { message: string }).message}
                             />,
                             { duration: Infinity, closeButton: true },
                         );
@@ -128,6 +154,18 @@ export const SliceManagement = () => {
         }
     };
 
+    const handleValidation = (values: any) => {
+        let errors: any = {};
+
+        if (values.sliceAllocation?.tokenAssets?.length === 5) {
+            errors.sliceAllocation = {
+                tokenAssets: 'Max amount of assets is 5',
+            };
+        }
+
+        return errors;
+    }
+
     return (
         <div>
             <h1 className="text-2xl font-bold mb-4">Slice Management</h1>
@@ -142,6 +180,8 @@ export const SliceManagement = () => {
                     initialValues={INITIAL_VALUES}
                     validationSchema={VALIDATION_SCHEMA}
                     onSubmit={handleSubmit}
+                    validate={handleValidation}
+                    validateOnChange
                 >
                 {({ errors, touched, isSubmitting, submitForm }) => (
                     <>
@@ -179,7 +219,7 @@ export const SliceManagement = () => {
                                 <AddSliceForm />
                             )}
                             {currentSetupStep === 2 && (
-                                <AddSliceAllocationForm />
+                                <AddSliceAllocationForm assetOptions={assetsOptions} />
                             )}
                         </div>
 

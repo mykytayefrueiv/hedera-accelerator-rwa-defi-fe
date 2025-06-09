@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormikContext, Form } from "formik";
+import { XIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { FormInput } from "@/components/ui/formInput";
 import {
@@ -16,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useBuildings } from "@/hooks/useBuildings";
 import { BuildingToken } from "@/types/erc3643/types";
+import { getTokenBalanceOf } from "@/services/erc20Service";
+import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 
 export const AddSliceAllocationForm = ({ assetOptions }: { assetOptions: BuildingToken[] }) => {
    const formik = useFormikContext<{
@@ -27,15 +30,14 @@ export const AddSliceAllocationForm = ({ assetOptions }: { assetOptions: Buildin
    const lastSelectedAssetToken = formik.values.sliceAllocation.tokenAssets[formik.values.sliceAllocation.tokenAssets.length - 1];
 
    const handleOpenChange = (state: boolean) => {
-      if (!state) {
+      /* if (!state) {
          if (!formik.values.sliceAllocation.tokenAssetAmounts[lastSelectedAssetToken]) {
             const newTokenAssets = [...formik.values.sliceAllocation.tokenAssets];
             newTokenAssets.pop();
 
             formik.setFieldValue('sliceAllocation.tokenAssets', newTokenAssets);
-            formik.setFieldError('sliceAllocation.tokenAssets', 'Allocation is mandatory for an asset selected');
          }
-      }
+      } */
 
       setTokensPercentageDialogOpen(state);
    };
@@ -59,14 +61,6 @@ export const AddSliceAllocationForm = ({ assetOptions }: { assetOptions: Buildin
    };
 
    const handleSelectTokenAsset = async (value: `0x${string}`) => {
-      if (formik.values.sliceAllocation?.tokenAssets?.length === 5) {
-         formik.setFieldError('sliceAllocation.tokenAssets', "It's possble to add maximum of 5 tokens");
-         return;
-      } else if (formik.values.sliceAllocation?.tokenAssets.includes(value)) {
-         formik.setFieldError('sliceAllocation.tokenAssets', 'This token has been already selected');
-         return;
-      }
-
       formik.setFieldValue("sliceAllocation.tokenAssets", [...formik.values.sliceAllocation?.tokenAssets, value]);
       setTokensPercentageDialogOpen(true);
    };
@@ -151,8 +145,19 @@ export const AddSliceAllocationForm = ({ assetOptions }: { assetOptions: Buildin
             {formik.values.sliceAllocation?.tokenAssets?.length > 0 && <div className="flex flex-col mt-5" style={{ overflowX: "scroll" }}>
                <p className="text-sm font-semibold">Selected Token Assets</p>
 
-               {formik.values.sliceAllocation?.tokenAssets?.map(asset => (
-                  <Badge className="badge badge-md badge-soft badge-info p-2 m-1" key={asset}>
+               {formik.values.sliceAllocation?.tokenAssets?.map((asset, assetId) => (
+                  <Badge className="badge badge-md badge-soft badge-info p-2 m-1" key={asset + assetId}>
+                     <div onClick={() => {
+                        const newValues = formik.values.sliceAllocation.tokenAssets.filter(asset1 => asset1 !== asset);
+
+                        if (formik.errors.sliceAllocation?.tokenAssets === 'Max amount of assets is 5') {
+                           formik.setFieldError('sliceAllocation.tokenAssets', undefined);
+                        }
+
+                        formik.setFieldValue('sliceAllocation.tokenAssets', newValues);
+                     }} style={{ width: 20, cursor: 'pointer' }}>
+                        <XIcon style={{ width: 20 }} />
+                     </div>
                      {buildings?.find((b) => b.address === asset)?.title}
                      {asset ? ` ${asset}` : ''}
                      {formik.values.sliceAllocation.tokenAssetAmounts[asset] ? ` (${formik.values.sliceAllocation.tokenAssetAmounts[asset]})` : ''}

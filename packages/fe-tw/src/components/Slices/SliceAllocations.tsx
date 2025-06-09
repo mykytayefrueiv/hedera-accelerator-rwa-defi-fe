@@ -28,7 +28,6 @@ export default function SliceAllocations({ allocations, onAddAllocation }: Alloc
                         <tr>
                            <th className="px-4 py-2 border">Building Token</th>
                            <th className="px-4 py-2 border">Current Allocation</th>
-                        {/** <th className="px-4 py-2 border">Ideal Allocation</th> **/}
                         </tr>
                      </thead>
                      <tbody>
