@@ -11,7 +11,7 @@ import { INITIAL_VALUES } from "../Admin/sliceManagement/constants";
 import SliceAllocations from "@/components/Slices/SliceAllocations";
 import { useBuildings } from "@/hooks/useBuildings";
 import { useSliceData } from "@/hooks/useSliceData";
-import type { CreateSliceRequestData, SliceData } from "@/types/erc3643/types";
+import type { CreateSliceRequestData, SliceAllocation, SliceData } from "@/types/erc3643/types";
 import {
    Breadcrumb,
    BreadcrumbItem,
@@ -24,6 +24,7 @@ import { AddSliceAllocationForm } from "@/components/Admin/sliceManagement/AddSl
 import { TxResultToastView } from "@/components/CommonViews/TxResultView";
 import { useCreateSlice } from "@/hooks/useCreateSlice";
 import { getTokenBalanceOf } from "@/services/erc20Service";
+import { tryCatch } from "@/services/tryCatch";
 
 type Props = {
    slice: SliceData;
@@ -39,13 +40,16 @@ const validateAmountField = (val: any, fieldName: string) => val.when('tokenAsse
 });
 
 const validateAssetsField = (val: any) => val.when('allocationAmount', ([allocationAmount]: string[][], schema: Yup.Schema) => {
-   return schema.test(
-        'token_assets', 'Minimum amount of assets for allocation is 2',
+    return schema.test(
+        'token_assets_min', 'Minimum count of assets is is 2',
         (value: string) => value?.length > 0 ? value?.length >=2 : true
-   )
+    ).test(
+        'token_assets_max', 'Maximum count of assets is 5',
+        (value: string) => value.length < 5
+    )
 });
 
-const VALIDATION_SCHEMA = Yup.object({
+const validationSchema = Yup.object({
    slice: Yup.object(),
    sliceAllocation: Yup.object().shape({
       tokenAssets: validateAssetsField(Yup.array().of(Yup.string())),
@@ -98,25 +102,35 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
          );
 
          if (newAllocationAssets?.length > 0) {
-            const txs = await addTokenAssetsToSliceMutation.mutateAsync({
+            const { data, error }= await tryCatch(addTokenAssetsToSliceMutation.mutateAsync({
                ...values,
                sliceAllocation: {
                   ...values.sliceAllocation,
                   tokenAssets: newAllocationAssets,
                },
-            });
+            }));
 
-            toast.success(
-               <TxResultToastView
-                  title={`Slice ${values.slice.name} successfully rebalanced`}
-                  txSuccess={{
-                     transaction_id: (txs as unknown as string[])[0],
-                  }}
-               />,
-               {
-                  duration: 5000,
-               },
-            );
+            if (data) {
+               toast.success(
+                  <TxResultToastView
+                     title={`Slice ${slice.name} successfully rebalanced`}
+                     txSuccess={{
+                        transaction_id: (data as unknown as string[])[0],
+                     }}
+                  />,
+                  {
+                     duration: 5000,
+                  },
+               );         
+            } else {
+               toast.error(
+                  <TxResultToastView
+                     title={`Error during slice rebalance ${(error as { message: string }).message}`}
+                     txError={(error as { message: string }).message}
+                  />,
+                  { duration: Infinity, closeButton: true },
+               );
+            }
          } else {
             setFieldError('sliceAllocation.tokenAssets', 'Select new assets to continue');
          }
@@ -211,7 +225,7 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
                            tokenAssets: sliceAllocations.map((asset) => asset.buildingToken),
                         },
                      }}
-                     validationSchema={VALIDATION_SCHEMA}
+                     validationSchema={validationSchema}
                      onSubmit={onSubmitForm}
                   >
                      {({ isSubmitting, submitForm }) => (

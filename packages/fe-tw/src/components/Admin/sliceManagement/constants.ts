@@ -1,3 +1,4 @@
+import { SliceAllocation } from "@/types/erc3643/types";
 import { StepsStatus } from "../buildingManagement/types";
 import * as Yup from "yup";
 
@@ -57,12 +58,17 @@ const validateAmountField = (val: any, fieldName: string) => val.when('tokenAsse
 
 const validateAssetsField = (val: any) => val.when('allocationAmount', ([allocationAmount]: string[][], schema: Yup.Schema) => {
     return schema.test(
-        'token_assets', 'Minimum amount of assets for allocation is 2',
+        'token_assets_min', 'Minimum count of assets is is 2',
         (value: string) => value?.length > 0 ? value?.length >=2 : true
+    ).test(
+        'token_assets_max', 'Maximum count of assets is 5',
+        (value: string) => {
+            return value.length < 5
+        }
     )
 });
 
-export const VALIDATION_SCHEMA = Yup.object({
+export const validationSchema = Yup.object({
     slice: Yup.object().shape({
         name: Yup.string().required('Name is required'),
         description: Yup.string().required('Description is required'),

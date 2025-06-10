@@ -26,7 +26,7 @@ import { useCreateSlice } from "@/hooks/useCreateSlice";
 import { StepsStatus } from "../buildingManagement/types";
 import { AddSliceForm } from "@/components/Admin/sliceManagement/AddSliceForm";
 import { AddSliceAllocationForm } from "@/components/Admin/sliceManagement/AddSliceAllocationForm";
-import { INITIAL_VALUES, STEPS, FRIENDLY_STEP_NAME, FRIENDLY_STEP_STATUS, VALIDATION_SCHEMA } from "@/components/Admin/sliceManagement/constants";
+import { INITIAL_VALUES, STEPS, FRIENDLY_STEP_NAME, FRIENDLY_STEP_STATUS, validationSchema } from "@/components/Admin/sliceManagement/constants";
 import { TxResultToastView } from "@/components/CommonViews/TxResultView";
 import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 import { useBuildings } from "@/hooks/useBuildings";
@@ -154,18 +154,6 @@ export const SliceManagement = () => {
         }
     };
 
-    const handleValidation = (values: any) => {
-        let errors: any = {};
-
-        if (values.sliceAllocation?.tokenAssets?.length === 5) {
-            errors.sliceAllocation = {
-                tokenAssets: 'Max amount of assets is 5',
-            };
-        }
-
-        return errors;
-    }
-
     return (
         <div>
             <h1 className="text-2xl font-bold mb-4">Slice Management</h1>
@@ -178,10 +166,8 @@ export const SliceManagement = () => {
             ) : (
                 <Formik
                     initialValues={INITIAL_VALUES}
-                    validationSchema={VALIDATION_SCHEMA}
+                    validationSchema={validationSchema}
                     onSubmit={handleSubmit}
-                    validate={handleValidation}
-                    validateOnChange
                 >
                 {({ errors, touched, isSubmitting, submitForm }) => (
                     <>

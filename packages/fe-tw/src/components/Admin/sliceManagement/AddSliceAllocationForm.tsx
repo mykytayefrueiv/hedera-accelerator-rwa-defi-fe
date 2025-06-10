@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useFormikContext, Form } from "formik";
 import { XIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
@@ -17,8 +17,6 @@ import { Button } from "@/components/ui/button";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useBuildings } from "@/hooks/useBuildings";
 import { BuildingToken } from "@/types/erc3643/types";
-import { getTokenBalanceOf } from "@/services/erc20Service";
-import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
 
 export const AddSliceAllocationForm = ({ assetOptions }: { assetOptions: BuildingToken[] }) => {
    const formik = useFormikContext<{
@@ -30,15 +28,6 @@ export const AddSliceAllocationForm = ({ assetOptions }: { assetOptions: Buildin
    const lastSelectedAssetToken = formik.values.sliceAllocation.tokenAssets[formik.values.sliceAllocation.tokenAssets.length - 1];
 
    const handleOpenChange = (state: boolean) => {
-      /* if (!state) {
-         if (!formik.values.sliceAllocation.tokenAssetAmounts[lastSelectedAssetToken]) {
-            const newTokenAssets = [...formik.values.sliceAllocation.tokenAssets];
-            newTokenAssets.pop();
-
-            formik.setFieldValue('sliceAllocation.tokenAssets', newTokenAssets);
-         }
-      } */
-
       setTokensPercentageDialogOpen(state);
    };
 
