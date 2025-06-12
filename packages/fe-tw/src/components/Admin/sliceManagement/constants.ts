@@ -51,7 +51,7 @@ export const INITIAL_VALUES = {
 
 const validateAmountField = (val: any, fieldName: string) => val.when('tokenAssets', ([tokenAssets]: string[][], schema: Yup.Schema) => {
     return schema.test(
-        `total_${fieldName}_amount`, `${fieldName} amount can't be empty and > 100`,
+        `total_${fieldName}_amount`, `Minimum ${fieldName} amount is 100`,
         (value: string) => tokenAssets?.length > 0 ? !!Number(value) && Number(value) >= 100 : true
     )
 });

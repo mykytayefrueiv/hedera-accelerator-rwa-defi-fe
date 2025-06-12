@@ -16,14 +16,14 @@ import { CreateSliceFormProps, AddSliceAllocationFormProps } from "./constants";
 import { Button } from "@/components/ui/button";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useBuildings } from "@/hooks/useBuildings";
-import { BuildingToken } from "@/types/erc3643/types";
+import { BuildingToken, SliceAllocation } from "@/types/erc3643/types";
 
-export const AddSliceAllocationForm = ({ assetOptions }: { assetOptions: BuildingToken[] }) => {
+export const AddSliceAllocationForm = ({ assetOptions, allocations }: { assetOptions: BuildingToken[], allocations?: SliceAllocation[] }) => {
    const formik = useFormikContext<{
       slice: CreateSliceFormProps,
       sliceAllocation: AddSliceAllocationFormProps,
    }>();
-   const { buildings } = useBuildings();
+   const { buildings, buildingsInfo } = useBuildings();
    const [tokensPercentageDialogOpen, setTokensPercentageDialogOpen] = useState(false);
    const lastSelectedAssetToken = formik.values.sliceAllocation.tokenAssets[formik.values.sliceAllocation.tokenAssets.length - 1];
 
@@ -139,15 +139,15 @@ export const AddSliceAllocationForm = ({ assetOptions }: { assetOptions: Buildin
                      <div onClick={() => {
                         const newValues = formik.values.sliceAllocation.tokenAssets.filter(asset1 => asset1 !== asset);
 
-                        if (formik.errors.sliceAllocation?.tokenAssets === 'Max amount of assets is 5') {
-                           formik.setFieldError('sliceAllocation.tokenAssets', undefined);
-                        }
-
                         formik.setFieldValue('sliceAllocation.tokenAssets', newValues);
                      }} style={{ width: 20, cursor: 'pointer' }}>
                         <XIcon style={{ width: 20 }} />
                      </div>
-                     {buildings?.find((b) => b.address === asset)?.title}
+                     {buildings?.find(
+                        (b) =>
+                           b.address === buildingsInfo?.find(info => info.tokenAddress === asset)?.buildingAddress ||
+                           b.address === asset
+                     )?.title}
                      {asset ? ` ${asset}` : ''}
                      {formik.values.sliceAllocation.tokenAssetAmounts[asset] ? ` (${formik.values.sliceAllocation.tokenAssetAmounts[asset]})` : ''}
                   </Badge>

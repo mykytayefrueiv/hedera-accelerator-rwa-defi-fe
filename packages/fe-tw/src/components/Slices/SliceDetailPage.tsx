@@ -34,19 +34,19 @@ type Props = {
 
 const validateAmountField = (val: any, fieldName: string) => val.when('tokenAssets', ([tokenAssets]: string[][], schema: Yup.Schema) => {
    return schema.test(
-      `total_${fieldName}_amount`, `${fieldName} amount can't be empty and > 100`,
+      `total_${fieldName}_amount`, `Minimum ${fieldName} amount is 100`,
       (value: string) => tokenAssets?.length > 0 ? !!Number(value) && Number(value) >= 100 : true
    )
 });
 
 const validateAssetsField = (val: any) => val.when('allocationAmount', ([allocationAmount]: string[][], schema: Yup.Schema) => {
-    return schema.test(
-        'token_assets_min', 'Minimum count of assets is is 2',
-        (value: string) => value?.length > 0 ? value?.length >=2 : true
-    ).test(
-        'token_assets_max', 'Maximum count of assets is 5',
-        (value: string) => value.length < 5
-    )
+   return schema.test(
+      'token_assets_min', 'Minimum count of assets is is 2',
+      (value: string) => value?.length > 0 ? value?.length >=2 : true
+   ).test(
+      'token_assets_max', 'Maximum count of assets is 5',
+      (value: string) => value.length < 5
+   )
 });
 
 const validationSchema = Yup.object({
@@ -73,7 +73,7 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
 
    useEffect(() => {
       setAssetOptionsAsync();
-   }, []);
+   }, [buildingsInfo?.length]);
 
    const setAssetOptionsAsync = async () => {
       const tokens = buildingsInfo?.map((building) => building.tokenAddress);
@@ -87,15 +87,13 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
    
          if (buildingsInfo) {
             setAssetsOptions(buildingsInfo?.filter(
-               (b) => balancesToTokens.find((b2) => b2.building === b.buildingAddress)?.balance > 0 && !sliceAllocations.find((alloc) => buildingsInfo.find(info => info.tokenAddress === alloc.buildingToken)?.buildingAddress === b.buildingAddress)
+               (b) => !sliceAllocations.find((alloc) => balancesToTokens.find((b2) => b2.building === b.buildingAddress)?.balance > 0 && buildingsInfo.find(info => info.tokenAddress === alloc.buildingToken)?.buildingAddress === b.buildingAddress)
             ));
          }
       }
    };
 
-   const onSubmitForm = async (values: CreateSliceRequestData, { setFieldError }: {
-      setFieldError: (name: string, value: string) => void,
-   }) => {
+   const onSubmitForm = async (values: CreateSliceRequestData) => {
       try {
          const newAllocationAssets = values.sliceAllocation?.tokenAssets?.filter((asset) =>
            !sliceAllocations.find((alloc) => alloc.buildingToken === asset)
@@ -131,8 +129,6 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
                   { duration: Infinity, closeButton: true },
                );
             }
-         } else {
-            setFieldError('sliceAllocation.tokenAssets', 'Select new assets to continue');
          }
       } catch (err) {
          toast.error(
@@ -241,7 +237,7 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
                               ✕
                            </Button>
                            <div className="mt-6">
-                              <AddSliceAllocationForm assetOptions={assetsOptions!} />
+                              <AddSliceAllocationForm assetOptions={assetsOptions!} allocations={sliceAllocations} />
                            </div>
                            <div className="mt-6">
                               <Button
