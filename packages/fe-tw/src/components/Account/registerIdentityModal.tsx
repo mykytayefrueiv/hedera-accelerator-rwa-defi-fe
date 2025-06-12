@@ -1,6 +1,5 @@
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
-import { useState } from "react";
 import { Shield } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
@@ -8,12 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import countries from "i18n-iso-countries";
 import englishLocale from "i18n-iso-countries/langs/en.json";
 import { toast } from "sonner";
+import { tryCatch } from "@/services/tryCatch";
 import { TxResultToastView } from "../CommonViews/TxResultView";
 import { useIdentity } from "./useIdentity";
 
 countries.registerLocale(englishLocale);
 
 interface IProps {
+   buildingAddress: string;
    isModalOpened: boolean;
    onOpenChange: (open: boolean) => void;
 }
@@ -22,37 +23,31 @@ const validationSchema = Yup.object({
    country: Yup.string().required("Country selection is required"),
 });
 
-const RegisterIdentityModal = ({ isModalOpened, onOpenChange }: IProps) => {
-   const { deployIdentity } = useIdentity();
-   const [isDeploying, setIsDeploying] = useState(false);
+const RegisterIdentityModal = ({ buildingAddress, isModalOpened, onOpenChange }: IProps) => {
+   const { registerIdentity, isRegistering } = useIdentity();
 
    const countryOptions = Object.entries(countries.getNames("en", { select: "official" }))
       .map(([code, name]) => ({ code, name }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
-   const handleDeployIdentity = async (values: { country: string }) => {
-      setIsDeploying(true);
-      try {
-         const result = await deployIdentity(values.country);
+   const handleRegisterIdentity = async (values: { country: string }) => {
+      const { data, error } = await tryCatch(
+         registerIdentity(
+            buildingAddress,
+            values.country,
+            Number(countries.alpha2ToNumeric(values.country)),
+         ),
+      );
 
-         if (result.success) {
-            toast.success(
-               <TxResultToastView title="Identity registered successfully!" txSuccess={result} />,
-            );
-            onOpenChange(false);
-         } else {
-            toast.error(
-               <TxResultToastView title="Error registering identity" txError={result.error} />,
-               { duration: Infinity },
-            );
-         }
-      } catch (err: any) {
-         toast.error(
-            <TxResultToastView title="Error registering identity" txError={err.message} />,
-            { duration: Infinity },
+      if (data) {
+         toast.success(
+            <TxResultToastView title="Identity registered successfully!" txSuccess={data} />,
          );
-      } finally {
-         setIsDeploying(false);
+         onOpenChange(false);
+      } else if (error) {
+         toast.error(<TxResultToastView title="Error registering identity" txError={error} />, {
+            duration: Infinity,
+         });
       }
    };
 
@@ -92,9 +87,9 @@ const RegisterIdentityModal = ({ isModalOpened, onOpenChange }: IProps) => {
                   }}
                   validationSchema={validationSchema}
                   onSubmit={async (values, { setSubmitting, resetForm }) => {
-                     await handleDeployIdentity(values);
+                     await handleRegisterIdentity(values);
                      setSubmitting(false);
-                     if (!isDeploying) {
+                     if (!isRegistering) {
                         resetForm();
                      }
                   }}
@@ -132,17 +127,17 @@ const RegisterIdentityModal = ({ isModalOpened, onOpenChange }: IProps) => {
                               variant="outline"
                               className="flex-1"
                               onClick={() => onOpenChange(false)}
-                              disabled={isDeploying}
+                              disabled={isRegistering}
                            >
                               Cancel
                            </Button>
                            <Button
                               className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors"
-                              disabled={isDeploying || !values.country}
-                              isLoading={isDeploying}
+                              disabled={isRegistering || !values.country}
+                              isLoading={isRegistering}
                               type="submit"
                            >
-                              {isDeploying ? "Registering..." : "Register Identity"}
+                              {isRegistering ? "Registering..." : "Register Identity"}
                            </Button>
                         </div>
                      </Form>

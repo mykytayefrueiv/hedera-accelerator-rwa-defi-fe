@@ -1,5 +1,6 @@
 "use client";
 
+import IdentityNotDeployedModal from "@/components/Account/IdentityNotDeployedModal";
 import RegisterIdentityModal from "@/components/Account/registerIdentityModal";
 import { useIdentity } from "@/components/Account/useIdentity";
 import {
@@ -54,11 +55,17 @@ export const PROTECTED_BUILDING_NAV_ITEMS = [
 ];
 export function BuildingSidebar() {
    const { id } = useParams();
-   const { identityData } = useIdentity();
+   const { identityData } = useIdentity(id);
    const [isModalOpened, setIsModalOpened] = useState(false);
+   const [isIdentityNotDeployedModalOpened, setIsIdentityNotDeployedModalOpened] = useState(false);
 
    const handleItemClick = (e, item) => {
       if (!identityData.isDeployed) {
+         e.preventDefault();
+         setIsIdentityNotDeployedModalOpened(true);
+         return;
+      }
+      if (!identityData.isIdentityRegistered) {
          e.preventDefault();
          setIsModalOpened(true);
       }
@@ -84,7 +91,7 @@ export function BuildingSidebar() {
             <SidebarGroup>
                <SidebarGroupLabel>Identity Required</SidebarGroupLabel>
                <SidebarGroupAction>
-                  {identityData.isDeployed ? (
+                  {identityData.isIdentityRegistered ? (
                      <ShieldCheck className="text-indigo-400" />
                   ) : (
                      <ShieldAlert className="text-orange-600" />
@@ -110,7 +117,16 @@ export function BuildingSidebar() {
             </SidebarGroup>
          </SidebarContent>
 
-         <RegisterIdentityModal isModalOpened={isModalOpened} onOpenChange={setIsModalOpened} />
+         <RegisterIdentityModal
+            buildingAddress={id}
+            isModalOpened={isModalOpened}
+            onOpenChange={setIsModalOpened}
+         />
+
+         <IdentityNotDeployedModal
+            isModalOpened={isIdentityNotDeployedModalOpened}
+            onOpenChange={setIsIdentityNotDeployedModalOpened}
+         />
       </Sidebar>
    );
 }

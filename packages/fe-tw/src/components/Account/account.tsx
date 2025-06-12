@@ -14,14 +14,8 @@ import {
    CardContent,
    CardFooter,
 } from "@/components/ui/card";
-import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
+import { tryCatch } from "@/services/tryCatch";
 import { TxResultToastView } from "../CommonViews/TxResultView";
 import { useIdentity } from "./useIdentity";
 
@@ -32,26 +26,28 @@ const Account = () => {
 
    const handleDeployIdentity = async () => {
       setIsDeploying(true);
-      try {
-         const result = await deployIdentity(evmAddress);
 
-         if (result.success) {
-            toast.success(
-               <TxResultToastView title="Identity deployed successfully!" txSuccess={result} />,
-            );
-         } else {
-            toast.error(
-               <TxResultToastView title="Error deploying identity" txError={result.error} />,
-               { duration: Infinity },
-            );
-         }
-      } catch (err: any) {
-         toast.error(<TxResultToastView title="Error deploying identity" txError={err.message} />, {
-            duration: Infinity,
-         });
-      } finally {
-         setIsDeploying(false);
+      const { data: result, error } = await tryCatch(deployIdentity(evmAddress));
+
+      if (result?.success) {
+         toast.success(
+            <TxResultToastView title="Identity deployed successfully!" txSuccess={result} />,
+         );
+      } else if (result?.error) {
+         toast.error(
+            <TxResultToastView title="Error deploying identity" txError={result.error} />,
+            { duration: Infinity },
+         );
+      } else if (error) {
+         toast.error(
+            <TxResultToastView title="Error deploying identity" txError={error.message} />,
+            {
+               duration: Infinity,
+            },
+         );
       }
+
+      setIsDeploying(false);
    };
 
    return (
@@ -86,9 +82,7 @@ const Account = () => {
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                      <div className="flex items-center gap-2">
                         <CheckCheck className="w-5 h-5 text-green-600" />
-                        <p className="font-medium text-green-800">
-                           Identity deployed for {identityData.country}
-                        </p>
+                        <p className="font-medium text-green-800">Identity deployed</p>
                      </div>
                   </div>
                )}
@@ -104,17 +98,17 @@ const Account = () => {
                   </div>
                )}
 
-               {evmAddress && !identityData.isDeployed && (
-                  <>
-                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <h4 className="font-medium text-blue-900 mb-2">About ERC3643 Identity</h4>
-                        <p className="text-sm text-blue-800">
-                           ERC3643 is a standard for compliant tokenization that enables regulatory
-                           compliance through on-chain identity verification. Deploying your wallet
-                           as an identity allows you to interact with compliant tokenized real-world
-                           assets.
-                        </p>
-                     </div>
+               <>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                     <h4 className="font-medium text-blue-900 mb-2">About ERC3643 Identity</h4>
+                     <p className="text-sm text-blue-800">
+                        ERC3643 is a standard for compliant tokenization that enables regulatory
+                        compliance through on-chain identity verification. Deploying your wallet as
+                        an identity allows you to interact with compliant tokenized real-world
+                        assets.
+                     </p>
+                  </div>
+                  {evmAddress && !identityData.isDeployed && (
                      <div className="flex justify-end">
                         <Button
                            className=" h-11 mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
@@ -125,8 +119,8 @@ const Account = () => {
                            {isDeploying ? "Deploying Identity..." : "Deploy Identity"}
                         </Button>
                      </div>
-                  </>
-               )}
+                  )}
+               </>
             </CardContent>
          </Card>
       </div>
