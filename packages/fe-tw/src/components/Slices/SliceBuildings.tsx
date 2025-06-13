@@ -8,8 +8,11 @@ import {
 import { BuildingNFTData } from "@/types/erc3643/types";
 import { Card, CardContent } from "../ui/card";
 import { isValidIPFSImageUrl } from "@/utils/helpers";
+import { useRouter } from "next/navigation";
 
 export const SliceBuildings = ({ buildingsData }: { buildingsData: BuildingNFTData[] }) => {
+    const router = useRouter();
+    
     return (
         <div>
             <div className="flex justify-between items-center mb-2 mt-15">
@@ -21,7 +24,7 @@ export const SliceBuildings = ({ buildingsData }: { buildingsData: BuildingNFTDa
                     {buildingsData.map((bld) => (
                         <CarouselItem
                             onClick={() => {
-                                //
+                                router.push(`/building/${bld.address}`);
                             }}
                             key={bld.name}
                             className="hover:scale-105 hover:bg-accent-focus transition-all duration-300 basis-1/4"
