@@ -4,6 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { getTokenBalanceOf, getTokenDecimals, getTokenName, getTokenSymbol } from "@/services/erc20Service";
 import { readSliceAllocations, readSliceBaseToken } from "@/services/sliceService";
 import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
+import { readBuildingDetails } from "@/services/buildingService";
+import { fetchJsonFromIpfs } from "@/services/ipfsService";
+import { prepareStorageIPFSfileURL } from "@/utils/helpers";
 
 const calculateIdealAllocation = (totalAllocationsCount: number) => {
    switch (totalAllocationsCount) {
@@ -74,6 +77,21 @@ export const useSliceData = (
       initialData: [],
    });
 
+   const { data: sliceBuildingsDetails } = useQuery({
+      queryKey: ["sliceBuildingsDetails", sliceBuildings.map((b) => b.buildingAddress)],
+      queryFn: async () => {
+         const buildings = await Promise.all(sliceBuildings.map((b) => readBuildingDetails(b.buildingAddress)));
+         const buildingsIPFSData = await Promise.all(buildings.map((b) => fetchJsonFromIpfs(b[0][2])));
+
+         return buildingsIPFSData.map((b) => ({
+            ...b,
+            image: prepareStorageIPFSfileURL(b.image?.replace("ipfs://", "")),
+         }));
+      },
+      enabled: sliceBuildings?.length > 0,
+      initialData: [],
+   });
+
    useEffect(() => {
       if (sliceAllocations?.length) {
          if (buildingDeployedTokens && buildingDeployedTokens?.length > 0 && sliceAllocations?.length > 0) {
@@ -89,5 +107,5 @@ export const useSliceData = (
       }
    }, [buildingDeployedTokens, sliceAllocations]);
 
-   return { sliceAllocations, sliceBaseToken, sliceTokenInfo, sliceBuildings };
+   return { sliceAllocations, sliceBaseToken, sliceTokenInfo, sliceBuildings, sliceBuildingsDetails };
 };
