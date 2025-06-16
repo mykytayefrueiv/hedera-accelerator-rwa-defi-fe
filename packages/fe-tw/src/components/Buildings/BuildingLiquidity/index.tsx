@@ -30,11 +30,11 @@ export const BuildingAddLiquidity = (props: Props) => {
       }
    };
 
-   useEffect(() => {
-      if (!!tokenAddress && isMetamaskConnected) {
-         addBuildingTokenToWallet();
-      }
-   }, [isMetamaskConnected, tokenAddress]);
+   // useEffect(() => {
+   //    if (!!tokenAddress && isMetamaskConnected) {
+   //       addBuildingTokenToWallet();
+   //    }
+   // }, [isMetamaskConnected, tokenAddress]);
 
    return (
       <div className=" max-w-7xl space-y-6">

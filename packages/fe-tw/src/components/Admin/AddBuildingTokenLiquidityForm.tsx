@@ -15,11 +15,20 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Droplets } from "lucide-react";
+import { Droplets, Power } from "lucide-react";
 import { USDC_ADDRESS } from "@/services/contracts/addresses";
 import { useBuildingInfo } from "@/hooks/useBuildingInfo";
 import { useTokenInfo } from "@/hooks/useTokenInfo";
 import { TxResultToastView } from "../CommonViews/TxResultView";
+import { ethers } from "ethers";
+import { useReadContract, useWriteContract } from "@buidlerlabs/hashgraph-react-wallets";
+import { uniswapFactoryAbi } from "@/services/contracts/abi/uniswapFactoryAbi";
+import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
+import { BUILDING_FACTORY_ADDRESS } from "@/services/contracts/addresses";
+import { ContractId } from "@hashgraph/sdk";
+import { buildingAbi } from "@/services/contracts/abi/buildingAbi";
+import { watchContractEvent } from "@/services/contracts/watchContractEvent";
+import { find } from "lodash";
 
 type Props = {
    buildingAddress?: `0x${string}`;
@@ -29,9 +38,30 @@ export function AddBuildingTokenLiquidityForm({ buildingAddress }: Props) {
    const { buildings } = useBuildings();
    const { isAddingLiquidity, txHash, txError, addLiquidity } = useBuildingLiquidity();
    const [tokensToLiquidity, setTokensToLiquidity] = useState<string[]>([]);
-
+   const { readContract } = useReadContract();
+   const [pairAddress, setPairAddress] = useState<string | null>(ethers.ZeroAddress);
    const { tokenAddress } = useBuildingInfo(buildingAddress);
+
+   useEffect(() => {
+      (async () => {
+         const factoryAddress = await readContract({
+            address: buildingAddress,
+            abi: buildingAbi,
+            functionName: "getUniswapFactory",
+         });
+
+         const pairAddress = await readContract({
+            address: factoryAddress,
+            abi: uniswapFactoryAbi,
+            functionName: "getPair",
+            args: [tokenAddress, USDC_ADDRESS],
+         });
+         setPairAddress(pairAddress);
+      })();
+   }, [buildingAddress, tokenAddress, readContract]);
+
    const { name: tokenName } = useTokenInfo(tokenAddress);
+   const { writeContract } = useWriteContract();
 
    useEffect(() => {
       if (txHash) {
@@ -102,6 +132,69 @@ export function AddBuildingTokenLiquidityForm({ buildingAddress }: Props) {
       [tokenAddress, tokenName],
    );
 
+   const waitForPairCreation = async (tokenAddress: string, factoryAddress: string) => {
+      return new Promise<void>((resolve, reject) => {
+         watchContractEvent({
+            address: factoryAddress,
+            abi: uniswapFactoryAbi,
+            eventName: "PairCreated",
+            onLogs: (logs) => {
+               const newPair = find(logs, (log) => {
+                  const [token0, token1] = log.args;
+                  return (
+                     (token0.toLowerCase() === tokenAddress.toLowerCase() &&
+                        token1.toLowerCase() === USDC_ADDRESS.toLowerCase()) ||
+                     (token1.toLowerCase() === tokenAddress.toLowerCase() &&
+                        token0.toLowerCase() === USDC_ADDRESS.toLowerCase())
+                  );
+               });
+               if (newPair) {
+                  resolve(newPair.args[2]);
+               }
+            },
+         });
+      });
+   };
+
+   const handleInitPool = async () => {
+      try {
+         const factoryAddress = await readContract({
+            address: buildingAddress,
+            abi: buildingAbi,
+            functionName: "getUniswapFactory",
+         });
+
+         const createPairTx = await writeContract({
+            contractId: ContractId.fromEvmAddress(0, 0, factoryAddress),
+            abi: uniswapFactoryAbi,
+            functionName: "createPair",
+            args: [tokenAddress, USDC_ADDRESS],
+         });
+
+         const createdPairAddress = await waitForPairCreation(tokenAddress, factoryAddress);
+
+         const identityTx = await writeContract({
+            contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
+            abi: buildingFactoryAbi,
+            functionName: "deployIdentityForWallet",
+            args: [createdPairAddress],
+         });
+
+         const countryCode = 840;
+         await writeContract({
+            contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
+            abi: buildingFactoryAbi,
+            functionName: "registerIdentity",
+            args: [buildingAddress, createdPairAddress, countryCode],
+         });
+
+         toast.success("Pool initialized successfully!");
+      } catch (error) {
+         console.error("Error initializing pool:", error);
+         toast.error("Failed to initialize pool");
+      }
+   };
+
    return (
       <div className="bg-white rounded-xl shadow-lg border border-indigo-100 w-full max-w-2xl">
          <div className="flex items-center gap-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-t-xl border-b border-indigo-100 p-6">
@@ -116,6 +209,15 @@ export function AddBuildingTokenLiquidityForm({ buildingAddress }: Props) {
                   Provide liquidity to enable token trading
                </p>
             </div>
+
+            <Button
+               disabled={pairAddress !== ethers.ZeroAddress}
+               className="ml-auto"
+               onClick={handleInitPool}
+            >
+               <Power className="w-4 h-4" />
+               Init
+            </Button>
          </div>
 
          <div className="p-6">
