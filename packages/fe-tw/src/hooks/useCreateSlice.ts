@@ -2,8 +2,7 @@ import { useEvmAddress, useWatchTransactionReceipt } from "@buidlerlabs/hashgrap
 import { ContractId } from "@hashgraph/sdk";
 import { useMutation } from "@tanstack/react-query";
 import * as uuid from "uuid";
-import { toast } from "sonner";
-import { MaxUint256, parseUnits } from "ethers";
+import { MaxUint256, parseUnits, ZeroAddress } from "ethers";
 import { useExecuteTransaction } from "./useExecuteTransaction";
 import useWriteContract from "./useWriteContract";
 import { readBuildingDetails } from "@/hooks/useBuildings";
@@ -17,17 +16,24 @@ import {
    USDC_ADDRESS,
    SLICE_FACTORY_ADDRESS,
    CHAINLINK_PRICE_ID,
+   BUILDING_FACTORY_ADDRESS,
 } from "@/services/contracts/addresses";
 import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 import type { CreateSliceRequestData } from "@/types/erc3643/types";
 import { pinata } from "@/utils/pinata";
 import { TransactionExtended } from "@/types/common";
+import { uniswapFactoryAbi } from "@/services/contracts/abi/uniswapFactoryAbi";
+import { readContract } from "@/services/contracts/readContract";
+import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
+import { buildingAbi } from "@/services/contracts/abi/buildingAbi";
+import { tryCatch } from "@/services/tryCatch";
 
 type VaultData = {
    vault: `0x${string}`,
    token: `0x${string}`,
    ac: `0x${string}`,
    allocation: number,
+   address: `0x${string}`,
 }
 
 export function useCreateSlice(sliceAddress?: `0x${string}`) {
@@ -137,6 +143,82 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
       return txResults;
    };
 
+   const createIdentityInBatch: any = async (
+      assets: { tokenA: string, tokenB: string, building: string }[],
+      assetId: number,
+      txResults: string[],
+   ) => {
+      if (assets[assetId]) {
+         const uniswapFactory = await readContract({
+            address: assets[assetId].building,
+            abi: buildingAbi,
+            functionName: "getUniswapFactory",
+            args: [],
+         });
+         let createPairResult;
+         let deployIdentityResult;
+         let pairAddressExists = await readContract({
+            address: uniswapFactory[0],
+            abi: uniswapFactoryAbi,
+            functionName: 'getPair',
+            args: [assets[assetId].tokenA, assets[assetId].tokenB],
+         });
+         let identityExists = await readContract({
+            address: BUILDING_FACTORY_ADDRESS,
+            abi: buildingFactoryAbi,
+            functionName: 'getIdentity',
+            args: [pairAddressExists[0]],
+         });
+         
+         if (pairAddressExists[0] === ZeroAddress) {
+            createPairResult = await executeTransaction(() => writeContract({
+               contractId: ContractId.fromEvmAddress(0, 0, uniswapFactory[0]),
+               abi: uniswapFactoryAbi,
+               functionName: 'createPair',
+               args: [assets[assetId].tokenA, assets[assetId].tokenB],
+            }));
+            pairAddressExists = await readContract({
+               address: uniswapFactory[0],
+               abi: uniswapFactoryAbi,
+               functionName: 'getPair',
+               args: [assets[assetId].tokenA, assets[assetId].tokenB],
+            });
+         }
+
+         if (identityExists[0] === ZeroAddress) {
+            deployIdentityResult = await executeTransaction(() => writeContract({
+               contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
+               abi: buildingFactoryAbi,
+               functionName: 'deployIdentityForWallet',
+               args: [pairAddressExists[0]],
+            }));
+            identityExists = await readContract({
+               address: BUILDING_FACTORY_ADDRESS,
+               abi: buildingFactoryAbi,
+               functionName: 'getIdentity',
+               args: [pairAddressExists[0]],
+            });
+         }
+      
+         const { data: _data, error: _error } = await tryCatch(executeTransaction(() => writeContract({
+            contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
+            abi: buildingFactoryAbi,
+            functionName: 'registerIdentity',
+            args: [assets[assetId].building, pairAddressExists[0], 840],
+         })) as any);
+         
+         return createIdentityInBatch(assets, assetId + 1, [
+            ...txResults,
+            [
+               (createPairResult as { transaction_id: string })?.transaction_id,
+               (deployIdentityResult as { transaction_id: string })?.transaction_id,
+            ]
+         ]);
+      }
+
+      return txResults;
+   }
+
    const addLiquidityInBatch: any = async (
       assets: string[],
       assetId: number,
@@ -206,9 +288,18 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
          const tokensToApprove = [...vaults.map((v) => v.token), USDC_ADDRESS];
          let txHashes = [];
 
+         const createIdentityHashes = await createIdentityInBatch(vaults.map((vault) => ({
+            tokenA: vault.token,
+            tokenB: USDC_ADDRESS,
+            building: vault.address,
+         })), 0, []);
+         txHashes.push(...createIdentityHashes);
+
          const approvalsHashes = await approvalsInBatch(
             tokensToApprove,
-            tokensToApprove.map(_t => _t === USDC_ADDRESS ? rewardsAmountToInUSDC : rewardsAmountToInStaking),
+            tokensToApprove.map(_t => _t === USDC_ADDRESS ?
+               parseUnits((Number(rewardAmount) * vaults.length).toString(), 6) : rewardsAmountToInStaking
+            ),
             0,
             [],
             UNISWAP_ROUTER_ADDRESS,
