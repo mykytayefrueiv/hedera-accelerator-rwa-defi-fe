@@ -1,4 +1,3 @@
-import { SliceAllocation } from "@/types/erc3643/types";
 import { StepsStatus } from "../buildingManagement/types";
 import * as Yup from "yup";
 
@@ -6,8 +5,9 @@ export type CreateSliceFormProps = {
     name: string,
     description: string,
     endDate: string,
-    sliceImageIpfsHash: string,
+    sliceImageIpfsId: string,
     symbol: string,
+    sliceImageIpfsFile?: File,
 };
 
 export type AddSliceAllocationFormProps = {
@@ -35,8 +35,9 @@ export const deploySliceFormInitialValues = {
     name: "",
     description: "",
     endDate: "",
-    sliceImageIpfsHash: "",
     symbol: "",
+    sliceImageIpfsId: "",
+    sliceImageIpfsFile: undefined,
 };
 
 export const depositSliceFormInitialValues = {
@@ -85,6 +86,8 @@ export const validationSchema = Yup.object({
         }),
         sliceImageIpfsHash: Yup.string().required('Image is required'),
         symbol: Yup.string().required('Symbol is required'),
+        sliceImageIpfsId: Yup.string(),
+        sliceImageIpfsFile: Yup.string(),
     }),
     sliceAllocation: Yup.object().shape({
         tokenAssets: validateAssetsField(Yup.array().of(Yup.string())),
