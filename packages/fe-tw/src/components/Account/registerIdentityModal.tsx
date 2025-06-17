@@ -34,7 +34,6 @@ const RegisterIdentityModal = ({ buildingAddress, isModalOpened, onOpenChange }:
       const { data, error } = await tryCatch(
          registerIdentity(
             buildingAddress,
-            values.country,
             Number(countries.alpha2ToNumeric(values.country)),
          ),
       );

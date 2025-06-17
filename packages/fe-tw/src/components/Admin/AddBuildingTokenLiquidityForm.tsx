@@ -211,7 +211,7 @@ export function AddBuildingTokenLiquidityForm({ buildingAddress }: Props) {
             </div>
 
             <Button
-               disabled={pairAddress !== ethers.ZeroAddress}
+               disabled={pairAddress === ethers.ZeroAddress}
                className="ml-auto"
                onClick={handleInitPool}
             >
