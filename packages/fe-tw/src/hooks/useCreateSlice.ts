@@ -27,6 +27,7 @@ import { readContract } from "@/services/contracts/readContract";
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
 import { buildingAbi } from "@/services/contracts/abi/buildingAbi";
 import { tryCatch } from "@/services/tryCatch";
+import { useUploadImageToIpfs } from "./useUploadImageToIpfs";
 
 type VaultData = {
    vault: `0x${string}`,
@@ -40,6 +41,7 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
    const { writeContract } = useWriteContract();
    const { watch } = useWatchTransactionReceipt();
    const { executeTransaction } = useExecuteTransaction();
+   const { uploadImage } = useUploadImageToIpfs();
    const { data: evmAddress } = useEvmAddress();
 
    const depositsInBatch = async (
@@ -144,8 +146,9 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
    };
 
    const createIdentityInBatch: any = async (
-      assets: { tokenA: string, tokenB: string, building: string }[],
+      assets: { tokenA: string, tokenB: string, building: string, vaultA: string }[],
       assetId: number,
+      deployedSliceAddress: string,
       txResults: string[],
    ) => {
       if (assets[assetId]) {
@@ -155,6 +158,18 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
             functionName: "getUniswapFactory",
             args: [],
          });
+         await tryCatch(executeTransaction(() => writeContract({
+            contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
+            abi: buildingFactoryAbi,
+            functionName: 'deployIdentityForWallet',
+            args: [deployedSliceAddress ?? sliceAddress],
+         })));
+         await tryCatch(executeTransaction(() => writeContract({
+            contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
+            abi: buildingFactoryAbi,
+            functionName: 'registerIdentity',
+            args: [assets[assetId].building, deployedSliceAddress ?? sliceAddress, 840],
+         })));
          let createPairResult;
          let deployIdentityResult;
          let pairAddressExists = await readContract({
@@ -200,14 +215,14 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
             });
          }
       
-         const { data: _data, error: _error } = await tryCatch(executeTransaction(() => writeContract({
+         await tryCatch(executeTransaction(() => writeContract({
             contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
             abi: buildingFactoryAbi,
             functionName: 'registerIdentity',
             args: [assets[assetId].building, pairAddressExists[0], 840],
          })) as any);
          
-         return createIdentityInBatch(assets, assetId + 1, [
+         return createIdentityInBatch(assets, assetId + 1, deployedSliceAddress, [
             ...txResults,
             [
                (createPairResult as { transaction_id: string })?.transaction_id,
@@ -288,12 +303,12 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
          const tokensToApprove = [...vaults.map((v) => v.token), USDC_ADDRESS];
          let txHashes = [];
 
-         const createIdentityHashes = await createIdentityInBatch(vaults.map((vault) => ({
+         await createIdentityInBatch(vaults.map((vault) => ({
             tokenA: vault.token,
             tokenB: USDC_ADDRESS,
             building: vault.address,
-         })), 0, []);
-         txHashes.push(...createIdentityHashes);
+            vaultA: vault.vault,
+         })), 0, deployedSliceAddress, []);
 
          const approvalsHashes = await approvalsInBatch(
             tokensToApprove,
@@ -454,11 +469,27 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
       const { slice } = values;
       const keyRequest = await fetch("/api/pinataKey");
       const keyData = await keyRequest.json();
+      let sliceImageIpfsId: string | undefined;
+   
+      if (!slice.sliceImageIpfsId) {
+         const { data: imageIpfsId } = await tryCatch(
+            uploadImage(slice.sliceImageIpfsFile!),
+         );
 
+         sliceImageIpfsId = imageIpfsId as string;
+      }
+      
       return new Promise((res, rej) => {
          pinata.upload
-            .json(slice, {
-               metadata: { name: `Slice-${slice.name}` },
+            .json({
+               ...slice,
+               ...(!!sliceImageIpfsId && {
+                  sliceImageIpfsId,
+               })
+            }, {
+               metadata: {
+                  name: `Slice-${slice.name}`,
+               },
             })
             .key(keyData.JWT)
             .then(({ IpfsHash }) => {

@@ -14,7 +14,7 @@ export type SliceNFTData = {
    name: string;
    description: string;
    allocation: number;
-   sliceImageIpfsHash: string;
+   sliceImageIpfsId: string;
 };
 
 export type BuildingSliceData = {
@@ -146,7 +146,8 @@ export type CreateERC3643RequestBody = {
 export type CreateSliceRequestBody = {
    name: string;
    description: string;
-   sliceImageIpfsHash: string;
+   sliceImageIpfsId?: string;
+   sliceImageIpfsFile?: File;
    symbol: string;
    endDate: string;
 };

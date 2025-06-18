@@ -46,7 +46,7 @@ export function useSlicesData() {
             name: m.name,
             allocation: m.allocation,
             description: m.description,
-            imageIpfsUrl: prepareStorageIPFSfileURL(m.sliceImageIpfsHash?.replace("ipfs://", "")),
+            imageIpfsUrl: prepareStorageIPFSfileURL((m.sliceImageIpfsId || m.sliceImageIpfsHash)?.replace("ipfs://", "")),
             endDate: m.endDate,
             estimatedPrice: 0,
          })),
@@ -89,8 +89,8 @@ export function useSlicesData() {
    const buildingToSlices = useMemo(() => {
       if (
          slicesAllocationsData!.length > 0 &&
-         buildings!.length > 0 &&
-         buildingsInfo!.length > 0
+         (buildings?.length ?? 0) > 0 &&
+         (buildingsInfo?.length ?? 0) > 0
       ) {
          const buildingToSlices: {
             [key: `0x${string}`]: SliceData[],

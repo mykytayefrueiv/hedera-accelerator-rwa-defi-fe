@@ -84,10 +84,25 @@ export const validationSchema = Yup.object({
                 return endDate > new Date();
             })
         }),
-        sliceImageIpfsHash: Yup.string().required('Image is required'),
         symbol: Yup.string().required('Symbol is required'),
-        sliceImageIpfsId: Yup.string(),
-        sliceImageIpfsFile: Yup.string(),
+        sliceImageIpfsFile: Yup.string().test(function (value) {
+            const { sliceImageIpfsId } = this.parent;
+
+            if (value) {
+                return true;
+            }
+
+            return sliceImageIpfsId !== undefined;
+        }),
+        sliceImageIpfsId: Yup.string().test(function (value) {
+            const { sliceImageIpfsFile } = this.parent;
+            
+            if (value) {
+                return true;
+            }
+
+            return sliceImageIpfsFile !== undefined;
+        }),
     }),
     sliceAllocation: Yup.object().shape({
         tokenAssets: validateAssetsField(Yup.array().of(Yup.string())),

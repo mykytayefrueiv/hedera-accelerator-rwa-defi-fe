@@ -88,27 +88,7 @@ export const AddSliceForm = () => {
                   touched={formik.touched?.slice?.sliceImageIpfsId}
                   inputEntity={InputEntity.Slice}
                />
-               {/** <FormInput
-                  label="Slice Image IPFS Hash"
-                  placeholder="e.g. 02323x12142146t512764512763535353535353535"
-                  className="mt-1"
-                  required
-                  error={
-                     formik.touched?.slice?.sliceImageIpfsHash ? formik.errors?.slice?.sliceImageIpfsHash : undefined
-                  }
-                  {...formik.getFieldProps("slice.sliceImageIpfsHash")}
-               />
-               <UploadFileButton
-                  isLoading={isPending}
-                  onFileAdded={async (file) => {
-                     const ipfsHash = await uploadImage(file);
-
-                     formik.setFieldValue("slice.sliceImageIpfsHash", ipfsHash);
-                  }}
-               />
-               **/}
             </div>
-
          </div>
       </Form>
    )
