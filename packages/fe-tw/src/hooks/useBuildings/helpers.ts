@@ -90,11 +90,7 @@ export const readBuildingDetails = (address: `0x${string}`) =>
    });
 
 export const fetchBuildingInfo = async (id: string) => {
-   console.log('fetch...', id);
-
    const building = await readBuildingDetails(id);
-
-   console.log('fetch ipfs data...', building[0][2]); 
    const ipfsData = await fetchJsonFromIpfs(building[0][2]);
    const combinedInfo = {
       ...ipfsData,
