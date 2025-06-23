@@ -11,7 +11,7 @@ import { INITIAL_VALUES } from "../Admin/sliceManagement/constants";
 import SliceAllocations from "@/components/Slices/SliceAllocations";
 import { useBuildings } from "@/hooks/useBuildings";
 import { useSliceData } from "@/hooks/useSliceData";
-import type { CreateSliceRequestData, SliceAllocation, SliceData } from "@/types/erc3643/types";
+import type { CreateSliceRequestData, SliceData } from "@/types/erc3643/types";
 import {
    Breadcrumb,
    BreadcrumbItem,
@@ -25,6 +25,7 @@ import { TxResultToastView } from "@/components/CommonViews/TxResultView";
 import { useCreateSlice } from "@/hooks/useCreateSlice";
 import { getTokenBalanceOf } from "@/services/erc20Service";
 import { tryCatch } from "@/services/tryCatch";
+import { SliceBuildings } from "./SliceBuildings";
 
 type Props = {
    slice: SliceData;
@@ -62,7 +63,7 @@ const validationSchema = Yup.object({
 
 export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false }: Props) {
    const { buildingsInfo } = useBuildings();
-   const { sliceAllocations, sliceTokenInfo, sliceBuildings } = useSliceData(
+   const { sliceAllocations, sliceTokenInfo, sliceBuildings, sliceBuildingsDetails } = useSliceData(
       slice.address,
       buildingsInfo,
    );
@@ -73,12 +74,12 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
 
    useEffect(() => {
       setAssetOptionsAsync();
-   }, [buildingsInfo?.length]);
+   }, [buildingsInfo?.length, evmAddress]);
 
    const setAssetOptionsAsync = async () => {
       const tokens = buildingsInfo?.map((building) => building.tokenAddress);
 
-      if (tokens) {
+      if (tokens && evmAddress) {
          const balances = await Promise.all(tokens.map((tok) => getTokenBalanceOf(tok, evmAddress)));
          const balancesToTokens = balances.map((balance, index) => ({
             balance,
@@ -258,6 +259,8 @@ export function SliceDetailPage({ slice, buildingId, isInBuildingContext = false
                </div>
             </div>
          )}
+
+         {sliceBuildingsDetails?.length > 0 && <SliceBuildings buildingsData={sliceBuildingsDetails} />}
       </div>
    );
 }

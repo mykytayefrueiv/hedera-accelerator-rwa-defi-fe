@@ -177,6 +177,8 @@ Blog Series on Tokenized Real Estate:
 - [How Would We Build a REIT Today Using Web3 Technologies?](https://hedera.com/blog/how-would-we-build-a-reit-today-using-web3-technologies)
 - [How Is Tokenization Changing The Way We Invest? ](https://hedera.com/blog/how-is-tokenization-changing-the-way-we-invest)
 - [How can we model a building in Web3?](https://hedera.com/blog/how-can-we-model-a-building-in-web3)
+- [How can we model a building in Web3? (continued)](https://hedera.com/blog/how-can-we-model-a-building-in-web3-continued)
+- [Reimagining REIT Cashflows: Managing Revenue and Expenses in Web3](https://hedera.com/blog/reimagining-reit-cashflows)
 
 Other Resources:
 - [ERC-3643](https://www.erc3643.org/)
@@ -200,6 +202,11 @@ PRs are welcome!
 ## ⚠️ Disclaimer
 
 This dApp is for demonstration and educational purposes only. It is **not a financial product**, and no real assets are managed or sold via this platform.
+
+- No audits have been done on this code base.
+- No warranties.
+- This code is 'in progress', and is intended for demonstration and/or start of your project. you need to do your own QA & Audits before using this.
+
 
 ---
 
