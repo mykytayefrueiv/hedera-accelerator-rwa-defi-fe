@@ -75,7 +75,6 @@ export const SliceManagement = () => {
                 balance,
                 building: buildingsInfo?.[index].buildingAddress,
             }));
-
             if (buildingsInfo) {
                 setAssetsOptions(buildingsInfo?.filter((b) => balancesToTokens.find((b2) => b2.building === b.buildingAddress)?.balance > 0));
             }
@@ -103,7 +102,6 @@ export const SliceManagement = () => {
                        duration: 5000,
                     },
                 );
-
                 if (results[1].data && values.sliceAllocation?.tokenAssets?.length > 0) {
                     const { data, error } = await tryCatch(addTokenAssetsToSliceMutation.mutateAsync({
                         deployedSliceAddress: results[1].data,

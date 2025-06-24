@@ -8,6 +8,8 @@ import {
    SelectTrigger,
    SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CreateSliceFormProps, AddSliceAllocationFormProps } from "./constants";
 import { Button } from "@/components/ui/button";
 import { useBuildings } from "@/hooks/useBuildings";

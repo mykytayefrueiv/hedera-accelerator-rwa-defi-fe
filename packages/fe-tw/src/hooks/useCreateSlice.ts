@@ -218,7 +218,6 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
             functionName: 'registerIdentity',
             args: [assets[assetId].building, pairAddressExists[0], 840],
          })) as any);
-
          return createIdentityInBatch(assets, assetId + 1, deployedSliceAddress, [
             ...txResults,
             [
