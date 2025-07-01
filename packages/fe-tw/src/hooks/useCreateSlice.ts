@@ -2,7 +2,7 @@ import { useEvmAddress, useWatchTransactionReceipt } from "@buidlerlabs/hashgrap
 import { ContractId } from "@hashgraph/sdk";
 import { useMutation } from "@tanstack/react-query";
 import * as uuid from "uuid";
-import { MaxUint256, parseUnits, ZeroAddress } from "ethers";
+import { MaxUint256, parseUnits } from "ethers";
 import { useExecuteTransaction } from "./useExecuteTransaction";
 import useWriteContract from "./useWriteContract";
 import { readBuildingDetails } from "@/hooks/useBuildings";
@@ -17,19 +17,16 @@ import {
    SLICE_FACTORY_ADDRESS,
    CHAINLINK_PRICE_ID,
    BUILDING_FACTORY_ADDRESS,
-   UNISWAP_FACTORY_ADDRESS,
 } from "@/services/contracts/addresses";
 import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 import type { AddSliceAllocationRequestBody, CreateSliceRequestData, DepositToSliceRequestData } from "@/types/erc3643/types";
 import { pinata } from "@/utils/pinata";
 import { TransactionExtended } from "@/types/common";
-import { uniswapFactoryAbi } from "@/services/contracts/abi/uniswapFactoryAbi";
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
 import { tryCatch } from "@/services/tryCatch";
 import { useUploadImageToIpfs } from "./useUploadImageToIpfs";
-import { readContract } from "@/services/contracts/readContract";
-import { useState } from "react";
 import { useSlicesData } from "./useSlicesData";
+import { useState } from "react";
 
 export function useCreateSlice(sliceAddress?: `0x${string}`) {
    const { writeContract } = useWriteContract();
@@ -148,76 +145,23 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
       txResults: string[],
    ) => {
       if (assets[assetId]) {
-         // todo: get identity if already exists
-         await tryCatch(executeTransaction(() => writeContract({
+         const { data: deploySliceIdentityResult } = await tryCatch(executeTransaction(() => writeContract({
             contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
             abi: buildingFactoryAbi,
             functionName: 'deployIdentityForWallet',
             args: [deployedSliceAddress ?? sliceAddress],
          })));
-         await tryCatch(executeTransaction(() => writeContract({
+         const { data: registerSliceIdentityResult } = await tryCatch(executeTransaction(() => writeContract({
             contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
             abi: buildingFactoryAbi,
             functionName: 'registerIdentity',
             args: [assets[assetId].building, deployedSliceAddress ?? sliceAddress, 840],
          })));
-
-         let createPairResult;
-         let deployIdentityResult;
-         let pairAddressExists = await (readContract({
-            address: UNISWAP_FACTORY_ADDRESS,
-            abi: uniswapFactoryAbi,
-            functionName: 'getPair',
-            args: [assets[assetId].tokenA, assets[assetId].tokenB],
-         }) as Promise<`0x${string}}`[]>);
-         let identityExists = await (readContract({
-            address: BUILDING_FACTORY_ADDRESS,
-            abi: buildingFactoryAbi,
-            functionName: 'getIdentity',
-            args: [pairAddressExists[0]],
-         }) as Promise<`0x${string}}`[]>);
-         
-         if (pairAddressExists[0] === ZeroAddress) {
-            createPairResult = await executeTransaction(() => writeContract({
-               contractId: ContractId.fromEvmAddress(0, 0, UNISWAP_FACTORY_ADDRESS),
-               abi: uniswapFactoryAbi,
-               functionName: 'createPair',
-               args: [assets[assetId].tokenA, assets[assetId].tokenB],
-            }));
-            pairAddressExists = await (readContract({
-               address: UNISWAP_FACTORY_ADDRESS,
-               abi: uniswapFactoryAbi,
-               functionName: 'getPair',
-               args: [assets[assetId].tokenA, assets[assetId].tokenB],
-            }) as Promise<`0x${string}}`[]>);
-         }
-
-         if (identityExists[0] === ZeroAddress) {
-            deployIdentityResult = await executeTransaction(() => writeContract({
-               contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
-               abi: buildingFactoryAbi,
-               functionName: 'deployIdentityForWallet',
-               args: [pairAddressExists[0]],
-            }));
-            identityExists = await (readContract({
-               address: BUILDING_FACTORY_ADDRESS,
-               abi: buildingFactoryAbi,
-               functionName: 'getIdentity',
-               args: [pairAddressExists[0]],
-            }) as Promise<`0x${string}}`[]>);
-         }
-      
-         await tryCatch(executeTransaction(() => writeContract({
-            contractId: ContractId.fromEvmAddress(0, 0, BUILDING_FACTORY_ADDRESS),
-            abi: buildingFactoryAbi,
-            functionName: 'registerIdentity',
-            args: [assets[assetId].building, pairAddressExists[0], 840],
-         })) as any);
          return createIdentityInBatch(assets, assetId + 1, deployedSliceAddress, [
             ...txResults,
             [
-               (createPairResult as { transaction_id: string })?.transaction_id,
-               (deployIdentityResult as { transaction_id: string })?.transaction_id,
+               (registerSliceIdentityResult as unknown as { transaction_id: string })?.transaction_id,
+               (deploySliceIdentityResult as unknown as { transaction_id: string })?.transaction_id,
             ]
          ]);
       }
