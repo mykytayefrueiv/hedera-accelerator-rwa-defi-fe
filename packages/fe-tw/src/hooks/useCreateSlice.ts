@@ -454,7 +454,7 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
       tokensData: Array<{
          tokenAddress: `0x${string}`;
          aToken: `0x${string}`;
-         amount: number;
+         amount: number | bigint;
       }>,
    ) => {
       const signatures = await Promise.all(
