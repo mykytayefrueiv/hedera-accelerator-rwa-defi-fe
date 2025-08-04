@@ -31,9 +31,7 @@ import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi"
 import { tryCatch } from "@/services/tryCatch";
 import { useUploadImageToIpfs } from "./useUploadImageToIpfs";
 import { useSlicesData } from "./useSlicesData";
-import { useState } from "react";
-import { useChain, useReadContract } from "@buidlerlabs/hashgraph-react-wallets";
-import { Log } from "viem";
+import { useEffect, useState } from "react";
 import { useTokenPermitSignature } from "./useTokenPermitSignature";
 
 export function useCreateSlice(sliceAddress?: `0x${string}`) {
@@ -456,16 +454,16 @@ export function useCreateSlice(sliceAddress?: `0x${string}`) {
       tokensData: Array<{
          tokenAddress: `0x${string}`;
          aToken: `0x${string}`;
-         amount: number;
+         amount: number | bigint;
       }>,
    ) => {
       const signatures = await Promise.all(
-         tokensData.map(({ tokenAddress, aToken, amount }) =>
-            getPermitSignature(tokenAddress, amount, aToken),
+         tokensData.map(({ tokenAddress, amount }) =>
+            getPermitSignature(tokenAddress, amount, sliceAddress!),
          ),
       );
 
-      const aTokens = signatures.map((sig) => sig.spender);
+      const aTokens = signatures.map((_, idx) => tokensData[idx].aToken);
       const amounts = signatures.map((sig) => sig.amount);
       const deadlines = signatures.map((sig) => sig.deadline);
       const vs = signatures.map((sig) => sig.v);
