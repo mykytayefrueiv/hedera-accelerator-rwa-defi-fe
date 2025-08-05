@@ -1,11 +1,14 @@
+"use client";
 import { ReactNode, useEffect } from "react";
 import { Popover, PopoverAnchor } from "@/components/ui/popover";
 import { PopoverContent } from "@radix-ui/react-popover";
 import { cx } from "class-variance-authority";
-import { useWalkthroughStep } from "./WalkthroughContext";
+import { useWalkthrough, useWalkthroughStore } from "./WalkthroughContext";
 
 interface WalkthroughStepProps {
    children: ReactNode;
+   className?: string;
+   guideId: string;
    stepIndex: number;
    title: string;
    description: string;
@@ -13,22 +16,19 @@ interface WalkthroughStepProps {
 
 export const WalkthroughStep = ({
    children,
+   className,
+   guideId,
    stepIndex,
    title,
    description,
 }: WalkthroughStepProps) => {
-   const { registerStep, unregisterStep, isHighlighted } = useWalkthroughStep(stepIndex);
+   const currentStep = useWalkthroughStore((state) => state.currentStep);
+   const currentGuide = useWalkthroughStore((state) => state.currentGuide);
 
-   useEffect(() => {
-      registerStep(stepIndex, title, description);
-
-      return () => {
-         unregisterStep(stepIndex);
-      };
-   }, [stepIndex, title, description]);
+   const isHighlighted = currentStep === stepIndex && currentGuide === guideId;
 
    return (
-      <div className="relative">
+      <div className={cx("relative", className)}>
          {isHighlighted && (
             <div
                className={cx(
@@ -38,7 +38,7 @@ export const WalkthroughStep = ({
          )}
          <Popover open={isHighlighted}>
             <PopoverAnchor>{children}</PopoverAnchor>
-            <PopoverContent sideOffset={5}>
+            <PopoverContent className="z-100" sideOffset={5}>
                <div className="animate-fade-in-bottom bg-white p-4 rounded-lg shadow-lg border max-w-sm">
                   <h3 className="font-semibold text-lg">{title}</h3>
                   <p className="text-sm text-gray-600 mb-4">{description}</p>

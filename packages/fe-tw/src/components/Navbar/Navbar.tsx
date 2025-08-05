@@ -42,8 +42,10 @@ import {
 } from "@buidlerlabs/hashgraph-react-wallets/connectors";
 import { toast } from "sonner";
 import { shortEvmAddress } from "@/services/util";
+import { useWalkthrough, WalkthroughStep } from "../Walkthrough";
 
 export function Navbar() {
+   const { confirmUserFinishedGuide } = useWalkthrough();
    const { isSidebarTriggerVisible } = useSidebar();
    const [isOpen, setIsOpen] = React.useState(false);
 
@@ -185,9 +187,22 @@ export function Navbar() {
 
                   {isConnectedHashpack || isConnectedMetamask ? (
                      <NavigationMenuItem>
-                        <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
-                           <UserCircle />
-                        </NavigationMenuTrigger>
+                        <WalkthroughStep
+                           guideId={"USER_LOGIN_FLOW"}
+                           stepIndex={3}
+                           title={"Now you can see your account info"}
+                           description={"Hover over here to see your account info"}
+                        >
+                           <NavigationMenuTrigger
+                              className={navigationMenuTriggerStyle()}
+                              onMouseEnter={() => {
+                                 confirmUserFinishedGuide("USER_LOGIN_FLOW");
+                              }}
+                           >
+                              <UserCircle />
+                           </NavigationMenuTrigger>
+                        </WalkthroughStep>
+
                         <NavigationMenuContent asChild data-state="open">
                            <div>
                               <div className="flex justify-center items-center text-center gap-2 p-2 text-sm text-muted-foreground">
