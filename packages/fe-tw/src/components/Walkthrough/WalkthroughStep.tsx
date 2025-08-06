@@ -1,50 +1,93 @@
 "use client";
-import { ReactNode, useEffect } from "react";
+import { memo, ReactNode, useCallback, useEffect } from "react";
 import { Popover, PopoverAnchor } from "@/components/ui/popover";
-import { PopoverContent } from "@radix-ui/react-popover";
+import { PopoverContent, PopoverPortal } from "@radix-ui/react-popover";
 import { cx } from "class-variance-authority";
-import { useWalkthroughStore } from "./WalkthroughContext";
+import { useWalkthroughStore } from "./WalkthroughStore";
+import { isFunction } from "lodash";
+import { createPortal } from "react-dom";
+import { Button } from "../ui/button";
 
 interface WalkthroughStepProps {
-   children: ReactNode;
+   children:
+      | ReactNode
+      | ((props: {
+           confirmUserPassedStep: () => void;
+           confirmUserFinishedGuide: () => void;
+        }) => ReactNode);
    className?: string;
    guideId: string;
    stepIndex: number;
    title: string;
-   description: string;
+   description: string | ReactNode;
+   side?: "top" | "right" | "bottom" | "left";
+   showConfirmButton?: boolean;
 }
 
-export const WalkthroughStep = ({
-   children,
-   className,
-   guideId,
-   stepIndex,
-   title,
-   description,
-}: WalkthroughStepProps) => {
-   const currentStep = useWalkthroughStore((state) => state.currentStep);
-   const currentGuide = useWalkthroughStore((state) => state.currentGuide);
+export const WalkthroughStep = memo(
+   ({
+      children,
+      className,
+      guideId,
+      stepIndex,
+      title,
+      description,
+      side,
+      showConfirmButton,
+   }: WalkthroughStepProps) => {
+      const currentStep = useWalkthroughStore((state) => state.currentStep);
+      const currentGuide = useWalkthroughStore((state) => state.currentGuide);
+      const setCurrentStep = useWalkthroughStore((state) => state.setCurrentStep);
+      const setCurrentGuide = useWalkthroughStore((state) => state.setCurrentGuide);
+      const finishGuide = useWalkthroughStore((state) => state.finishGuide);
 
-   const isHighlighted = currentStep === stepIndex && currentGuide === guideId;
+      const isHighlighted = currentStep === stepIndex && currentGuide === guideId;
 
-   return (
-      <div className={cx("relative", className)}>
-         {isHighlighted && (
-            <div
-               className={cx(
-                  "pointer-events-none outline-2 outline-indigo-500 absolute w-full h-full animate-ping rounded-md",
-               )}
-            />
-         )}
-         <Popover open={isHighlighted}>
-            <PopoverAnchor>{children}</PopoverAnchor>
-            <PopoverContent className="z-100" sideOffset={5}>
-               <div className="animate-fade-in-bottom bg-white p-4 rounded-lg shadow-lg border max-w-sm">
-                  <h3 className="font-semibold text-lg">{title}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{description}</p>
-               </div>
-            </PopoverContent>
-         </Popover>
-      </div>
-   );
-};
+      const handleStepPassed = useCallback(() => {
+         if (currentStep === stepIndex) {
+            setCurrentStep(stepIndex + 1);
+         }
+      }, [currentStep, stepIndex, setCurrentStep]);
+
+      const handleConfirmFinishedGuide = useCallback(() => {
+         if (currentGuide === guideId && currentStep === stepIndex) {
+            finishGuide(guideId);
+            setCurrentGuide(null);
+            setCurrentStep(null);
+         }
+      }, [currentGuide, currentStep, guideId, setCurrentGuide, setCurrentStep]);
+
+      return (
+         <div className={cx("relative", className)}>
+            {isHighlighted && (
+               <div
+                  className={cx(
+                     "pointer-events-none outline-2 outline-indigo-500 absolute w-full h-full animate-ping rounded-md z-50",
+                  )}
+               />
+            )}
+            <Popover open={isHighlighted}>
+               <PopoverAnchor className={cx(isHighlighted ? "relative z-190" : "", className)}>
+                  {isFunction(children)
+                     ? children({
+                          confirmUserPassedStep: handleStepPassed,
+                          confirmUserFinishedGuide: handleConfirmFinishedGuide,
+                       })
+                     : children}
+               </PopoverAnchor>
+               <PopoverPortal>
+                  <PopoverContent className="z-[200]" sideOffset={5} side={side}>
+                     <div className="animate-fade-in-bottom bg-white p-4 rounded-lg shadow-lg border max-w-sm">
+                        <h3 className="font-semibold text-lg">{title}</h3>
+                        <p className="text-sm text-gray-600 mb-4">{description}</p>
+                        {showConfirmButton && (
+                           <Button onClick={handleStepPassed}>Understand</Button>
+                        )}
+                     </div>
+                  </PopoverContent>
+               </PopoverPortal>
+            </Popover>
+         </div>
+      );
+   },
+);

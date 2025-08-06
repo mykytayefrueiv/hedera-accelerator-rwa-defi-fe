@@ -14,12 +14,10 @@ import {
    DialogDescription,
    DialogHeader,
    DialogTitle,
-   DialogTrigger,
 } from "@/components/ui/dialog";
 import Image from "next/image";
-import { toast } from "sonner";
 import { tryCatch } from "@/services/tryCatch";
-import { useWalkthrough, WalkthroughStep } from "../Walkthrough";
+import { useWalkthrough, WalkthroughPromptCard, WalkthroughStep } from "../Walkthrough";
 
 const GUIDES = [
    {
@@ -29,7 +27,7 @@ const GUIDES = [
 ];
 
 export function WalletConnectModalRW() {
-   const { WalkthroughHelperCard, HelperCardProps, confirmUserPassedStep } = useWalkthrough(GUIDES);
+   const { PromptCardProps, confirmUserPassedStep } = useWalkthrough(GUIDES);
 
    const [isModalOpen, setModalOpen] = useState(false);
 
@@ -111,7 +109,11 @@ export function WalletConnectModalRW() {
                </DialogHeader>
             </DialogContent>
          </Dialog>
-         <WalkthroughHelperCard {...HelperCardProps} />
+         <WalkthroughPromptCard
+            {...PromptCardProps}
+            title="Beginning of a Journey"
+            description="To start investing, you need to login, want us to guide you through the process?"
+         />
       </>
    );
 }
