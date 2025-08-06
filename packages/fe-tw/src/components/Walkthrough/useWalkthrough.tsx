@@ -1,59 +1,49 @@
 import { isEmpty, reject, orderBy, some } from "lodash";
-import { useEffect, memo, useState } from "react";
+import { useEffect, memo, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { useWalkthroughStore } from "./WalkthroughContext";
 import { Button } from "../ui/button";
+import { walkthroughBarrier } from "./WalktroughSyncBarrier";
 
 export const useWalkthrough = (guides) => {
    const currentGuide = useWalkthroughStore((state) => state.currentGuide);
    const currentStep = useWalkthroughStore((state) => state.currentStep);
-   const finishedGuides = useWalkthroughStore((state) => state.finishedGuides);
    const setCurrentGuide = useWalkthroughStore((state) => state.setCurrentGuide);
    const finishGuide = useWalkthroughStore((state) => state.finishGuide);
    const setCurrentStep = useWalkthroughStore((state) => state.setCurrentStep);
    const setHideAllGuides = useWalkthroughStore((state) => state.setHideAllGuides);
-
-   const registeredGuidesOnThePage = useWalkthroughStore(
-      (state) => state.registeredGuidesOnThePage,
-   );
    const registerGuides = useWalkthroughStore((state) => state.registerGuides);
    const unregisterGuides = useWalkthroughStore((state) => state.unregisterGuides);
-   const unregisterAllGuides = useWalkthroughStore((state) => state.unregisterAllGuides);
+
+   const componentIdRef = useRef(Symbol("walkthrough-component"));
+   const readyCallbackRef = useRef(null);
 
    useEffect(() => {
       if (!isEmpty(guides)) {
+         readyCallbackRef.current = walkthroughBarrier.register(componentIdRef.current);
+
          registerGuides(guides);
+
+         requestAnimationFrame(() => {
+            if (readyCallbackRef.current) {
+               console.log("signaled that we are done", walkthroughBarrier);
+               readyCallbackRef.current();
+            }
+         });
       }
 
-      return () => unregisterGuides(guides);
+      return () => {
+         unregisterGuides(guides);
+         walkthroughBarrier.unregister(componentIdRef.current);
+      };
    }, [guides]);
 
-   // useEffect(() => {
-   //    if (!isEmpty(registeredGuidesOnThePage)) {
-   //       console.log("we didint come here did we", currentGuide);
-   //       if (currentGuide !== null) {
-   //          // wtf
-   //       } else {
-   //          const notFinishedGuides = reject(guides, ({ guideId }) =>
-   //             finishedGuides.includes(guideId),
-   //          );
-
-   //          console.log("notFinishedGuides :>> ", notFinishedGuides);
-
-   //          const sortedByPriority = orderBy(notFinishedGuides, "priority", ["asc"]);
-
-   //          if (!isEmpty(sortedByPriority)) {
-   //             console.log("zapustili?", sortedByPriority);
-   //             setCurrentGuide(sortedByPriority[0].guideId);
-   //          }
-   //       }
-   //    }
-   // }, [currentGuide, registeredGuidesOnThePage]);
-
    const getRegistrationFunction = () => {
-      
-      return (guides) => {
-
+      return () => {
+         // Signal this component is ready
+         if (readyCallbackRef.current) {
+            readyCallbackRef.current();
+         }
       };
    };
 
@@ -102,5 +92,6 @@ export const useWalkthrough = (guides) => {
       currentStep,
       confirmUserPassedStep,
       confirmUserFinishedGuide,
+      registerComponent: getRegistrationFunction(),
    };
 };

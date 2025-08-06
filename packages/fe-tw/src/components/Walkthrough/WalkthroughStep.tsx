@@ -3,7 +3,7 @@ import { ReactNode, useEffect } from "react";
 import { Popover, PopoverAnchor } from "@/components/ui/popover";
 import { PopoverContent } from "@radix-ui/react-popover";
 import { cx } from "class-variance-authority";
-import { useWalkthrough, useWalkthroughStore } from "./WalkthroughContext";
+import { useWalkthroughStore } from "./WalkthroughContext";
 
 interface WalkthroughStepProps {
    children: ReactNode;

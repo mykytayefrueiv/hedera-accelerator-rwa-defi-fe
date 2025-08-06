@@ -1,3 +1,4 @@
+"use client";
 import { shortEvmAddress } from "@/services/util";
 import { useAccountId, useEvmAddress, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
 import {

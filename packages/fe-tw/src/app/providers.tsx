@@ -1,6 +1,8 @@
 "use client";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { useWalkthroughStore } from "@/components/Walkthrough/WalkthroughContext";
+import { walkthroughBarrier } from "@/components/Walkthrough/WalktroughSyncBarrier";
 import { ReactWalletsProvider } from "@/services/wallets/ReactWalletsProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
@@ -14,10 +16,18 @@ export function Providers({
 }: Readonly<{
    children: React.ReactNode;
 }>) {
-   // const pathname = usePathname();
-   // useEffect(() => {
-   //    window.scroll(0, 0);
-   // }, [pathname]);
+   const initializeWalkthrough = useWalkthroughStore((state) => state.initializeWalkthrough);
+   const pathname = usePathname();
+
+   useEffect(() => {
+      walkthroughBarrier.onBarrierComplete(() => {
+         initializeWalkthrough();
+      });
+
+      return () => {
+         walkthroughBarrier.reset();
+      };
+   }, [pathname]);
 
    return (
       <QueryClientProvider client={queryClient}>
