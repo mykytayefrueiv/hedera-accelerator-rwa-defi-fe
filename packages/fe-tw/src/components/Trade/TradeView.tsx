@@ -78,7 +78,7 @@ export default function TradeView({ building, displayOnBuildingPage = false }: P
          </Tabs> */}
          <WalkthroughStep
             guideId="USER_INVESTING_GUIDE"
-            stepIndex={10}
+            stepIndex={11}
             title="Time to get money"
             description="This is our Trade View. But before we can buy something we need to have money we can trade with."
             side="right"

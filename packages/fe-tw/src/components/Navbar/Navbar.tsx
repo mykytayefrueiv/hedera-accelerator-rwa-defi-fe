@@ -171,7 +171,7 @@ export function Navbar() {
                      <NavigationMenuItem>
                         <WalkthroughStep
                            guideId="USER_INVESTING_GUIDE"
-                           stepIndex={11}
+                           stepIndex={12}
                            title="Let's get USDC"
                            description="Hover on this panel and select 'Get Demo USDC' to mint test USDC tokens for development and testing."
                            side="bottom"
@@ -210,7 +210,7 @@ export function Navbar() {
                               </ListItem>
                               <WalkthroughStep
                                  guideId="USER_INVESTING_GUIDE"
-                                 stepIndex={12}
+                                 stepIndex={13}
                                  title="Click here"
                                  description="This will lead you to the page where you can mint test USDC tokens for development and testing."
                                  side="left"

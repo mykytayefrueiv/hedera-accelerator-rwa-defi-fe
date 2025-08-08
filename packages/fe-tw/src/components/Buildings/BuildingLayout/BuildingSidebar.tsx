@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WalkthroughStep } from "@/components/Walkthrough";
+import { useWalkthroughStore } from "@/components/Walkthrough/WalkthroughStore";
 import { useBuildingInfo } from "@/hooks/useBuildingInfo";
 import { useBuildingOwner } from "@/hooks/useBuildingOwner";
 import { useTokenInfo } from "@/hooks/useTokenInfo";
@@ -71,6 +72,9 @@ export const OWNER_NAV_ITEMS = [
 ];
 
 export function BuildingSidebar() {
+   const currentStep = useWalkthroughStore((state) => state.currentStep);
+   const setCurrentStep = useWalkthroughStore((state) => state.setCurrentStep);
+
    const { id } = useParams();
    const pathname = usePathname();
    const { identityData, isLoading: isIdentityLoading } = useIdentity(id as string);
@@ -99,6 +103,18 @@ export function BuildingSidebar() {
          setIsModalOpened(true);
       }
    };
+
+   useEffect(() => {
+      if (currentStep === 5) {
+         if (identityData.isDeployed && identityData.isIdentityRegistered) {
+            setCurrentStep(10);
+         } else if (identityData.isDeployed) {
+            setCurrentStep(8);
+         }
+      } else if (currentStep === 8 && identityData.isIdentityRegistered) {
+         setCurrentStep(10);
+      }
+   }, [currentStep, setCurrentStep]);
 
    return (
       <Sidebar>
@@ -139,7 +155,7 @@ export function BuildingSidebar() {
                            return (
                               <WalkthroughStep
                                  guideId="USER_INVESTING_GUIDE"
-                                 stepIndex={7}
+                                 stepIndex={5}
                                  title="We are getting closer!"
                                  description="Now let's try to invest in the building. You can do it by clicking on the 'Trade' button."
                                  side="right"
@@ -172,7 +188,7 @@ export function BuildingSidebar() {
                            return (
                               <WalkthroughStep
                                  guideId="USER_INVESTING_GUIDE"
-                                 stepIndex={7}
+                                 stepIndex={8}
                                  title="We are getting closer!"
                                  description="Now we need to register your identity at the building. Click the button to proceed."
                                  side="right"
@@ -207,7 +223,7 @@ export function BuildingSidebar() {
                            return (
                               <WalkthroughStep
                                  guideId="USER_INVESTING_GUIDE"
-                                 stepIndex={9}
+                                 stepIndex={10}
                                  title="Now we can properly invest!"
                                  description="Hit 'Trade' to start investing in this building."
                                  side="right"

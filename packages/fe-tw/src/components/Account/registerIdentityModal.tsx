@@ -99,7 +99,7 @@ const RegisterIdentityModal = ({ buildingAddress, isModalOpened, onOpenChange }:
                      <Form className="space-y-6">
                         <WalkthroughStep
                            guideId="USER_INVESTING_GUIDE"
-                           stepIndex={8}
+                           stepIndex={9}
                            title="Almost there!"
                            description="Please select your country of residence to proceed with identity registration. And click 'Register Identity' below."
                            side="right"

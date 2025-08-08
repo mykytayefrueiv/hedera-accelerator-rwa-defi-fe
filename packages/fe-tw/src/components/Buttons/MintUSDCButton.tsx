@@ -85,7 +85,7 @@ export const MintUSDCButton = () => {
 
          <WalkthroughStep
             guideId="USER_INVESTING_GUIDE"
-            stepIndex={13}
+            stepIndex={14}
             title="Mint yourself some USDC"
             description="And get back to the Trade View to start investing."
             side="right"

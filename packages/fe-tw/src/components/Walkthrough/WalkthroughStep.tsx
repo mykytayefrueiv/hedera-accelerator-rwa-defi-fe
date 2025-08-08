@@ -7,6 +7,7 @@ import { useWalkthroughStore } from "./WalkthroughStore";
 import { isFunction } from "lodash";
 import { createPortal } from "react-dom";
 import { Button } from "../ui/button";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 interface WalkthroughStepProps {
    children:
@@ -57,6 +58,24 @@ export const WalkthroughStep = memo(
          }
       }, [currentGuide, currentStep, guideId, setCurrentGuide, setCurrentStep]);
 
+      const handleStepBack = useCallback(() => {
+         if (currentStep === stepIndex && stepIndex > 0) {
+            setCurrentStep(stepIndex - 1);
+         }
+      }, [currentStep, stepIndex, setCurrentStep]);
+
+      const handleStepForward = useCallback(() => {
+         if (currentStep === stepIndex) {
+            setCurrentStep(stepIndex + 1);
+         }
+      }, [currentStep, stepIndex, setCurrentStep]);
+
+      const handleFinishGuide = useCallback(() => {
+         finishGuide(guideId);
+         setCurrentGuide(null);
+         setCurrentStep(null);
+      }, [finishGuide, guideId, setCurrentGuide, setCurrentStep]);
+
       return (
          <div className={cx("relative", className)}>
             {isHighlighted && (
@@ -77,12 +96,36 @@ export const WalkthroughStep = memo(
                </PopoverAnchor>
                <PopoverPortal>
                   <PopoverContent className="z-[200]" sideOffset={5} side={side}>
-                     <div className="animate-fade-in-bottom bg-white p-4 rounded-lg shadow-lg border max-w-sm">
-                        <h3 className="font-semibold text-lg">{title}</h3>
-                        <p className="text-sm text-gray-600 mb-4">{description}</p>
-                        {showConfirmButton && (
-                           <Button onClick={handleStepPassed}>Understand</Button>
-                        )}
+                     <div className="animate-fade-in-bottom bg-gradient-to-br from-white to-slate-50 p-6 rounded-xl shadow-xl border border-slate-200 max-w-sm relative">
+                        <Button
+                           onClick={handleFinishGuide}
+                           className="absolute top-3 right-3"
+                           variant="ghost"
+                           aria-label="Close guide"
+                        >
+                           <X size={16} className="text-slate-500" />
+                        </Button>
+
+                        <div className="pr-6">
+                           <h3 className="font-bold text-lg text-slate-800 mb-2">{title}</h3>
+                           <div className="text-sm text-slate-600 mb-6 leading-relaxed">
+                              {description}
+                           </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3">
+                           <div className="flex gap-2">
+                              {showConfirmButton && (
+                                 <Button
+                                    onClick={handleStepPassed}
+                                    size="sm"
+                                    className="bg-indigo-600 hover:bg-indigo-700"
+                                 >
+                                    Got it!
+                                 </Button>
+                              )}
+                           </div>
+                        </div>
                      </div>
                   </PopoverContent>
                </PopoverPortal>
