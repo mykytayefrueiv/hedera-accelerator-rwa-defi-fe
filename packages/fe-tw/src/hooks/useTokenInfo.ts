@@ -28,7 +28,7 @@ export const useTokenInfo = (tokenAddress: `0x${string}` | undefined) => {
    const { data: evmAddress } = useEvmAddress();
 
    const { data: tokenPriceInUSDC } = useQuery({
-      queryKey: ["TOKEN_PRICE_INFO"],
+      queryKey: ["TOKEN_PRICE_INFO", tokenAddress],
       queryFn: async () => {
          const pairAddress = await readContract({
             address: UNISWAP_FACTORY_ADDRESS,

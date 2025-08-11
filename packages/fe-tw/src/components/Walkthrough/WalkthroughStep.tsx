@@ -1,5 +1,5 @@
 "use client";
-import { memo, ReactNode, useCallback, useEffect } from "react";
+import { memo, ReactNode, useCallback, useEffect, useState } from "react";
 import { Popover, PopoverAnchor } from "@/components/ui/popover";
 import { PopoverContent, PopoverPortal } from "@radix-ui/react-popover";
 import { cx } from "class-variance-authority";
@@ -44,6 +44,17 @@ export const WalkthroughStep = memo(
 
       const isHighlighted = currentStep === stepIndex && currentGuide === guideId;
 
+      const [showPing, setShowPing] = useState(false);
+
+      useEffect(() => {
+         if (isHighlighted) {
+            setShowPing(true);
+            const t = setTimeout(() => setShowPing(false), 3000);
+            return () => clearTimeout(t);
+         }
+         setShowPing(false);
+      }, [isHighlighted]);
+
       const handleStepPassed = useCallback(() => {
          if (currentStep === stepIndex) {
             setCurrentStep(stepIndex + 1);
@@ -69,7 +80,9 @@ export const WalkthroughStep = memo(
             {isHighlighted && (
                <div
                   className={cx(
-                     "pointer-events-none outline-2 outline-indigo-500 absolute w-full h-full animate-ping rounded-md z-50",
+                     "pointer-events-none absolute inset-0 rounded-md z-50 ",
+                     showPing &&
+                        "animate-ping outline-2 outline-indigo-500 [animation-iteration-count:3]",
                   )}
                />
             )}

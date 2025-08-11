@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { isEmpty, map } from "lodash";
+import { filter, isEmpty, map } from "lodash";
 import { readBuildingDetails, readBuildingsList } from "@/services/buildingService";
 import { getTokenBalanceOf, getTokenDecimals, getTokenSymbol } from "@/services/erc20Service";
 import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
@@ -66,8 +66,9 @@ export const usePortfolioData = () => {
          });
 
          const portfolioDataResults = await Promise.all(portfolioDataPromises);
+         const tokensUserHasBalance = filter(portfolioDataResults, ({ balance }) => balance !== 0);
 
-         return portfolioDataResults as PortfolioToken[];
+         return tokensUserHasBalance as PortfolioToken[];
       },
       enabled: !!evmAddress,
    });
