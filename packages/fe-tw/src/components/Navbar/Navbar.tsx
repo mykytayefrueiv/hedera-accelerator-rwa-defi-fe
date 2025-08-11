@@ -180,7 +180,7 @@ export function Navbar() {
                            {({ confirmUserPassedStep }) => (
                               <WalkthroughStep
                                  guideId={"USER_LOGIN_FLOW"}
-                                 stepIndex={4}
+                                 stepIndex={3}
                                  title="Let's get USDC"
                                  description="Hover on this panel and select 'Get Demo USDC' to mint test USDC tokens for development and testing."
                                  side="bottom"
@@ -236,7 +236,7 @@ export function Navbar() {
                               </ListItem>
                               <WalkthroughStep
                                  guideId={"USER_LOGIN_FLOW"}
-                                 stepIndex={5}
+                                 stepIndex={4}
                                  title="Click here"
                                  description="This will lead you to the page where you can mint test USDC tokens for development and testing."
                                  side="left"
@@ -270,22 +270,9 @@ export function Navbar() {
 
                      {isConnectedHashpack || isConnectedMetamask ? (
                         <NavigationMenuItem>
-                           <WalkthroughStep
-                              guideId={"USER_LOGIN_FLOW"}
-                              stepIndex={3}
-                              title={"Now you can see your account info"}
-                              description={"Hover over here to see your account info"}
-                           >
-                              {({ confirmUserPassedStep }) => (
-                                 <NavigationMenuTrigger
-                                    className={navigationMenuTriggerStyle()}
-                                    onMouseEnter={confirmUserPassedStep}
-                                 >
-                                    <UserCircle />
-                                 </NavigationMenuTrigger>
-                              )}
-                           </WalkthroughStep>
-
+                           <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
+                              <UserCircle />
+                           </NavigationMenuTrigger>
                            <NavigationMenuContent asChild data-state="open">
                               <div>
                                  <div className="flex justify-center items-center text-center gap-2 p-2 text-sm text-muted-foreground">

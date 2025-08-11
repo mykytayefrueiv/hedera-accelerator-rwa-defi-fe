@@ -87,12 +87,12 @@ export const MintUSDCButton = () => {
 
          <WalkthroughStep
             guideId={"USER_LOGIN_FLOW"}
-            stepIndex={6}
+            stepIndex={5}
             title="Mint yourself some USDC"
             description={"Now you are ready to experience the platform."}
             side="right"
          >
-            {({ confirmUserPassedStep, confirmUserFinishedGuide }) => (
+            {({ confirmUserFinishedGuide }) => (
                <Button
                   className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
                   disabled={isLoading || !evmAddress}
