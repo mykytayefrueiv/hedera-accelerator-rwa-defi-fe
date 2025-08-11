@@ -71,6 +71,7 @@ export const useWalkthrough = (guides?: IProps) => {
          confirmUserFinishedGuide,
          setHideAllGuides,
       },
+      currentGuide,
       currentStep,
       confirmUserPassedStep,
       confirmUserFinishedGuide,

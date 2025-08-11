@@ -19,15 +19,13 @@ import Image from "next/image";
 import { tryCatch } from "@/services/tryCatch";
 import { useWalkthrough, WalkthroughPromptCard, WalkthroughStep } from "../Walkthrough";
 
-const GUIDES = [
-   {
-      guideId: "USER_LOGIN_FLOW",
-      priority: 1,
-   },
-];
-
 export function WalletConnectModalRW() {
-   const { PromptCardProps, confirmUserPassedStep } = useWalkthrough(GUIDES);
+   const { PromptCardProps, confirmUserPassedStep } = useWalkthrough([
+      {
+         guideId: "USER_LOGIN_FLOW",
+         priority: 1,
+      },
+   ]);
 
    const [isModalOpen, setModalOpen] = useState(false);
 

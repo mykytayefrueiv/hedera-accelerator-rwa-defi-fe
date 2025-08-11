@@ -201,7 +201,7 @@ export default function TradeFormUniswapPool({
                      </p>
                      <WalkthroughStep
                         guideId="USER_INVESTING_GUIDE"
-                        stepIndex={15}
+                        stepIndex={12}
                         title="Configure your trade"
                         description={
                            <>

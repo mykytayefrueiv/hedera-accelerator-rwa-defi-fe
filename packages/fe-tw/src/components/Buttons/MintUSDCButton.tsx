@@ -13,11 +13,13 @@ import { USDC_ADDRESS } from "@/services/contracts/addresses";
 import { TransactionExtended } from "@/types/common";
 import { WalkthroughStep } from "../Walkthrough";
 import { on } from "events";
+import { useWalkthroughStore } from "../Walkthrough/WalkthroughStore";
 
 const MINT_AMOUNT = 10000;
 const DECIMALS = 6;
 
 export const MintUSDCButton = () => {
+   const currentGuide = useWalkthroughStore((state) => state.currentGuide);
    const { writeContract } = useWriteContract();
    const { executeTransaction } = useExecuteTransaction();
    const { data: evmAddress } = useEvmAddress();
@@ -84,17 +86,21 @@ export const MintUSDCButton = () => {
          )}
 
          <WalkthroughStep
-            guideId="USER_INVESTING_GUIDE"
-            stepIndex={14}
+            guideId={"USER_LOGIN_FLOW"}
+            stepIndex={6}
             title="Mint yourself some USDC"
-            description="And get back to the Trade View to start investing."
+            description={"Now you are ready to experience the platform."}
             side="right"
          >
-            {({ confirmUserPassedStep }) => (
+            {({ confirmUserPassedStep, confirmUserFinishedGuide }) => (
                <Button
                   className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
                   disabled={isLoading || !evmAddress}
-                  onClick={() => handleMint({ onSuccess: confirmUserPassedStep })}
+                  onClick={() =>
+                     handleMint({
+                        onSuccess: confirmUserFinishedGuide,
+                     })
+                  }
                >
                   {isLoading ? "Minting..." : `Mint ${MINT_AMOUNT} USDC`}
                </Button>

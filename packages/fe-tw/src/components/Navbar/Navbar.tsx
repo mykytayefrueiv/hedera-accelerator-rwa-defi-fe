@@ -45,7 +45,7 @@ import { shortEvmAddress } from "@/services/util";
 import { useWalkthrough, WalkthroughPromptCard, WalkthroughStep } from "../Walkthrough";
 
 export function Navbar() {
-   const { confirmUserFinishedGuide, PromptCardProps } = useWalkthrough([
+   const { currentGuide, PromptCardProps } = useWalkthrough([
       { guideId: "ADMIN_BUILDING_GUIDE", priority: 1 },
       { guideId: "USER_INVESTING_GUIDE", priority: 2 },
    ]);
@@ -170,7 +170,6 @@ export function Navbar() {
                         </NavigationMenuContent>
                      </NavigationMenuItem>
                      <NavigationMenuItem>
-                        {/* Admin Building Creation guide starts here */}
                         <WalkthroughStep
                            guideId="ADMIN_BUILDING_GUIDE"
                            stepIndex={1}
@@ -180,8 +179,8 @@ export function Navbar() {
                         >
                            {({ confirmUserPassedStep }) => (
                               <WalkthroughStep
-                                 guideId="USER_INVESTING_GUIDE"
-                                 stepIndex={12}
+                                 guideId={"USER_LOGIN_FLOW"}
+                                 stepIndex={4}
                                  title="Let's get USDC"
                                  description="Hover on this panel and select 'Get Demo USDC' to mint test USDC tokens for development and testing."
                                  side="bottom"
@@ -236,8 +235,8 @@ export function Navbar() {
                                  Create and Manage Audit
                               </ListItem>
                               <WalkthroughStep
-                                 guideId="USER_INVESTING_GUIDE"
-                                 stepIndex={13}
+                                 guideId={"USER_LOGIN_FLOW"}
+                                 stepIndex={5}
                                  title="Click here"
                                  description="This will lead you to the page where you can mint test USDC tokens for development and testing."
                                  side="left"
@@ -277,12 +276,10 @@ export function Navbar() {
                               title={"Now you can see your account info"}
                               description={"Hover over here to see your account info"}
                            >
-                              {({ confirmUserFinishedGuide }) => (
+                              {({ confirmUserPassedStep }) => (
                                  <NavigationMenuTrigger
                                     className={navigationMenuTriggerStyle()}
-                                    onMouseEnter={() => {
-                                       confirmUserFinishedGuide();
-                                    }}
+                                    onMouseEnter={confirmUserPassedStep}
                                  >
                                     <UserCircle />
                                  </NavigationMenuTrigger>
