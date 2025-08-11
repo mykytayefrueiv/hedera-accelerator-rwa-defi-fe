@@ -58,18 +58,6 @@ export const WalkthroughStep = memo(
          }
       }, [currentGuide, currentStep, guideId, setCurrentGuide, setCurrentStep]);
 
-      const handleStepBack = useCallback(() => {
-         if (currentStep === stepIndex && stepIndex > 0) {
-            setCurrentStep(stepIndex - 1);
-         }
-      }, [currentStep, stepIndex, setCurrentStep]);
-
-      const handleStepForward = useCallback(() => {
-         if (currentStep === stepIndex) {
-            setCurrentStep(stepIndex + 1);
-         }
-      }, [currentStep, stepIndex, setCurrentStep]);
-
       const handleFinishGuide = useCallback(() => {
          finishGuide(guideId);
          setCurrentGuide(null);
@@ -95,7 +83,12 @@ export const WalkthroughStep = memo(
                      : children}
                </PopoverAnchor>
                <PopoverPortal>
-                  <PopoverContent className="z-[200]" sideOffset={5} side={side}>
+                  <PopoverContent
+                     onOpenAutoFocus={(e) => e.preventDefault()}
+                     className="z-[200]"
+                     sideOffset={5}
+                     side={side}
+                  >
                      <div className="animate-fade-in-bottom bg-gradient-to-br from-white to-slate-50 p-6 rounded-xl shadow-xl border border-slate-200 max-w-sm relative">
                         <Button
                            onClick={handleFinishGuide}

@@ -46,6 +46,7 @@ import { useWalkthrough, WalkthroughPromptCard, WalkthroughStep } from "../Walkt
 
 export function Navbar() {
    const { confirmUserFinishedGuide, PromptCardProps } = useWalkthrough([
+      { guideId: "ADMIN_BUILDING_GUIDE", priority: 1 },
       { guideId: "USER_INVESTING_GUIDE", priority: 2 },
    ]);
    const { isSidebarTriggerVisible } = useSidebar();
@@ -169,31 +170,57 @@ export function Navbar() {
                         </NavigationMenuContent>
                      </NavigationMenuItem>
                      <NavigationMenuItem>
+                        {/* Admin Building Creation guide starts here */}
                         <WalkthroughStep
-                           guideId="USER_INVESTING_GUIDE"
-                           stepIndex={12}
-                           title="Let's get USDC"
-                           description="Hover on this panel and select 'Get Demo USDC' to mint test USDC tokens for development and testing."
+                           guideId="ADMIN_BUILDING_GUIDE"
+                           stepIndex={1}
+                           title="Start creating a tokenized building"
+                           description="Hover here to open the Create menu and begin the building tokenization walkthrough."
                            side="bottom"
                         >
                            {({ confirmUserPassedStep }) => (
-                              <NavigationMenuTrigger
-                                 className={navigationMenuTriggerStyle()}
-                                 onMouseEnter={confirmUserPassedStep}
+                              <WalkthroughStep
+                                 guideId="USER_INVESTING_GUIDE"
+                                 stepIndex={12}
+                                 title="Let's get USDC"
+                                 description="Hover on this panel and select 'Get Demo USDC' to mint test USDC tokens for development and testing."
+                                 side="bottom"
                               >
-                                 Create
-                              </NavigationMenuTrigger>
+                                 {({ confirmUserPassedStep: confirmInvestStep }) => (
+                                    <NavigationMenuTrigger
+                                       className={navigationMenuTriggerStyle()}
+                                       onMouseEnter={() => {
+                                          confirmUserPassedStep();
+                                          confirmInvestStep();
+                                       }}
+                                    >
+                                       Create
+                                    </NavigationMenuTrigger>
+                                 )}
+                              </WalkthroughStep>
                            )}
                         </WalkthroughStep>
                         <NavigationMenuContent asChild data-state="open">
                            <ul className="grid w-[400px] gap-2 p-1 md:w-[300px] md:grid-cols-1 lg:w-[400px]">
-                              <ListItem
-                                 icon={<Building />}
-                                 title="Building"
-                                 href="/admin/buildingmanagement"
+                              {/* Building creation entry point for the admin walkthrough */}
+                              <WalkthroughStep
+                                 guideId="ADMIN_BUILDING_GUIDE"
+                                 stepIndex={2}
+                                 title="Go to Building Management"
+                                 description="Click here to open the Building Management page where you will configure metadata, token settings, and treasury reserve."
+                                 side="left"
                               >
-                                 Create and manage buildings
-                              </ListItem>
+                                 {({ confirmUserPassedStep }) => (
+                                    <ListItem
+                                       icon={<Building />}
+                                       title="Building"
+                                       href="/admin/buildingmanagement"
+                                       onClick={confirmUserPassedStep}
+                                    >
+                                       Create and manage buildings
+                                    </ListItem>
+                                 )}
+                              </WalkthroughStep>
                               <ListItem
                                  icon={<Slice />}
                                  title="Slice"
@@ -310,8 +337,16 @@ export function Navbar() {
          </div>
          <WalkthroughPromptCard
             {...PromptCardProps}
-            title="Do you want us to help you invest into buildings?"
-            description="We will guide you through the process step by step."
+            title={
+               PromptCardProps.currentGuide === "ADMIN_BUILDING_GUIDE"
+                  ? "Do you want help tokenizing a building?"
+                  : "Do you want us to help you invest into buildings?"
+            }
+            description={
+               PromptCardProps.currentGuide === "ADMIN_BUILDING_GUIDE"
+                  ? "We will guide you from the Create menu to Building Management and explain each key field (image/IPFS, total supply, token settings, USDC reserve, governance, and vault)."
+                  : "We will guide you through the investing process step by step."
+            }
          />
       </>
    );

@@ -2,6 +2,7 @@ import { useFormikContext } from "formik";
 import { BuildingFormProps } from "@/components/Admin/buildingManagement/types";
 import { FormInput } from "@/components/ui/formInput";
 import * as React from "react";
+import { WalkthroughStep } from "@/components/Walkthrough";
 
 const TreasuryGovernanceAndVaultForm = () => {
    const formik = useFormikContext<BuildingFormProps>();
@@ -13,29 +14,67 @@ const TreasuryGovernanceAndVaultForm = () => {
                <h2 className="text-xl font-semibold">Treasury</h2>
             </div>
             <div className="grid grid-cols-1 gap-4 mt-5">
-               <FormInput
-                  required
-                  label="Reserve"
-                  {...formik.getFieldProps("treasuryAndGovernance.reserve")}
-                  placeholder="e.g. 10"
-                  error={
-                     formik.touched?.treasuryAndGovernance?.reserve
-                        ? formik.errors.treasuryAndGovernance?.reserve
-                        : undefined
-                  }
-               />
+               <WalkthroughStep
+                  guideId="ADMIN_BUILDING_GUIDE"
+                  stepIndex={10}
+                  title="Set USDC reserve"
+                  description="Define the reserve amount in USDC for the building's treasury. When building receives payments (from rent, sales, etc.) it automatically deposited to the treasury, when treasury maximum reserve hit, the building will redistribute excess USDC among its investors."
+                  side="top"
+               >
+                  {({ confirmUserPassedStep }) => {
+                     const reserveProps = formik.getFieldProps("treasuryAndGovernance.reserve");
+                     return (
+                        <FormInput
+                           required
+                           label="Reserve"
+                           {...reserveProps}
+                           onBlur={(e) => {
+                              reserveProps.onBlur(e);
+                              if (!formik.errors.treasuryAndGovernance?.reserve) {
+                                 confirmUserPassedStep();
+                              }
+                           }}
+                           placeholder="e.g. 10"
+                           error={
+                              formik.touched?.treasuryAndGovernance?.reserve
+                                 ? formik.errors.treasuryAndGovernance?.reserve
+                                 : undefined
+                           }
+                        />
+                     );
+                  }}
+               </WalkthroughStep>
 
-               <FormInput
-                  required
-                  label="NPercentage"
-                  {...formik.getFieldProps("treasuryAndGovernance.npercentage")}
-                  placeholder="e.g. 10"
-                  error={
-                     formik.touched?.treasuryAndGovernance?.npercentage
-                        ? formik.errors.treasuryAndGovernance?.npercentage
-                        : undefined
-                  }
-               />
+               <WalkthroughStep
+                  guideId="ADMIN_BUILDING_GUIDE"
+                  stepIndex={11}
+                  title="Set Vault Yield Percentage"
+                  description="Percentage (in basis points) of vault yield to be transferred to the treasury reserve. Example: 1000 = 10%"
+                  side="top"
+               >
+                  {({ confirmUserPassedStep }) => {
+                     const nProps = formik.getFieldProps("treasuryAndGovernance.npercentage");
+                     return (
+                        <FormInput
+                           required
+                           label="Vault Yield Percentage"
+                           {...nProps}
+                           onBlur={(e) => {
+                              nProps.onBlur(e);
+                              if (!formik.errors.treasuryAndGovernance?.npercentage) {
+                                 confirmUserPassedStep();
+                              }
+                           }}
+                           placeholder="e.g. 1000"
+                           error={
+                              formik.touched?.treasuryAndGovernance?.npercentage
+                                 ? formik.errors.treasuryAndGovernance?.npercentage
+                                 : undefined
+                           }
+                        />
+                     );
+                  }}
+               </WalkthroughStep>
             </div>
          </div>
 
@@ -44,17 +83,36 @@ const TreasuryGovernanceAndVaultForm = () => {
                <h2 className="text-xl font-semibold">Governance</h2>
             </div>
             <div className="grid grid-cols-1 gap-4 mt-5">
-               <FormInput
-                  required
-                  label="Governance Name"
-                  {...formik.getFieldProps("treasuryAndGovernance.governanceName")}
-                  placeholder="e.g. My Governance"
-                  error={
-                     formik.touched?.treasuryAndGovernance?.governanceName
-                        ? formik.errors.treasuryAndGovernance?.governanceName
-                        : undefined
-                  }
-               />
+               <WalkthroughStep
+                  guideId="ADMIN_BUILDING_GUIDE"
+                  stepIndex={12}
+                  title="Governance name"
+                  description="Name the governance entity that will control upgrades, minting rules, fees, and vault parameters."
+                  side="top"
+               >
+                  {({ confirmUserPassedStep }) => {
+                     const govProps = formik.getFieldProps("treasuryAndGovernance.governanceName");
+                     return (
+                        <FormInput
+                           required
+                           label="Governance Name"
+                           {...govProps}
+                           onBlur={(e) => {
+                              govProps.onBlur(e);
+                              if (!formik.errors.treasuryAndGovernance?.governanceName) {
+                                 confirmUserPassedStep();
+                              }
+                           }}
+                           placeholder="e.g. My Governance"
+                           error={
+                              formik.touched?.treasuryAndGovernance?.governanceName
+                                 ? formik.errors.treasuryAndGovernance?.governanceName
+                                 : undefined
+                           }
+                        />
+                     );
+                  }}
+               </WalkthroughStep>
             </div>
          </div>
 
@@ -64,28 +122,70 @@ const TreasuryGovernanceAndVaultForm = () => {
             </div>
 
             <div className="grid grid-cols-1 gap-4 mt-5">
-               <FormInput
-                  required
-                  label="Share Token Name"
-                  {...formik.getFieldProps("treasuryAndGovernance.shareTokenName")}
-                  placeholder="e.g. My Share Token"
-                  error={
-                     formik.touched?.treasuryAndGovernance?.shareTokenName
-                        ? formik.errors.treasuryAndGovernance?.shareTokenName
-                        : undefined
-                  }
-               />
-               <FormInput
-                  required
-                  label="Share Token Symbol"
-                  {...formik.getFieldProps("treasuryAndGovernance.shareTokenSymbol")}
-                  placeholder="e.g. STOK"
-                  error={
-                     formik.touched?.treasuryAndGovernance?.shareTokenSymbol
-                        ? formik.errors.treasuryAndGovernance?.shareTokenSymbol
-                        : undefined
-                  }
-               />
+               <WalkthroughStep
+                  guideId="ADMIN_BUILDING_GUIDE"
+                  stepIndex={13}
+                  title="Share token name"
+                  description="Name of the vault share token."
+                  side="top"
+               >
+                  {({ confirmUserPassedStep }) => {
+                     const shareNameProps = formik.getFieldProps(
+                        "treasuryAndGovernance.shareTokenName",
+                     );
+                     return (
+                        <FormInput
+                           required
+                           label="Share Token Name"
+                           {...shareNameProps}
+                           onBlur={(e) => {
+                              shareNameProps.onBlur(e);
+                              if (!formik.errors.treasuryAndGovernance?.shareTokenName) {
+                                 confirmUserPassedStep();
+                              }
+                           }}
+                           placeholder="e.g. My Share Token"
+                           error={
+                              formik.touched?.treasuryAndGovernance?.shareTokenName
+                                 ? formik.errors.treasuryAndGovernance?.shareTokenName
+                                 : undefined
+                           }
+                        />
+                     );
+                  }}
+               </WalkthroughStep>
+               <WalkthroughStep
+                  guideId="ADMIN_BUILDING_GUIDE"
+                  stepIndex={14}
+                  title="Share token symbol"
+                  description="Symbol of the vault share token."
+                  side="top"
+               >
+                  {({ confirmUserPassedStep }) => {
+                     const shareSymbolProps = formik.getFieldProps(
+                        "treasuryAndGovernance.shareTokenSymbol",
+                     );
+                     return (
+                        <FormInput
+                           required
+                           label="Share Token Symbol"
+                           {...shareSymbolProps}
+                           onBlur={(e) => {
+                              shareSymbolProps.onBlur(e);
+                              if (!formik.errors.treasuryAndGovernance?.shareTokenSymbol) {
+                                 confirmUserPassedStep();
+                              }
+                           }}
+                           placeholder="e.g. STOK"
+                           error={
+                              formik.touched?.treasuryAndGovernance?.shareTokenSymbol
+                                 ? formik.errors.treasuryAndGovernance?.shareTokenSymbol
+                                 : undefined
+                           }
+                        />
+                     );
+                  }}
+               </WalkthroughStep>
 
                <FormInput
                   label="Fee Receiver Address"

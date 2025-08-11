@@ -4,6 +4,7 @@ import * as React from "react";
 import { BuildingFormProps } from "./types";
 import { cn } from "@/lib/utils";
 import BuildingImageInput from "./BuildingImageInput";
+import { WalkthroughStep } from "@/components/Walkthrough";
 
 const BuildingInfoForm = () => {
    const formik = useFormikContext<BuildingFormProps>();
@@ -29,26 +30,59 @@ const BuildingInfoForm = () => {
          <div className="relative">
             <h2 className="text-xl font-semibold">Building</h2>
             <div className="grid grid-cols-2 gap-4 mt-5">
-               <BuildingImageInput
-                  ipfsId={formik.values.info.buildingImageIpfsId}
-                  file={formik.values.info.buildingImageIpfsFile}
-                  onChange={handleChangeImage}
-                  error={formik.errors.info?.buildingImageIpfsId}
-                  touched={formik.touched?.info?.buildingImageIpfsId}
-               />
+               <WalkthroughStep
+                  guideId="ADMIN_BUILDING_GUIDE"
+                  stepIndex={4}
+                  title="Upload a building image"
+                  description="Provide an image for the building. You can paste an IPFS CID or upload a file and we'll upload it to IPFS for you."
+                  side="right"
+               >
+                  {({ confirmUserPassedStep }) => (
+                     <BuildingImageInput
+                        ipfsId={formik.values.info.buildingImageIpfsId}
+                        file={formik.values.info.buildingImageIpfsFile}
+                        onChange={async ({ id, file }) => {
+                           await handleChangeImage({ id, file });
+                           if (id || file) confirmUserPassedStep();
+                        }}
+                        error={formik.errors.info?.buildingImageIpfsId}
+                        touched={formik.touched?.info?.buildingImageIpfsId}
+                     />
+                  )}
+               </WalkthroughStep>
 
                <div className="flex flex-col gap-4">
-                  <FormInput
-                     required
-                     label={"Building Title"}
-                     {...formik.getFieldProps("info.buildingTitle")}
-                     placeholder="e.g. My Building"
-                     error={
-                        formik.touched?.info?.buildingTitle
-                           ? formik.errors.info?.buildingTitle
-                           : undefined
-                     }
-                  />
+                  <WalkthroughStep
+                     guideId="ADMIN_BUILDING_GUIDE"
+                     stepIndex={5}
+                     title="Set a descriptive building title"
+                     description="Give your building a clear, recognizable title users will see across the app."
+                     side="top"
+                  >
+                     {({ confirmUserPassedStep }) => {
+                        const titleProps = formik.getFieldProps("info.buildingTitle");
+                        return (
+                           <FormInput
+                              required
+                              label={"Building Title"}
+                              {...titleProps}
+                              onBlur={async (e) => {
+                                 titleProps.onBlur(e);
+
+                                 if (!formik.errors.info?.buildingTitle) {
+                                    confirmUserPassedStep();
+                                 }
+                              }}
+                              placeholder="e.g. My Building"
+                              error={
+                                 formik.touched?.info?.buildingTitle
+                                    ? formik.errors.info?.buildingTitle
+                                    : undefined
+                              }
+                           />
+                        );
+                     }}
+                  </WalkthroughStep>
 
                   <FormInput
                      required
