@@ -9,13 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
-} from "@/components/ui/select";
+import { SelectItem } from "@/components/ui/select";
+import { FormSelect } from "@/components/ui/formSelect";
 import { ChartCandlestick, TrendingUp, ArrowUpDown } from "lucide-react";
 import { useUniswapTradeSwaps } from "@/hooks/useUniswapTradeSwaps";
 import { oneHourTimePeriod } from "@/consts/trade";
@@ -220,37 +215,31 @@ export default function TradeFormUniswapPool({
                         side="right"
                         className="space-y-4"
                      >
-                        <div>
-                           <Label htmlFor="tokenASelect">Select token A</Label>
-                           <Select
-                              name="tokenA"
-                              onValueChange={(value) => {
-                                 setFieldValue("tokenA", value);
-                                 onTokensPairSelected(value as `0x${string}`);
-                              }}
-                              value={values.tokenA}
-                           >
-                              <SelectTrigger className="w-full mt-1">
-                                 <SelectValue placeholder="Choose a Token A" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                 {[
-                                    ...buildingTokensOptions,
-                                    {
-                                       value: USDC_ADDRESS,
-                                       label: "USDC",
-                                    },
-                                 ].map((building) => (
-                                    <SelectItem
-                                       key={building.value}
-                                       value={building.value as `0x${string}`}
-                                    >
-                                       {building.label} ({building.value})
-                                    </SelectItem>
-                                 ))}
-                              </SelectContent>
-                           </Select>
-                        </div>
+                        <FormSelect
+                           name="tokenA"
+                           label="Select token A"
+                           placeholder="Choose a Token A"
+                           onValueChange={(value) => {
+                              setFieldValue("tokenA", value);
+                              onTokensPairSelected(value as `0x${string}`);
+                           }}
+                           value={values.tokenA}
+                        >
+                           {[
+                              ...buildingTokensOptions,
+                              {
+                                 value: USDC_ADDRESS,
+                                 label: "USDC",
+                              },
+                           ].map((building) => (
+                              <SelectItem
+                                 key={building.value}
+                                 value={building.value as `0x${string}`}
+                              >
+                                 {building.label} ({building.value})
+                              </SelectItem>
+                           ))}
+                        </FormSelect>
                         <div className="flex justify-center -my-2">
                            <Button
                               type="button"
@@ -274,37 +263,31 @@ export default function TradeFormUniswapPool({
                               <ArrowUpDown className="h-4 w-4" />
                            </Button>
                         </div>
-                        <div>
-                           <Label htmlFor="tokenBSelect">Select token B</Label>
-                           <Select
-                              name="tokenB"
-                              onValueChange={(value) => {
-                                 setFieldValue("tokenB", value);
-                                 onTokensPairSelected(undefined, value as `0x${string}`);
-                              }}
-                              value={values.tokenB}
-                           >
-                              <SelectTrigger className="w-full mt-1">
-                                 <SelectValue placeholder="Choose a Token B" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                 {[
-                                    ...buildingTokensOptions,
-                                    {
-                                       value: USDC_ADDRESS,
-                                       label: "USDC",
-                                    },
-                                 ].map((token) => (
-                                    <SelectItem
-                                       key={token.value}
-                                       value={token.value as `0x${string}`}
-                                    >
-                                       {token.label} ({token.value})
-                                    </SelectItem>
-                                 ))}
-                              </SelectContent>
-                           </Select>
-                        </div>
+                        <FormSelect
+                           name="tokenB"
+                           label="Select token B"
+                           placeholder="Choose a Token B"
+                           onValueChange={(value) => {
+                              setFieldValue("tokenB", value);
+                              onTokensPairSelected(undefined, value as `0x${string}`);
+                           }}
+                           value={values.tokenB}
+                        >
+                           {[
+                              ...buildingTokensOptions,
+                              {
+                                 value: USDC_ADDRESS,
+                                 label: "USDC",
+                              },
+                           ].map((token) => (
+                              <SelectItem
+                                 key={token.value}
+                                 value={token.value as `0x${string}`}
+                              >
+                                 {token.label} ({token.value})
+                              </SelectItem>
+                           ))}
+                        </FormSelect>
                         <div>
                            <Label htmlFor="amount">Amount of tokens to swap</Label>
                            <Input
@@ -316,30 +299,24 @@ export default function TradeFormUniswapPool({
                               {...getFieldProps("amount")}
                            />
                         </div>
-                        <div>
-                           <Label htmlFor="autoRevertsAfter">Auto reverts period in hours</Label>
-                           <Select
-                              name="autoRevertsAfter"
-                              onValueChange={(value) => {
-                                 setFieldValue("autoRevertsAfter", Number(value));
-                              }}
-                              value={values.autoRevertsAfter as unknown as string}
-                           >
-                              <SelectTrigger className="w-full mt-1">
-                                 <SelectValue placeholder="Period in hours" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                 {revertsInOptions.map((token) => (
-                                    <SelectItem
-                                       key={token.value}
-                                       value={token.value as unknown as string}
-                                    >
-                                       {token.label}
-                                    </SelectItem>
-                                 ))}
-                              </SelectContent>
-                           </Select>
-                        </div>
+                        <FormSelect
+                           name="autoRevertsAfter"
+                           label="Auto reverts period in hours"
+                           placeholder="Period in hours"
+                           onValueChange={(value) => {
+                              setFieldValue("autoRevertsAfter", Number(value));
+                           }}
+                           value={values.autoRevertsAfter as unknown as string}
+                        >
+                           {revertsInOptions.map((token) => (
+                              <SelectItem
+                                 key={token.value}
+                                 value={token.value as unknown as string}
+                              >
+                                 {token.label}
+                              </SelectItem>
+                           ))}
+                        </FormSelect>
                         {!!values.tokenA && !!values.tokenB && values.tokenA === values.tokenB && (
                            <p className="text-sm text-red-600 font-bold">
                               Tokens A and B should be different

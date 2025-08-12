@@ -5,13 +5,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
-import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
-} from "@/components/ui/select";
+import { SelectItem } from "@/components/ui/select";
+import { FormSelect } from "@/components/ui/formSelect";
 import { useBuildings } from "@/hooks/useBuildings";
 import { pinata } from "@/utils/pinata";
 import { Textarea } from "@/components/ui/textarea";
@@ -279,40 +274,26 @@ export function AuditManagementForm({ buildingAddress, recordId }: IProps) {
                                              }
                                           />
 
-                                          <div className="w-full">
-                                             <Label htmlFor="auditType">
-                                                Audit Type/Purpose{" "}
-                                                <span className="text-red-500">*</span>
-                                             </Label>
-                                             <Select
-                                                name="auditType"
-                                                required
-                                                onValueChange={(value) =>
-                                                   setFieldValue("auditType", value)
-                                                }
-                                                value={values.auditType}
-                                             >
-                                                <SelectTrigger className="w-full mt-1">
-                                                   <SelectValue placeholder="Select audit type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                   {auditTypeOptions.map((option) => (
-                                                      <SelectItem
-                                                         key={option.value}
-                                                         value={option.value}
-                                                      >
-                                                         {option.label}
-                                                      </SelectItem>
-                                                   ))}
-                                                </SelectContent>
-                                             </Select>
-                                             {touched?.auditType &&
-                                                typeof errors.auditType === "string" && (
-                                                   <div className="text-red-600 text-sm mt-1">
-                                                      {errors.auditType}
-                                                   </div>
-                                                )}
-                                          </div>
+                                          <FormSelect
+                                             name="auditType"
+                                             label="Audit Type/Purpose"
+                                             required={true}
+                                             placeholder="Select audit type"
+                                             onValueChange={(value) =>
+                                                setFieldValue("auditType", value)
+                                             }
+                                             value={values.auditType}
+                                             error={touched?.auditType && typeof errors.auditType === "string" ? errors.auditType : undefined}
+                                          >
+                                             {auditTypeOptions.map((option) => (
+                                                <SelectItem
+                                                   key={option.value}
+                                                   value={option.value}
+                                                >
+                                                   {option.label}
+                                                </SelectItem>
+                                             ))}
+                                          </FormSelect>
                                        </div>
 
                                        <FormInput
@@ -365,77 +346,47 @@ export function AuditManagementForm({ buildingAddress, recordId }: IProps) {
                                        </h3>
 
                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                          <div className="w-full">
-                                             <Label htmlFor="overallConditionRating">
-                                                Overall Condition Rating{" "}
-                                                <span className="text-red-500">*</span>
-                                             </Label>
-                                             <Select
-                                                name="overallConditionRating"
-                                                required
-                                                onValueChange={(value) =>
-                                                   setFieldValue("overallConditionRating", value)
-                                                }
-                                                value={values.overallConditionRating}
-                                             >
-                                                <SelectTrigger className="w-full mt-1">
-                                                   <SelectValue placeholder="Select condition rating" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                   {conditionRatingOptions.map((option) => (
-                                                      <SelectItem
-                                                         key={option.value}
-                                                         value={option.value}
-                                                      >
-                                                         {option.label}
-                                                      </SelectItem>
-                                                   ))}
-                                                </SelectContent>
-                                             </Select>
-                                             {touched?.overallConditionRating &&
-                                                typeof errors.overallConditionRating ===
-                                                   "string" && (
-                                                   <div className="text-red-600 text-sm mt-1">
-                                                      {errors.overallConditionRating}
-                                                   </div>
-                                                )}
-                                          </div>
+                                          <FormSelect
+                                             name="overallConditionRating"
+                                             label="Overall Condition Rating"
+                                             required={true}
+                                             placeholder="Select condition rating"
+                                             onValueChange={(value) =>
+                                                setFieldValue("overallConditionRating", value)
+                                             }
+                                             value={values.overallConditionRating}
+                                             error={touched?.overallConditionRating && typeof errors.overallConditionRating === "string" ? errors.overallConditionRating : undefined}
+                                          >
+                                             {conditionRatingOptions.map((option) => (
+                                                <SelectItem
+                                                   key={option.value}
+                                                   value={option.value}
+                                                >
+                                                   {option.label}
+                                                </SelectItem>
+                                             ))}
+                                          </FormSelect>
 
-                                          <div className="w-full">
-                                             <Label htmlFor="immediateActionRequired">
-                                                Immediate Action Required{" "}
-                                                <span className="text-red-500">*</span>
-                                             </Label>
-                                             <Select
-                                                name="immediateActionRequired"
-                                                required
-                                                onValueChange={(value) =>
-                                                   setFieldValue("immediateActionRequired", value)
-                                                }
-                                                value={values.immediateActionRequired}
-                                             >
-                                                <SelectTrigger className="w-full mt-1">
-                                                   <SelectValue placeholder="Select yes or no" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                   {immediateActionOptions.map((option) => (
-                                                      <SelectItem
-                                                         key={option.value}
-                                                         value={option.value}
-                                                      >
-                                                         {option.label}
-                                                      </SelectItem>
-                                                   ))}
-                                                </SelectContent>
-                                             </Select>
-                                             {touched?.immediateActionRequired &&
-                                                typeof errors.immediateActionRequired ===
-                                                   "string" && (
-                                                   <div className="text-red-600 text-sm mt-1">
-                                                      {errors.immediateActionRequired}
-                                                   </div>
-                                                )}
-                                          </div>
+                                          <FormSelect
+                                             name="immediateActionRequired"
+                                             label="Immediate Action Required"
+                                             required={true}
+                                             placeholder="Select yes or no"
+                                             onValueChange={(value) =>
+                                                setFieldValue("immediateActionRequired", value)
+                                             }
+                                             value={values.immediateActionRequired}
+                                             error={touched?.immediateActionRequired && typeof errors.immediateActionRequired === "string" ? errors.immediateActionRequired : undefined}
+                                          >
+                                             {immediateActionOptions.map((option) => (
+                                                <SelectItem
+                                                   key={option.value}
+                                                   value={option.value}
+                                                >
+                                                   {option.label}
+                                                </SelectItem>
+                                             ))}
+                                          </FormSelect>
                                        </div>
 
                                        <FormInput

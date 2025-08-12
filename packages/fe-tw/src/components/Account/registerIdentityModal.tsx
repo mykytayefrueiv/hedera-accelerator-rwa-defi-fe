@@ -3,7 +3,8 @@ import * as Yup from "yup";
 import { Shield } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { SelectItem } from "../ui/select";
+import { FormSelect } from "../ui/formSelect";
 import countries from "i18n-iso-countries";
 import englishLocale from "i18n-iso-countries/langs/en.json";
 import { toast } from "sonner";
@@ -107,31 +108,21 @@ const RegisterIdentityModal = ({ buildingAddress, isModalOpened, onOpenChange }:
                            {({ confirmUserPassedStep }) => (
                               <>
                                  <div className="space-y-2">
-                                    <label
-                                       htmlFor="country"
-                                       className="text-sm font-medium text-gray-700"
-                                    >
-                                       Country of Residence
-                                    </label>
-                                    <Select
+                                    <FormSelect
                                        name="country"
+                                       label="Country of Residence"
+                                       placeholder="Select your country"
                                        onValueChange={(value) => setFieldValue("country", value)}
                                        value={values.country}
+                                       error={touched.country && errors.country ? errors.country : undefined}
+                                       className="max-h-60"
                                     >
-                                       <SelectTrigger className="w-full">
-                                          <SelectValue placeholder="Select your country" />
-                                       </SelectTrigger>
-                                       <SelectContent className="max-h-60">
-                                          {countryOptions.map((country) => (
-                                             <SelectItem key={country.code} value={country.code}>
-                                                {country.name} ({country.code})
-                                             </SelectItem>
-                                          ))}
-                                       </SelectContent>
-                                    </Select>
-                                    {touched.country && errors.country && (
-                                       <p className="text-sm text-red-600">{errors.country}</p>
-                                    )}
+                                       {countryOptions.map((country) => (
+                                          <SelectItem key={country.code} value={country.code}>
+                                             {country.name} ({country.code})
+                                          </SelectItem>
+                                       ))}
+                                    </FormSelect>
                                  </div>
 
                                  <div className="flex gap-3">
