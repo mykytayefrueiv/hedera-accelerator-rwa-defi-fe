@@ -5,13 +5,8 @@ import { toast } from "sonner";
 import { Form, Formik } from "formik";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
-} from "@/components/ui/select";
+import { SelectItem } from "@/components/ui/select";
+import { FormSelect } from "@/components/ui/formSelect";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { CreateProposalPayload } from "@/types/erc3643/types";
@@ -118,31 +113,22 @@ export function CreateProposalForm({
                )}
 
                {values.type === ProposalType.RemoveAuditorProposal && (
-                  <div>
-                     <Label htmlFor="auditorWalletAddress">
-                        Auditor Wallet Address {<span className={"text-red-500"}>*</span>}
-                     </Label>
-                     <Select
-                        onValueChange={(value) => {
-                           setFieldValue("auditorWalletAddress", value);
-                        }}
-                        {...getFieldProps("auditorWalletAddress")}
-                     >
-                        <SelectTrigger className="w-full mt-1">
-                           <SelectValue placeholder="Select Auditor Address" />
-                        </SelectTrigger>
-                        <SelectContent className="mt-1">
-                           {map(auditors, (auditor) => (
-                              <SelectItem key={auditor} value={auditor}>
-                                 {auditor}
-                              </SelectItem>
-                           ))}
-                        </SelectContent>
-                     </Select>
-                     {errors.type && touched.type && (
-                        <div className="text-red-500 text-sm mt-1">{errors.type}</div>
-                     )}
-                  </div>
+                  <FormSelect
+                     name="auditorWalletAddress"
+                     label="Auditor Wallet Address"
+                     required={true}
+                     placeholder="Select Auditor Address"
+                     onValueChange={(value) => {
+                        setFieldValue("auditorWalletAddress", value);
+                     }}
+                     error={errors.auditorWalletAddress && touched.auditorWalletAddress ? errors.auditorWalletAddress : undefined}
+                  >
+                     {map(auditors, (auditor) => (
+                        <SelectItem key={auditor} value={auditor}>
+                           {auditor}
+                        </SelectItem>
+                     ))}
+                  </FormSelect>
                )}
 
                {values.type === ProposalType.PaymentProposal && (
@@ -175,39 +161,31 @@ export function CreateProposalForm({
                   </div>
                )}
 
-               <div>
-                  <Label htmlFor="propType">Proposal Type</Label>
-                  <Select
-                     onValueChange={(value) => {
-                        setFieldValue("type", value);
-                     }}
-                     {...getFieldProps("type")}
-                  >
-                     <SelectTrigger className="w-full mt-1">
-                        <SelectValue placeholder="Select Proposal Type" />
-                     </SelectTrigger>
-                     <SelectContent className="mt-1">
-                        <SelectItem value={ProposalType.TextProposal}>Text Proposal</SelectItem>
-                        <SelectItem value={ProposalType.PaymentProposal}>
-                           Payment Proposal
-                        </SelectItem>
-                        <SelectItem value={ProposalType.AddAuditorProposal}>
-                           Add Auditor Proposal
-                        </SelectItem>
-                        {auditors?.length !== 0 && (
-                           <SelectItem value={ProposalType.RemoveAuditorProposal}>
-                              Remove Auditor Proposal
-                           </SelectItem>
-                        )}
-                        <SelectItem value={ProposalType.ChangeReserveProposal}>
-                           Change Reserve Proposal
-                        </SelectItem>
-                     </SelectContent>
-                  </Select>
-                  {errors.type && touched.type && (
-                     <div className="text-red-500 text-sm mt-1">{errors.type}</div>
+               <FormSelect
+                  name="propType"
+                  label="Proposal Type"
+                  placeholder="Select Proposal Type"
+                  onValueChange={(value) => {
+                     setFieldValue("type", value);
+                  }}
+                  error={errors.type && touched.type ? errors.type : undefined}
+               >
+                  <SelectItem value={ProposalType.TextProposal}>Text Proposal</SelectItem>
+                  <SelectItem value={ProposalType.PaymentProposal}>
+                     Payment Proposal
+                  </SelectItem>
+                  <SelectItem value={ProposalType.AddAuditorProposal}>
+                     Add Auditor Proposal
+                  </SelectItem>
+                  {auditors?.length !== 0 && (
+                     <SelectItem value={ProposalType.RemoveAuditorProposal}>
+                        Remove Auditor Proposal
+                     </SelectItem>
                   )}
-               </div>
+                  <SelectItem value={ProposalType.ChangeReserveProposal}>
+                     Change Reserve Proposal
+                  </SelectItem>
+               </FormSelect>
 
                <Button className="mt-6" isLoading={isSubmitting} type="submit">
                   Submit

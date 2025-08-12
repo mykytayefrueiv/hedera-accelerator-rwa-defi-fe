@@ -6,13 +6,8 @@ import { Form, Formik } from "formik";
 import React, { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import * as Yup from "yup";
-import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
-} from "@/components/ui/select";
+import { SelectItem } from "@/components/ui/select";
+import { FormSelect } from "@/components/ui/formSelect";
 import { Label } from "@/components/ui/label";
 import { FormInput } from "@/components/ui/formInput";
 import { Button } from "@/components/ui/button";
@@ -197,60 +192,42 @@ export function AddBuildingTokenLiquidityForm({ buildingAddress }: Props) {
                {({ setFieldValue, getFieldProps, values, errors, touched }) => (
                   <Form className="space-y-4">
                      {!buildingAddress && (
-                        <div>
-                           <Label htmlFor="buildingAddress">Choose a Building</Label>
-                           <Select
-                              name="buildingAddress"
-                              onValueChange={(value) => setFieldValue("buildingAddress", value)}
-                              value={values.buildingAddress}
-                           >
-                              <SelectTrigger className="w-full mt-1">
-                                 <SelectValue placeholder="Choose a Building" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                 {buildings?.map((building) => (
-                                    <SelectItem
-                                       key={building.address}
-                                       value={building.address as `0x${string}`}
-                                    >
-                                       {building.title} ({building.address})
-                                    </SelectItem>
-                                 ))}
-                              </SelectContent>
-                           </Select>
-                           {touched.buildingAddress && errors.buildingAddress && (
-                              <div className="text-red-600 text-sm mt-1">
-                                 {errors.buildingAddress}
-                              </div>
-                           )}
-                        </div>
+                        <FormSelect
+                           name="buildingAddress"
+                           label="Choose a Building"
+                           placeholder="Choose a Building"
+                           onValueChange={(value) => setFieldValue("buildingAddress", value)}
+                           value={values.buildingAddress}
+                           error={touched.buildingAddress && errors.buildingAddress ? errors.buildingAddress : undefined}
+                        >
+                           {buildings?.map((building) => (
+                              <SelectItem
+                                 key={building.address}
+                                 value={building.address as `0x${string}`}
+                              >
+                                 {building.title} ({building.address})
+                              </SelectItem>
+                           ))}
+                        </FormSelect>
                      )}
 
-                     <div>
-                        <Label htmlFor="tokenAAddress">Select Token A</Label>
-                        <Select
-                           name="tokenAAddress"
-                           onValueChange={(value) => {
-                              setFieldValue("tokenAAddress", value);
-                              autoCheckPair({ ...values, tokenAAddress: value });
-                           }}
-                           value={values.tokenAAddress}
-                        >
-                           <SelectTrigger className="w-full mt-1">
-                              <SelectValue placeholder="Choose a Token" />
-                           </SelectTrigger>
-                           <SelectContent>
-                              {tokenSelectOptions.map((token) => (
-                                 <SelectItem key={token.value} value={token.value}>
-                                    {token.label}
-                                 </SelectItem>
-                              ))}
-                           </SelectContent>
-                        </Select>
-                        {touched.tokenAAddress && errors.tokenAAddress && (
-                           <div className="text-red-600 text-sm mt-1">{errors.tokenAAddress}</div>
-                        )}
-                     </div>
+                     <FormSelect
+                        name="tokenAAddress"
+                        label="Select Token A"
+                        placeholder="Choose a Token"
+                        onValueChange={(value) => {
+                           setFieldValue("tokenAAddress", value);
+                           autoCheckPair({ ...values, tokenAAddress: value });
+                        }}
+                        value={values.tokenAAddress}
+                        error={touched.tokenAAddress && errors.tokenAAddress ? errors.tokenAAddress : undefined}
+                     >
+                        {tokenSelectOptions.map((token) => (
+                           <SelectItem key={token.value} value={token.value}>
+                              {token.label}
+                           </SelectItem>
+                        ))}
+                     </FormSelect>
 
                      <FormInput
                         required
@@ -268,17 +245,15 @@ export function AddBuildingTokenLiquidityForm({ buildingAddress }: Props) {
                         }}
                      />
 
-                     <div>
-                        <Label htmlFor="tokenBAddress">Select Token B</Label>
-                        <Select name="tokenBAddress" value={values.tokenBAddress} disabled>
-                           <SelectTrigger className="w-full mt-1">
-                              <SelectValue placeholder="USDC (Pre-selected)" />
-                           </SelectTrigger>
-                           <SelectContent>
-                              <SelectItem value={USDC_ADDRESS}>USDC ({USDC_ADDRESS})</SelectItem>
-                           </SelectContent>
-                        </Select>
-                     </div>
+                     <FormSelect
+                        name="tokenBAddress"
+                        label="Select Token B"
+                        placeholder="USDC (Pre-selected)"
+                        value={values.tokenBAddress}
+                        disabled
+                     >
+                        <SelectItem value={USDC_ADDRESS}>USDC ({USDC_ADDRESS})</SelectItem>
+                     </FormSelect>
 
                      <FormInput
                         required

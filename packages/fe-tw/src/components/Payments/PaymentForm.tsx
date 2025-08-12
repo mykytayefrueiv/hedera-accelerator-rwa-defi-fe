@@ -6,13 +6,8 @@ import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
-} from "@/components/ui/select";
+import { SelectItem } from "@/components/ui/select";
+import { FormSelect } from "@/components/ui/formSelect";
 import { Button } from "@/components/ui/button";
 import { tryCatch } from "@/services/tryCatch";
 import { StorageKeys, storageService } from "@/services/storageService";
@@ -108,19 +103,16 @@ export function PaymentForm({
          </div>
 
          <div className="hidden">
-            <Label htmlFor="revenueType">Revenue Type</Label>
-
-            <Select>
-               <SelectTrigger className="w-full mt-1">
-                  <SelectValue placeholder="Revenue type" />
-               </SelectTrigger>
-               <SelectContent>
-                  <SelectItem value="rental">Rental</SelectItem>
-                  <SelectItem value="parking">Parking Fees</SelectItem>
-                  <SelectItem value="advertising">Advertising Revenue</SelectItem>
-                  <SelectItem value="service">Service Charges</SelectItem>
-               </SelectContent>
-            </Select>
+            <FormSelect
+               name="revenueType"
+               label="Revenue Type"
+               placeholder="Revenue type"
+            >
+               <SelectItem value="rental">Rental</SelectItem>
+               <SelectItem value="parking">Parking Fees</SelectItem>
+               <SelectItem value="advertising">Advertising Revenue</SelectItem>
+               <SelectItem value="service">Service Charges</SelectItem>
+            </FormSelect>
          </div>
 
          <div className="hidden">
