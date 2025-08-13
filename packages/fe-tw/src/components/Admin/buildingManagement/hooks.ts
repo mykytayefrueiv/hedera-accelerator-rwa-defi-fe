@@ -30,16 +30,27 @@ export const useBuildingOrchestration = () => {
    >([MajorBuildingStep.BUILDING, BuildingMinorStep.DEPLOY_IMAGE_IPFS]);
 
    const handleSubmitBuilding = async (values: BuildingFormProps) => {
-      setCurrentDeploymentStep([MajorBuildingStep.BUILDING, BuildingMinorStep.DEPLOY_IMAGE_IPFS]);
-      const { data: imageIpfsHash, error: imageError } = await tryCatch<string, { args: string[] }>(
-         uploadImage(values.info.buildingImageIpfsFile!),
-      );
-      if (imageError) processError(imageError);
+      let imageIpfsHash = values.info.buildingImageIpfsId;
+      if (!values.info.buildingImageIpfsId && values.info.buildingImageIpfsFile) {
+         setCurrentDeploymentStep([
+            MajorBuildingStep.BUILDING,
+            BuildingMinorStep.DEPLOY_IMAGE_IPFS,
+         ]);
+         const { data: uploadedImageHash, error: imageError } = await tryCatch<
+            string,
+            { args: string[] }
+         >(uploadImage(values.info.buildingImageIpfsFile!));
+
+         imageIpfsHash = uploadedImageHash!;
+
+         if (imageError) processError(imageError);
+      }
 
       setCurrentDeploymentStep([MajorBuildingStep.BUILDING, BuildingMinorStep.DEPLOY_COPE]);
-      const { data: buildingMetadataIpfs, error: metadataError } = await tryCatch<string, { args: string[] }>(
-         uploadBuildingInfoToPinata(values, imageIpfsHash!),
-      );
+      const { data: buildingMetadataIpfs, error: metadataError } = await tryCatch<
+         string,
+         { args: string[] }
+      >(uploadBuildingInfoToPinata(values, imageIpfsHash!));
       if (metadataError) processError(metadataError);
 
       const buildingDetails = {
@@ -69,9 +80,10 @@ export const useBuildingOrchestration = () => {
       };
 
       setCurrentDeploymentStep([MajorBuildingStep.BUILDING, BuildingMinorStep.DEPLOY_BUILDING]);
-      const { data: building, error: buildingDeploymentError } = await tryCatch<string, { args: string[] }>(
-         deployBuilding(buildingDetails),
-      );
+      const { data: building, error: buildingDeploymentError } = await tryCatch<
+         string,
+         { args: string[] }
+      >(deployBuilding(buildingDetails));
       if (buildingDeploymentError) processError(buildingDeploymentError);
 
       return building;

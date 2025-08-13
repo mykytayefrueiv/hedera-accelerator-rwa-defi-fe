@@ -9,6 +9,7 @@ import { useBuildings } from "@/hooks/useBuildings";
 import { useMemo, useState } from "react";
 import { useBuildingInfo } from "@/hooks/useBuildingInfo";
 import { useTokenInfo } from "@/hooks/useTokenInfo";
+import { WalkthroughStep } from "../Walkthrough";
 
 type Props = {
    building?: BuildingData;
@@ -75,20 +76,29 @@ export default function TradeView({ building, displayOnBuildingPage = false }: P
                <div className="min-w-150"></div>
             </TabsContent>
          </Tabs> */}
-         <TradeFormUniswapPool
-            displayOnBuildingPage={displayOnBuildingPage}
-            buildingTokenOptions={buildingTokenOptions}
-            onTokensPairSelected={(tokenA, tokenB) => {
-               setSelectedTokensPair(
-                  (prev) =>
-                     ({
-                        ...prev,
-                        ...(!!tokenA && { tokenA }),
-                        ...(!!tokenB && { tokenB }),
-                     }) as SwapLiquidityPair,
-               );
-            }}
-         />
+         <WalkthroughStep
+            guideId="USER_INVESTING_GUIDE"
+            stepIndex={11}
+            title="Trading View"
+            description="Here you can exchange tokens, let's get started!"
+            side="right"
+            showConfirmButton
+         >
+            <TradeFormUniswapPool
+               displayOnBuildingPage={displayOnBuildingPage}
+               buildingTokenOptions={buildingTokenOptions}
+               onTokensPairSelected={(tokenA, tokenB) => {
+                  setSelectedTokensPair(
+                     (prev) =>
+                        ({
+                           ...prev,
+                           ...(!!tokenA && { tokenA }),
+                           ...(!!tokenB && { tokenB }),
+                        }) as SwapLiquidityPair,
+                  );
+               }}
+            />
+         </WalkthroughStep>
          <TradePortfolio
             tradeHistory={
                currentTab === "uniswap" ? uniswapExchangeHistory : oneSidedExchangeSwapsHistory

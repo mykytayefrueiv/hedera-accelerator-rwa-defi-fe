@@ -11,17 +11,21 @@ import { toast } from "sonner";
 import { CoinsIcon } from "lucide-react";
 import { USDC_ADDRESS } from "@/services/contracts/addresses";
 import { TransactionExtended } from "@/types/common";
+import { WalkthroughStep } from "../Walkthrough";
+import { on } from "events";
+import { useWalkthroughStore } from "../Walkthrough/WalkthroughStore";
 
 const MINT_AMOUNT = 10000;
 const DECIMALS = 6;
 
 export const MintUSDCButton = () => {
+   const currentGuide = useWalkthroughStore((state) => state.currentGuide);
    const { writeContract } = useWriteContract();
    const { executeTransaction } = useExecuteTransaction();
    const { data: evmAddress } = useEvmAddress();
    const [isLoading, setIsLoading] = useState(false);
 
-   const handleMint = async () => {
+   const handleMint = async ({ onSuccess }: { onSuccess: () => void }) => {
       if (!evmAddress) {
          toast.error("Please connect your wallet first.");
          return;
@@ -45,6 +49,7 @@ export const MintUSDCButton = () => {
             }),
          )) as TransactionExtended;
 
+         onSuccess();
          toast.success(<TxResultToastView title={`${MINT_AMOUNT} USDC minted!`} txSuccess={tx} />);
       } catch (err) {
          toast.error(
@@ -80,13 +85,27 @@ export const MintUSDCButton = () => {
             </div>
          )}
 
-         <Button
-            className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
-            disabled={isLoading || !evmAddress}
-            onClick={handleMint}
+         <WalkthroughStep
+            guideId={"USER_LOGIN_FLOW"}
+            stepIndex={5}
+            title="Mint yourself some USDC"
+            description={"Now you are ready to experience the platform."}
+            side="right"
          >
-            {isLoading ? "Minting..." : `Mint ${MINT_AMOUNT} USDC`}
-         </Button>
+            {({ confirmUserFinishedGuide }) => (
+               <Button
+                  className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+                  disabled={isLoading || !evmAddress}
+                  onClick={() =>
+                     handleMint({
+                        onSuccess: confirmUserFinishedGuide,
+                     })
+                  }
+               >
+                  {isLoading ? "Minting..." : `Mint ${MINT_AMOUNT} USDC`}
+               </Button>
+            )}
+         </WalkthroughStep>
       </div>
    );
 };

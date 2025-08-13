@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { isEmpty, map } from "lodash";
+import { filter, isEmpty, map } from "lodash";
 import { readBuildingDetails, readBuildingsList } from "@/services/buildingService";
 import { getTokenBalanceOf, getTokenDecimals, getTokenSymbol } from "@/services/erc20Service";
 import { useEvmAddress } from "@buidlerlabs/hashgraph-react-wallets";
@@ -19,15 +19,13 @@ export const usePortfolioData = () => {
          if (!evmAddress) return null;
 
          const buildingsData = await readBuildingsList();
-         const buildingAddresses = buildingsData?.[0]
-            ? map(buildingsData[0], (building) => building?.[0])
-            : [];
+         const buildingAddresses = (
+            buildingsData?.[0] ? map(buildingsData[0], (building) => building?.[0]) : []
+         ) as `0x${string}`[];
 
          if (!buildingAddresses || buildingAddresses.length === 0) return [];
 
          const portfolioDataPromises = buildingAddresses.map(async (buildingAddress) => {
-            if (!buildingAddress) return null;
-
             const buildingInfo = await readBuildingDetails(buildingAddress);
             const tokenAddress = buildingInfo?.[0]?.[4];
             const treasuryAddress = buildingInfo?.[0]?.[5];
@@ -44,8 +42,6 @@ export const usePortfolioData = () => {
                functionName: "getRewardTokens",
             });
             rewardToken = rewardToken[0];
-
-            if (!tokenAddress) return null;
 
             const [[tokenBalance], [tokenDecimals], symbol, pendingRewards] = await Promise.all([
                getTokenBalanceOf(tokenAddress, evmAddress),
@@ -66,8 +62,9 @@ export const usePortfolioData = () => {
          });
 
          const portfolioDataResults = await Promise.all(portfolioDataPromises);
+         const tokensUserHasBalance = filter(portfolioDataResults, ({ balance }) => balance !== 0);
 
-         return portfolioDataResults as PortfolioToken[];
+         return tokensUserHasBalance as PortfolioToken[];
       },
       enabled: !!evmAddress,
    });

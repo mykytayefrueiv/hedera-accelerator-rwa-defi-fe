@@ -3,7 +3,8 @@ import * as Yup from "yup";
 import { Shield } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { SelectItem } from "../ui/select";
+import { FormSelect } from "../ui/formSelect";
 import countries from "i18n-iso-countries";
 import englishLocale from "i18n-iso-countries/langs/en.json";
 import { toast } from "sonner";
@@ -11,6 +12,7 @@ import { tryCatch } from "@/services/tryCatch";
 import { TxResultToastView } from "../CommonViews/TxResultView";
 import { useIdentity } from "./useIdentity";
 import { TransactionExtended } from "@/types/common";
+import { WalkthroughStep } from "../Walkthrough";
 
 countries.registerLocale(englishLocale);
 
@@ -32,7 +34,7 @@ const RegisterIdentityModal = ({ buildingAddress, isModalOpened, onOpenChange }:
       .sort((a, b) => a.name.localeCompare(b.name));
 
    const handleRegisterIdentity = async (values: { country: string }) => {
-      const { data, error } = await tryCatch<TransactionExtended, {message: string}>(
+      const { data, error } = await tryCatch<TransactionExtended, { message: string }>(
          registerIdentity(buildingAddress, Number(countries.alpha2ToNumeric(values.country))),
       );
 
@@ -42,9 +44,12 @@ const RegisterIdentityModal = ({ buildingAddress, isModalOpened, onOpenChange }:
          );
          onOpenChange(false);
       } else if (error) {
-         toast.error(<TxResultToastView title="Error registering identity" txError={error?.message} />, {
-            duration: Infinity,
-         });
+         toast.error(
+            <TxResultToastView title="Error registering identity" txError={error?.message} />,
+            {
+               duration: Infinity,
+            },
+         );
       }
    };
 
@@ -93,50 +98,60 @@ const RegisterIdentityModal = ({ buildingAddress, isModalOpened, onOpenChange }:
                >
                   {({ setFieldValue, values, errors, touched }) => (
                      <Form className="space-y-6">
-                        <div className="space-y-2">
-                           <label htmlFor="country" className="text-sm font-medium text-gray-700">
-                              Country of Residence
-                           </label>
-                           <Select
-                              name="country"
-                              onValueChange={(value) => setFieldValue("country", value)}
-                              value={values.country}
-                           >
-                              <SelectTrigger className="w-full">
-                                 <SelectValue placeholder="Select your country" />
-                              </SelectTrigger>
-                              <SelectContent className="max-h-60">
-                                 {countryOptions.map((country) => (
-                                    <SelectItem key={country.code} value={country.code}>
-                                       {country.name} ({country.code})
-                                    </SelectItem>
-                                 ))}
-                              </SelectContent>
-                           </Select>
-                           {touched.country && errors.country && (
-                              <p className="text-sm text-red-600">{errors.country}</p>
-                           )}
-                        </div>
+                        <WalkthroughStep
+                           guideId="USER_INVESTING_GUIDE"
+                           stepIndex={9}
+                           title="Almost there!"
+                           description="Please select your country of residence to proceed with identity registration. And click 'Register Identity' below."
+                           side="right"
+                        >
+                           {({ confirmUserPassedStep }) => (
+                              <>
+                                 <div className="space-y-2">
+                                    <FormSelect
+                                       name="country"
+                                       label="Country of Residence"
+                                       placeholder="Select your country"
+                                       onValueChange={(value) => setFieldValue("country", value)}
+                                       value={values.country}
+                                       error={
+                                          touched.country && errors.country
+                                             ? errors.country
+                                             : undefined
+                                       }
+                                       className="max-h-60"
+                                    >
+                                       {countryOptions.map((country) => (
+                                          <SelectItem key={country.code} value={country.code}>
+                                             {country.name} ({country.code})
+                                          </SelectItem>
+                                       ))}
+                                    </FormSelect>
+                                 </div>
 
-                        <div className="flex gap-3">
-                           <Button
-                              type="button"
-                              variant="outline"
-                              className="flex-1"
-                              onClick={() => onOpenChange(false)}
-                              disabled={isRegistering}
-                           >
-                              Cancel
-                           </Button>
-                           <Button
-                              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors"
-                              disabled={isRegistering || !values.country}
-                              isLoading={isRegistering}
-                              type="submit"
-                           >
-                              {isRegistering ? "Registering..." : "Register Identity"}
-                           </Button>
-                        </div>
+                                 <div className="flex gap-3 mt-4">
+                                    <Button
+                                       type="button"
+                                       variant="outline"
+                                       className="flex-1"
+                                       onClick={() => onOpenChange(false)}
+                                       disabled={isRegistering}
+                                    >
+                                       Cancel
+                                    </Button>
+                                    <Button
+                                       className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors"
+                                       disabled={isRegistering || !values.country}
+                                       isLoading={isRegistering}
+                                       type="submit"
+                                       onClick={confirmUserPassedStep}
+                                    >
+                                       {isRegistering ? "Registering..." : "Register Identity"}
+                                    </Button>
+                                 </div>
+                              </>
+                           )}
+                        </WalkthroughStep>
                      </Form>
                   )}
                </Formik>
