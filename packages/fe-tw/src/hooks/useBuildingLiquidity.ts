@@ -8,7 +8,7 @@ import { tokens } from "@/consts/tokens";
 import { uniswapFactoryAbi } from "@/services/contracts/abi/uniswapFactoryAbi";
 import { uniswapPairAbi } from "@/services/contracts/abi/uniswapPairAbi";
 import { getTokenDecimals } from "@/services/erc20Service";
-import { executeTransaction } from "./useExecuteTransaction";
+import { useExecuteTransaction } from "./useExecuteTransaction";
 import useWriteContract from "./useWriteContract";
 import { TransactionExtended } from "@/types/common";
 import { UNISWAP_ROUTER_ADDRESS, UNISWAP_FACTORY_ADDRESS } from "@/services/contracts/addresses";
@@ -59,6 +59,7 @@ interface PairCheckParams {
 export function useBuildingLiquidity() {
    const { writeContract } = useWriteContract({ shouldEstimateGas: true });
    const { address: evmAddress, isConnected } = useAccount();
+   const { executeTransaction } = useExecuteTransaction();
 
    const [isAddingLiquidity, setIsAddingLiquidity] = useState(false);
    const [txHash, setTxHash] = useState<TransactionExtended>();

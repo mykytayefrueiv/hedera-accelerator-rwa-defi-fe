@@ -41,6 +41,17 @@ jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    useEvmAddress: () => ({ data: "0xabc0000000000000000000000000000000000000" as const }),
 }));
 
+jest.mock("wagmi", () => ({
+   useAccount: jest.fn(() => ({
+      address: "0xabc0000000000000000000000000000000000000",
+      isConnected: true,
+   })),
+}));
+
+jest.mock("wagmi/actions", () => ({
+   readContract: jest.fn((config, params) => readContractMock(params)),
+}));
+
 const readContractActionMock = jest.fn();
 jest.mock("@buidlerlabs/hashgraph-react-wallets/actions", () => ({
    readContract: (...args: any[]) => (readContractActionMock as any)(...args),
@@ -121,36 +132,49 @@ describe("useBuildingAudit", () => {
    });
 
    it("maps auditRecords with details and IPFS data", async () => {
+      let callCount = 0;
       readContractMock.mockImplementation(({ functionName }: any) => {
          if (functionName === "getAuditRecordsByBuilding") return [1n, 2n];
+         if (functionName === "getAuditRecordDetails") {
+            callCount++;
+            if (callCount === 1) {
+               return {
+                  building: buildingAddress,
+                  auditor: "0xaaa",
+                  timestamp: 111,
+                  revoked: false,
+                  ipfsHash: "hash1",
+               };
+            } else if (callCount === 2) {
+               return {
+                  building: buildingAddress,
+                  auditor: "0xbbb",
+                  timestamp: 222,
+                  revoked: false,
+                  ipfsHash: "hash2",
+               };
+            }
+         }
          if (functionName === "DEFAULT_ADMIN_ROLE") return "0xadmin";
          if (functionName === "AUDITOR_ROLE") return "0xauditor";
          if (functionName === "hasRole") return false;
          return undefined;
       });
 
-      (readContractActionMock as jest.Mock).mockResolvedValueOnce({
-         building: buildingAddress,
-         auditor: "0xaaa",
-         timestamp: 111,
-         revoked: false,
-         ipfsHash: "hash1",
-      });
-      (fetchJsonFromIpfs as jest.Mock).mockResolvedValueOnce({
-         auditReportIpfsId: "Qm1",
-         extra: 1,
-      });
-
-      (readContractActionMock as jest.Mock).mockResolvedValueOnce({
-         building: buildingAddress,
-         auditor: "0xbbb",
-         timestamp: 222,
-         revoked: false,
-         ipfsHash: "hash2",
-      });
-      (fetchJsonFromIpfs as jest.Mock).mockResolvedValueOnce({
-         auditReportIpfsId: "Qm2",
-         extra: 2,
+      let ipfsCallCount = 0;
+      (fetchJsonFromIpfs as jest.Mock).mockImplementation(() => {
+         ipfsCallCount++;
+         if (ipfsCallCount === 1) {
+            return Promise.resolve({
+               auditReportIpfsId: "Qm1",
+               extra: 1,
+            });
+         } else if (ipfsCallCount === 2) {
+            return Promise.resolve({
+               auditReportIpfsId: "Qm2",
+               extra: 2,
+            });
+         }
       });
 
       const Wrapper = createWrapper();

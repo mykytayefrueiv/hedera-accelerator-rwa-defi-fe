@@ -2,6 +2,10 @@ import "@testing-library/jest-dom";
 
 import { TextEncoder, TextDecoder } from "util";
 
+// Set required environment variables for tests
+process.env.NEXT_PUBLIC_PROJECT_ID = "test-project-id";
+process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID = "test-walletconnect-project-id";
+
 // Polyfill for TextEncoder
 if (typeof global.TextEncoder === "undefined") {
    global.TextEncoder = TextEncoder as unknown as typeof global.TextEncoder;

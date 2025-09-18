@@ -9,7 +9,7 @@ import { fetchJsonFromIpfs } from "@/services/ipfsService";
 import { watchContractEvent } from "@/services/contracts/watchContractEvent";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import useWriteContract from "@/hooks/useWriteContract";
-import { executeTransaction } from "./useExecuteTransaction";
+import { useExecuteTransaction } from "./useExecuteTransaction";
 import { auditRegistryAbi } from "@/services/contracts/abi/auditRegistryAbi";
 import { useEffect, useState } from "react";
 import { useBuildingInfo } from "./useBuildingInfo";
@@ -23,6 +23,7 @@ import { readContract } from "wagmi/actions";
 
 export function useBuildingAudit(buildingAddress: `0x${string}`) {
    const { writeContract } = useWriteContract();
+   const { executeTransaction } = useExecuteTransaction();
    const [revokedRecords, setRevokedRecords] = useState<any[]>([]);
    const { address: evmAddress } = useAccount();
    const { auditRegistryAddress, isLoading } = useBuildingInfo(buildingAddress);

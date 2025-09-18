@@ -51,6 +51,21 @@ jest.mock("@hashgraph/sdk", () => ({
    ContractId: { fromSolidityAddress: (addr: string) => ({ _addr: addr }) },
 }));
 
+jest.mock("wagmi", () => ({
+   useAccount: jest.fn(() => ({
+      address: connectorIsConnected() ? "0xabc0000000000000000000000000000000000000" : undefined,
+      isConnected: connectorIsConnected(),
+   })),
+}));
+
+jest.mock("wagmi/actions", () => ({
+   readContract: jest.fn((config, params) => readContractMock(params)),
+}));
+
+jest.mock("@/services/erc20Service", () => ({
+   getTokenDecimals: jest.fn(() => Promise.resolve(18)),
+}));
+
 const toastErrorMock = jest.fn();
 jest.mock("sonner", () => ({
    toast: { error: (...args: any[]) => toastErrorMock(...args) },
