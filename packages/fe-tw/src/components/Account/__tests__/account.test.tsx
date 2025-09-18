@@ -30,6 +30,11 @@ jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    useEvmAddress: () => ({ data: mockEvmAddress }),
 }));
 
+// Wagmi mock
+jest.mock("wagmi", () => ({
+   useAccount: () => ({ address: mockEvmAddress }),
+}));
+
 // useIdentity mock
 const mockDeployIdentity = jest.fn();
 let mockIdentityData = {

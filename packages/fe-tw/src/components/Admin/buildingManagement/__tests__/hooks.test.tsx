@@ -13,6 +13,11 @@ import useWriteContract from "@/hooks/useWriteContract";
 import { useTokenInfo } from "@/hooks/useTokenInfo";
 import { ethers } from "ethers";
 
+jest.mock("@/config", () => ({
+   config: {},
+   projectId: "test-project-id",
+}));
+
 jest.mock("@/hooks/useUploadImageToIpfs");
 jest.mock("@/hooks/useExecuteTransaction");
 jest.mock("@/hooks/useWriteContract");
@@ -20,6 +25,10 @@ jest.mock("@/hooks/useTokenInfo");
 jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    __esModule: true,
    useEvmAddress: jest.fn(() => ({ data: "0x_USER" })),
+}));
+
+jest.mock("wagmi", () => ({
+   useWriteContract: jest.fn(),
 }));
 
 jest.mock("../helpers");

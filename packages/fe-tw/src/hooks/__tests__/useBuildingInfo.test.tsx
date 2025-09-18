@@ -21,6 +21,10 @@ jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    useEvmAddress: () => ({ data: "0xabc0000000000000000000000000000000000000" as const }),
 }));
 
+jest.mock("wagmi", () => ({
+   useAccount: () => ({ address: "0xabc0000000000000000000000000000000000000" as const }),
+}));
+
 jest.mock("@/hooks/useBuildingOwner", () => ({
    useBuildingOwner: jest.fn(() => ({
       buildingOwnerAddress: "0x0wn3000000000000000000000000000000000000",

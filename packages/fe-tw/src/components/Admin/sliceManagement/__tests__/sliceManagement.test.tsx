@@ -56,6 +56,9 @@ jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
       }),
    })),
 }));
+jest.mock("wagmi", () => ({
+   useAccount: () => ({ address: "0xaddr" }),
+}));
 jest.mock("@/hooks/useBuildings", () => ({
    useBuildings: jest.fn(() => ({
       buildingsInfo: [

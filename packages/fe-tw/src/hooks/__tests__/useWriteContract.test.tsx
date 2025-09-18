@@ -3,6 +3,11 @@ import useWriteContract from "@/hooks/useWriteContract";
 import { ContractId } from "@hashgraph/sdk";
 
 // Mock dependencies
+jest.mock("@/config", () => ({
+   config: {},
+   projectId: "test-project-id",
+}));
+
 jest.mock("@/services/tryCatch", () => ({
    tryCatch: jest.fn(),
 }));
@@ -15,6 +20,11 @@ jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    useEvmAddress: jest.fn(),
    useWallet: jest.fn(),
    useWriteContract: jest.fn(),
+}));
+
+jest.mock("wagmi", () => ({
+   useWriteContract: jest.fn(),
+   writeContract: jest.fn(),
 }));
 
 import { tryCatch } from "@/services/tryCatch";

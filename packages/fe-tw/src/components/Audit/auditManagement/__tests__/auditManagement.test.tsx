@@ -18,6 +18,9 @@ jest.mock("@/hooks/useBuildingAudit", () => ({ useBuildingAudit: jest.fn() }));
 jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    useEvmAddress: jest.fn(() => ({ data: "0x123" })),
 }));
+jest.mock("wagmi", () => ({
+   useAccount: jest.fn(() => ({ address: "0x123" })),
+}));
 jest.mock("sonner", () => ({ toast: { success: jest.fn(), error: jest.fn() } }));
 jest.mock("@/components/CommonViews/TxResultView", () => ({
    TxResultToastView: ({ title }: { title: string }) => (

@@ -4,6 +4,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useTokenPrice } from "@/components/Staking/hooks/useTokenPrice";
 
 // Mock dependencies
+jest.mock("@/config", () => ({
+   config: {},
+   projectId: "test-project-id",
+}));
+
 jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    useReadContract: jest.fn(),
 }));

@@ -4,11 +4,20 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useTokenInfo } from "@/hooks/useTokenInfo";
 
 // Mock the dependencies
+jest.mock("@/config", () => ({
+   config: {},
+   projectId: "test-project-id",
+}));
+
 jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    useEvmAddress: jest.fn(() => ({ data: "0xtest000000000000000000000000000000000000" })),
    useReadContract: jest.fn(() => ({
       readContract: jest.fn(),
    })),
+}));
+
+jest.mock("wagmi", () => ({
+   useAccount: jest.fn(() => ({ address: "0xtest000000000000000000000000000000000000" })),
 }));
 
 jest.mock("@/services/erc20Service", () => ({

@@ -6,6 +6,11 @@ import { BUILDING_FACTORY_ADDRESS } from "@/services/contracts/addresses";
 import { ContractId } from "@hashgraph/sdk";
 import { buildingFactoryAbi } from "@/services/contracts/abi/buildingFactoryAbi";
 
+jest.mock("@/config", () => ({
+   config: {},
+   projectId: "test-project-id",
+}));
+
 const unsubscribeMock = jest.fn();
 const watchContractEventSpy = jest.fn(() => unsubscribeMock);
 jest.mock("@/services/contracts/watchContractEvent", () => ({
@@ -17,6 +22,11 @@ const readContractMock = jest.fn();
 jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    useReadContract: () => ({ readContract: readContractMock }),
    useEvmAddress: () => ({ data: EVM_ADDRESS }),
+}));
+
+jest.mock("wagmi", () => ({
+   useAccount: () => ({ address: EVM_ADDRESS }),
+   readContract: jest.fn(),
 }));
 
 const writeContractMock = jest.fn();
