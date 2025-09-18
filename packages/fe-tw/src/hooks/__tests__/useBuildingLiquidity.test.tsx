@@ -4,6 +4,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ethers } from "ethers";
 
 // Mocks
+jest.mock("@/config", () => ({
+   config: {},
+   projectId: "test-project-id",
+}));
+
 let metamaskConnected = false;
 let hashpackConnected = false;
 const readContractMock = jest.fn();
@@ -12,6 +17,11 @@ jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    useWallet: (/* connector: any */) => ({ isConnected: connectorIsConnected() }),
    useEvmAddress: () => ({ data: "0xabc0000000000000000000000000000000000000" as const }),
    useReadContract: () => ({ readContract: readContractMock }),
+}));
+
+jest.mock("wagmi", () => ({
+   useAccount: () => ({ address: "0xabc0000000000000000000000000000000000000", isConnected: true }),
+   readContract: jest.fn(),
 }));
 
 jest.mock("@buidlerlabs/hashgraph-react-wallets/connectors", () => ({

@@ -2,6 +2,11 @@ import { renderHook, waitFor, act } from "@testing-library/react";
 import React, { PropsWithChildren } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+jest.mock("@/config", () => ({
+   config: {},
+   projectId: "test-project-id",
+}));
+
 jest.mock("@/services/auditRegistryService", () => ({
    getAuditRecordIdsForBuilding: jest.fn(),
    getAuditRecordDetails: jest.fn(),
@@ -39,6 +44,11 @@ jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    useWallet: () => walletStub,
    useReadContract: () => ({ readContract: readContractMock }),
    useEvmAddress: () => ({ data: "0xabc0000000000000000000000000000000000000" as const }),
+}));
+
+jest.mock("wagmi", () => ({
+   useAccount: () => ({ address: "0xabc0000000000000000000000000000000000000" }),
+   readContract: jest.fn(),
 }));
 
 const readContractActionMock = jest.fn();

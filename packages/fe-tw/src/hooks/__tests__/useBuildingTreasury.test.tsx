@@ -3,6 +3,11 @@ import React, { PropsWithChildren } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ethers } from "ethers";
 
+jest.mock("@/config", () => ({
+   config: {},
+   projectId: "test-project-id",
+}));
+
 const unsubscribeMock = jest.fn();
 const watchContractEventMock = jest.fn();
 jest.mock("@/services/contracts/watchContractEvent", () => ({
@@ -14,6 +19,10 @@ const writeContractMock = jest.fn();
 jest.mock("@buidlerlabs/hashgraph-react-wallets", () => ({
    useWriteContract: () => ({ writeContract: writeContractMock }),
    useReadContract: () => ({ readContract: readContractMock }),
+}));
+
+jest.mock("wagmi", () => ({
+   readContract: jest.fn(),
 }));
 
 const executeTransactionMock = jest.fn((fn: any) => fn());
